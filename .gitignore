@@ -1,0 +1,11 @@
+db
+test
+echo1
+echo2
+echod
+httpd
+*.a
+*.o
+*.exe
+*.lib
+*.obj

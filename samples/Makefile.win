@@ -1,0 +1,61 @@
+WINLIBS = ws2_32.lib advapi32.lib libcmt.lib gdi32.lib user32.lib #mswsock.lib
+
+CPPFLAGS = $(CPPFLAGS) /MT /O1 /Gy /EHsc /D_CRT_SECURE_NO_DEPRECATE=1 /D_CRT_NONSTDC_NO_DEPRECATE=1
+#CPPFLAGS = $(CPPFLAGS) /MT /Od /LD /Zi /Gy /EHsc /D_CRT_SECURE_NO_DEPRECATE=1 /D_CRT_NONSTDC_NO_DEPRECATE=1
+
+CPPFLAGS = $(CPPFLAGS) -I..\src /nologo /DWIN32_LEAN_AND_MEAN
+
+all: test.exe echo1.exe echo2.exe echod.exe httpd.exe
+
+test.exe: $*.obj ..\src\yxtrang.lib
+        link @<<
+-out:$*.exe
+$*.obj
+..\src\yxtrang.lib $(WINLIBS)
+<<
+
+echo1.exe: $*.obj ..\src\yxtrang.lib
+        link @<<
+-out:$*.exe
+$*.obj
+..\src\yxtrang.lib $(WINLIBS)
+<<
+
+echo2.exe: $*.obj ..\src\yxtrang.lib
+        link @<<
+-out:$*.exe
+$*.obj
+..\src\yxtrang.lib $(WINLIBS)
+<<
+
+echod.exe: $*.obj ..\src\yxtrang.lib
+        link @<<
+-out:$*.exe
+$*.obj
+..\src\yxtrang.lib $(WINLIBS)
+<<
+
+httpd.exe: $*.obj ..\src\yxtrang.lib
+        link @<<
+-out:$*.exe
+$*.obj
+..\src\yxtrang.lib $(WINLIBS)
+<<
+
+test.obj: $*.c ..\src\scriptlet.h ..\src\skiplist.h  ..\src\tree.h ..\src\store.h ..\src\network.h ..\src\uuid.h ..\src\base64.h ..\src\json.h
+        cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
+
+echo1.obj: $*.c ..\src\network.h
+        cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
+
+echo2.obj: $*.c ..\src\network.h
+        cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
+
+echod.obj: $*.c ..\src\network.h
+        cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
+
+httpd.obj: $*.c ..\src\network.h
+        cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
+
+clean:
+    -erase *.obj *.exe *.res *.map *.rws *.pdb

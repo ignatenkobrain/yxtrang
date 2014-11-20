@@ -1,0 +1,74 @@
+                  An example of a fully populated tree
+                  ------------------------------------
+
+
+With 4 nodes per branch, merely for illustration.
+
+
+
+
+       +-----------+                                      | A tree has first
+       |           |     last                             | and last pointers
+   +---|    tree   |--------------------                  | to a list of trunks.
+   |   |           |                    \                 | The first trunk will
+   |   +-----------+                     \                | be all leaf nodes.
+   |                                      \
+   | first                                |
+   v                                      v
++----------+       +----------+       +----------+        | List of trunks
+|          |       |          |       |          |        | each with a pointer
+|   trunk  |------>|   trunk  |------>|   trunk  |        | to the active branch.
+|          |       |          |       |          |        |
++----------+       +----------+       +----------+        |
+  |                  |                  |
+  |                  |                  |
+  |                  |                  |
+  |	  +--------+     |   +--------+     |   +--------+    | Each branch has nodes
+  |   |   1    |     |   |   1    |     |   |   1    |    | consisting of a key
+  |	  |   2    |     |   |   5    |     +-> |   17   |    | and either a value (if
+  |   |   3    |     |   |   9    |         |        |    | a leaf) or branch pointer
+  |	  |   4    |     |   |   13   |         |        |    | (not shown on diagram).
+  |	  +--------+     |   +--------+         +--------+    |
+  |                  |
+  |	  +--------+     |   +--------+                       | Finding a key means
+  |	  |   5    |     |   |   17   |                       | drilling down branch
+  |	  |   6    |     +-> |        |                       | chains to the final
+  |	  |   7    |         |        |                       | leaf node (left-most
+  |	  |   8    |         |        |                       | on diagram).
+  |	  +--------+         +--------+                       |
+  |
+  |	  +--------+                                          | Adding a key means
+  |	  |   9    |                                          | going to the first trunks
+  |	  |   10   |                                          | active branch and claiming
+  |	  |   11   |                                          | the next free node.
+  |	  |   12   |                                          |
+  |	  +--------+                                          |
+  |
+  |	  +--------+                                          | If the branch is full
+  |	  |   13   |                                          | then allocate a new one
+  |	  |   14   |                                          | and update the active
+  |   |   15   |                                          | pointer, then claim the
+  |	  |   16   |                                          | first node.
+  |	  +--------+                                          |
+  |
+  |	  +--------+                                          | Each time a new branch
+  |	  |   17   |                                          | is created update parent
+  +-> |   18   |                                          | branch with the new key
+	  |   19   |                                          | using the same procedure
+	  |        |                                          | as above. Allocate new
+	  +--------+                                          | trunks as needed.
+
+
+
+Insertion is more complicated, and can involve reallocating a bigger branch.
+
+Finding a key involves searching through the nodes in each branch as you
+drill down. The fewer the nodes per branch the fewer compares but the more
+overhead in memory used. More nodes means more compares but less overhead
+(and hence the ability to store more keys). As is typical, a tradeoff.
+
+Storing 450M 8-byte keys requires 5 trunks and ~4.76M branches when using 64
+nodes per branch. It is fast and memory efficient.
+
+Branches are reclaimed as they become emptied due to deleted nodes.
+

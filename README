@@ -1,0 +1,194 @@
+Yxtrang
+-------
+
+An ongoing quest of penance to undo my last 20+ years of C++
+programming by rewriting and reimagining (as much as is feasible)
+in the pure, elegant, beautifully precise C language. Small, fast
+and in-control!
+
+The 'trang is not a framework, it's a library. A loose collection of
+small modules that do interesting things and which can be used together
+if need be or not. From little things big things grow!
+
+
+Current modules
+---------------
+
+base64:
+
+ Base64 encoder/decoder.
+
+
+daemon:
+
+ Platform agnostic daemonizer code.
+
+
+json:
+
+ JSON parser/generator.
+
+
+network:
+
+ Threadpooled socket handling with support for select, poll, epoll
+ and kqueue.
+
+ Supports TCP (with TLS) and UDP (unicast, multicast and broadcast).
+
+
+scriptlet:
+
+ Engine to compile to bytecode and run micro-scripts. These can be used
+ for event-handling/event-processing to transform input under user
+ defined rules that are loaded at run-time.
+
+
+skiplist:
+
+ Index for any type. This unique variant uses a special bucketized mod
+ allowing more efficient storage (400M vs 150M keys on an 8GB system)
+ than traditional skiplist.
+
+
+store:
+
+ Log-structured store with in-memory index by UUID.
+
+
+thread:
+
+ Threads, threadpool, locks etc.
+
+
+tree:
+
+ Binary tree designed primarily for append-mode in-order insertion.
+ Though out-of-order and delete are supported with some performance
+ loss. This variant is bucketized and is extremely space-efficient:
+ equal to skiplist above but twice as fast.
+
+
+uuid:
+
+ Universal unique identifiers.
+
+
+
+Future modules
+--------------
+
+uncle:
+
+ Discovery and synchronization?
+
+
+linda:
+
+ Data coordination language?
+
+
+
+Build
+-----
+
+  git clone http://github.com/infradig/yxtrang
+  cd yxtrang
+  make
+
+Compilers tested: gcc & clang with C99 and C11 options.
+Also tcc and VC++2010.
+
+Platforms tested: Linux, FreeBSD, WinXP, Win7+.
+
+
+
+Examples
+--------
+
+Every operating system API makes network programming hard. Every
+networking library/wrapper also makes network programming hard, all
+the while supporting all those difficult API's. Yxtrang however tries
+to make network programming easier. A simple echo server example...
+
+// The server
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <network.h>
+
+// The session object lasts the lifetime of a TCP connection.
+// Use it to stash session data.
+
+static int on_session(session s, void* param)
+{
+	if (session_on_connect(s))
+		return 1;
+
+	if (session_on_disconnect(s))
+		return 0;
+
+	char* msg;
+
+	if (!session_readmsg(s, &msg))		// read in a msg
+		return 0;
+
+	return session_writemsg(s, msg);	// echo it back
+}
+
+int main(int ac, char** av)
+{
+	const char* binding = NULL;
+	short port = (short)(ac>1?atoi(av[1]):12345);
+	int tcp = (ac>2?atoi(av[2]):1);
+	int ssl = (ac>3?atoi(av[3]):0);
+	int threads = (ac>4?atoi(av[4]):0);
+
+	void* param = (void*)NULL;
+
+	handler h = handler_create(threads);
+
+	if (ssl)
+		handler_enable_tls(h, "server.pem");
+
+	if (!handler_add_server(h, &on_session, param, binding, port, tcp, ssl))
+		return 1;
+
+	handler_wait(h);
+	return 0;
+}
+
+// The synchronous client. Tthe async version is only
+// slightly more complex, using a callback like the server.
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <network.h>
+
+int main(int ac, char** av)
+{
+	const char* host = ac>1?av[1]:"localhost";
+	short port = (short)(ac>2?atoi(av[2]):12345);
+	int tcp = (ac>3?atoi(av[3]):1);
+	int ssl = (ac>4?atoi(av[4]):0);
+
+	session s = session_open(host, port, tcp, ssl);
+	if(!session) return 1;
+
+	while (session_writemsg(s, "thequickbrownfoxjumpedoverthelazydog\n"))
+	{
+		char* msg;
+
+		if (!session_readmsg(s, &msg))
+		break;
+
+		printf("%s", msg);
+	}
+
+	return 0;
+}
+
+
+
