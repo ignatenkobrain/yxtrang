@@ -123,8 +123,8 @@ tree tree_create()
 	// Add in a dummy (illegal) zero key,
 	// to aid/simplify inserts...
 
-	t->active->n[t->active->nodes].v = 0;
 	t->active->n[t->active->nodes].k = kzero;
+	t->active->n[t->active->nodes].v = 0;
 	t->active->nodes++;
 	return tptr;
 }
@@ -168,8 +168,8 @@ static int branch_insert(tree tptr, branch* b2, const TREE_KEY* k, uint64_t v)
 		for (i = b->nodes; i > imid; i--)
 			b->n[i] = b->n[i-1];
 
-		b->n[i].v = v;
 		b->n[i].k = *k;
+		b->n[i].v = v;
 		b->nodes++;
 		tptr->leafs++;
 		return 1;
@@ -221,8 +221,8 @@ static void trunk_add(tree tptr, trunk t, branch save, branch b, const TREE_KEY*
 		t->next->active = (branch)calloc(1, block_size);
 		if (!t->next->active) return;
 		t->next->active->max_nodes = DEFAULT_NODES;
-		t->next->active->n[0].b = save;
 		t->next->active->n[0].k = save->n[0].k;
+		t->next->active->n[0].b = save;
 		t->next->active->nodes++;
 	}
 
@@ -242,8 +242,8 @@ static void trunk_add(tree tptr, trunk t, branch save, branch b, const TREE_KEY*
 		trunk_add(tptr, t, save2, t->active, k);
 	}
 
-	t->active->n[t->active->nodes].b = b;
 	t->active->n[t->active->nodes].k = *k;
+	t->active->n[t->active->nodes].b = b;
 	t->active->nodes++;
 }
 
@@ -272,8 +272,8 @@ int tree_add(tree tptr, const TREE_KEY* k, uint64_t v)
 		trunk_add(tptr, t, save2, t->active, k);
 	}
 
-	t->active->n[t->active->nodes].v = v;
 	t->active->n[t->active->nodes].k = *k;
+	t->active->n[t->active->nodes].v = v;
 	t->active->nodes++;
 	tptr->leafs++;
 	tptr->last_key = *k;
