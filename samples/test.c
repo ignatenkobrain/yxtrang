@@ -263,7 +263,7 @@ static void do_store(long cnt, int vfy, int compact)
 static void do_skip(long cnt)
 {
 	extern void sl_dump(const skiplist sptr);
-	skiplist sl = sl_int_open();
+	skiplist sl = sl_int_create();
 	long i;
 
 	printf("Writing...\n");
@@ -332,14 +332,14 @@ static void do_skip(long cnt)
 
 #endif
 
-	sl_close(sl);
+	sl_destroy(sl);
 }
 
 #define TREE_RANDOM 0
 
 void do_tree(long cnt, int rnd)
 {
-	tree tptr = tree_open();
+	tree tptr = tree_create();
 	long i;
 
 	if (!rnd)
@@ -403,7 +403,7 @@ void do_tree(long cnt, int rnd)
 		printf("Stats: Trunks: %ld, Branches: %ld, Leafs: %ld\n", trunks, branches, leafs);
 	}
 
-	tree_close(tptr);
+	tree_destroy(tptr);
 }
 
 static void do_base64()

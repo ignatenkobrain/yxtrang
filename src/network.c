@@ -788,7 +788,7 @@ void session_clr_stash(session s)
 	if (!s->stash)
 		return;
 
-	sl_string_close(s->stash);
+	sl_string_destroy(s->stash);
 	s->stash = 0;
 }
 
@@ -801,7 +801,7 @@ void session_set_stash(session s, const char* key, const char* value)
 		return;
 
 	if (!s->stash)
-		s->stash = sl_string_open2();
+		s->stash = sl_string_create2();
 
 	sl_string_add(s->stash, key, value);
 }
@@ -1242,7 +1242,7 @@ static int session_free(session s)
 		free(s->dstbuf);
 
 	if (s->stash)
-		sl_string_close(s->stash);
+		sl_string_destroy(s->stash);
 
 	if (s->remote)
 		free(s->remote);
@@ -1791,7 +1791,7 @@ static int handler_select_bads(void* _h, int fd, void* _s)
 int handler_wait_select(handler h)
 {
 	printf("USING SELECT\n");
-	h->badfds = sl_int_open();
+	h->badfds = sl_int_create();
 
 	while (!h->halt && h->use)
 	{
@@ -1853,12 +1853,12 @@ int handler_wait_select(handler h)
 		if (sl_int_count(h->badfds) > 0)
 		{
 			sl_int_iter(h->badfds, &handler_select_bads, h);
-			sl_int_close(h->badfds);
-			h->badfds = sl_int_open();
+			sl_int_destroy(h->badfds);
+			h->badfds = sl_int_create();
 		}
 	}
 
-	sl_int_close(h->badfds);
+	sl_int_destroy(h->badfds);
 	return 1;
 }
 
@@ -2106,7 +2106,7 @@ handler handler_create(int threads)
 
 	handler h = (handler)calloc(1, sizeof(struct _handler));
 	if (!h) return NULL;
-	h->fds = sl_int_open();
+	h->fds = sl_int_create();
 	h->tp = tpool_create(h->threads=threads);
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__)
@@ -2142,7 +2142,7 @@ int handler_close(handler h)
 		tpool_destroy(h->tp);
 
 	sl_int_iter(h->fds, &handler_force_drop, h);
-	sl_int_close(h->fds);
+	sl_int_destroy(h->fds);
 
 #if USE_SSL
 	if (h->ctx)

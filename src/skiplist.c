@@ -74,7 +74,7 @@ static int default_compare(const void* k1, const void* k2)
 		return 1;
 }
 
-skiplist sl_open2(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*), void* (*copyval)(const void*), void (*freeval)(void*))
+skiplist sl_create2(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*), void* (*copyval)(const void*), void (*freeval)(void*))
 {
 	skiplist l;
 	int i;
@@ -108,12 +108,12 @@ skiplist sl_open2(int (*compare)(const void*, const void*), void* (*copykey)(con
 	return l;
 }
 
-skiplist sl_open(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*))
+skiplist sl_create(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*))
 {
-	return sl_open2(compare, copykey, freekey, NULL, NULL);
+	return sl_create2(compare, copykey, freekey, NULL, NULL);
 }
 
-void sl_close(skiplist l)
+void sl_destroy(skiplist l)
 {
 	node p, q;
 

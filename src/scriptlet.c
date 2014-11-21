@@ -237,8 +237,7 @@ runtime scriptlet_prepare(scriptlet s)
 	scriptlet_share(s);
 	runtime r = (runtime)calloc(1, sizeof(struct _runtime));
 	r->s = s;
-	r->symtab = sl_string_open();
-	r->it_syms = 0;
+	r->symtab = sl_string_create();
 	scriptlet_set_int(r, "$FIRST", 1);
 	r->it_syms_save = r->it_syms;
 	return r;
@@ -247,7 +246,7 @@ runtime scriptlet_prepare(scriptlet s)
 int scriptlet_done(runtime r)
 {
 	scriptlet_unshare(r->s);
-	free(r->symtab);
+	sl_string_destroy(r->symtab);
 	free(r);
 	return 1;
 }

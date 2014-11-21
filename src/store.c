@@ -750,7 +750,7 @@ store store_open(const char* path1, const char* path2, int compact)
 	if (!st) return NULL;
 	int do_merge = 0;
 
-	st->tptr = tree_open();
+	st->tptr = tree_create();
 
 	if ((mkdir(path1, 0777) < 0) && (errno != EEXIST))
 	{
@@ -825,7 +825,7 @@ int store_close(store st)
 	}
 
 	if (st->tptr)
-		tree_close(st->tptr);
+		tree_destroy(st->tptr);
 
 	free(st);
 	return 1;

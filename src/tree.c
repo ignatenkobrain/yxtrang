@@ -100,7 +100,7 @@ static int binary_search2(const struct _node n[], const TREE_KEY* k, int imin, i
 	return imid;
 }
 
-tree tree_open()
+tree tree_create()
 {
 	tree tptr = (tree)calloc(1, sizeof(struct _tree));
 	if (!tptr) return NULL;
@@ -510,7 +510,7 @@ static void trunk_close(trunk t)
 	free(t);
 }
 
-void tree_close(tree tptr)
+void tree_destroy(tree tptr)
 {
 	if (!tptr)
 		return;
