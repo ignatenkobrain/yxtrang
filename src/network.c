@@ -106,7 +106,7 @@ struct _session
 	char* dstbuf;
 	char* dst;
 	lock strand;
-	uint64_t uflags;
+	uint64_t udata_flags;
 	uint64_t udata_int;
 	double udata_real;
 	int connected, disconnected, len, busy;
@@ -711,36 +711,36 @@ const char* inet_ntop(int family, void* address, char* buffer, socklen_t len)
 }
 #endif
 
-void session_set_uflag(session s, int flag)
+void session_set_udata_flag(session s, int flag)
 {
 	if (!s || (flag < 0) || (flag > 63))
 		return;
 
-	s->uflags |= ((uint64_t)1) << flag;
+	s->udata_flags |= ((uint64_t)1) << flag;
 }
 
-void session_clr_uflag(session s, int flag)
+void session_clr_udata_flag(session s, int flag)
 {
 	if (!s || (flag < 0) || (flag > 63))
 		return;
 
-	s->uflags &= ~(((uint64_t)1) << flag);
+	s->udata_flags &= ~(((uint64_t)1) << flag);
 }
 
-void session_clr_uflags(session s)
+void session_clr_udata_flags(session s)
 {
 	if (!s)
 		return;
 
-	s->uflags = 0;
+	s->udata_flags = 0;
 }
 
-int session_get_uflag(session s, int flag)
+int session_get_udata_flag(session s, int flag)
 {
 	if (!s || (flag < 0) || (flag > 63))
 		return 0;
 
-	return s->uflags & (((uint64_t)1) << flag);
+	return s->udata_flags & (((uint64_t)1) << flag);
 }
 
 void session_set_udata_int(session s, uint64_t data)

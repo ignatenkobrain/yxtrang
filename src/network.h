@@ -65,10 +65,10 @@ extern int session_readmsg(session s, char** buf);
 
 // User flags.
 
-extern void session_clr_uflags(session s);
-extern void session_clr_uflag(session s, int flag);   // flag=0..63
-extern void session_set_uflag(session s, int flag);   // flag=0..63
-extern int session_get_uflag(session s, int flag);    // flag=0..63
+extern void session_clr_udata_flags(session s);
+extern void session_clr_udata_flag(session s, int flag);   // flag=0..63
+extern void session_set_udata_flag(session s, int flag);   // flag=0..63
+extern int session_get_udata_flag(session s, int flag);    // flag=0..63
 
 // User data (int/real are separate values).
 

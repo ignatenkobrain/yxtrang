@@ -45,7 +45,7 @@ static int on_session(session s, void* param)
 	if (session_on_connect(s))
 	{
 		if (!g_quiet) printf("CONNECTED\n");
-		session_set_uflag(s, CMD);
+		session_set_udata_flag(s, CMD);
 		return 1;
 	}
 
@@ -62,13 +62,13 @@ static int on_session(session s, void* param)
 
 	if (!g_quiet) printf("DATA: %s", msg);
 
-	int is_cmd = session_get_uflag(s, CMD);
+	int is_cmd = session_get_udata_flag(s, CMD);
 
 	// Process command...
 
 	if (is_cmd)
 	{
-		session_clr_uflag(s, CMD);
+		session_clr_udata_flag(s, CMD);
 
 		char cmd[20], path[1024], ver[20];
 		cmd[0] = path[0] = ver[0] = 0;
@@ -79,16 +79,16 @@ static int on_session(session s, void* param)
 
 		if (v == 1.1)
 		{
-			session_set_uflag(s, HTTP11);
-			session_set_uflag(s, PERSIST);
+			session_set_udata_flag(s, HTTP11);
+			session_set_udata_flag(s, PERSIST);
 		}
 		else if (v == 1.0)
-			session_set_uflag(s, HTTP10);
+			session_set_udata_flag(s, HTTP10);
 
 		if (!strcmp(cmd, "HEAD"))
-			session_set_uflag(s, HEAD);
+			session_set_udata_flag(s, HEAD);
 		else if (!strcmp(cmd, "GET"))
-			session_set_uflag(s, GET);
+			session_set_udata_flag(s, GET);
 
 		return 1;
 	}
@@ -110,9 +110,9 @@ static int on_session(session s, void* param)
 		if (!strcasecmp(name, "Connection"))
 		{
 			if (strstri(value, "keep-alive"))
-				session_set_uflag(s, PERSIST);
+				session_set_udata_flag(s, PERSIST);
 			else if (strstri(value, "close"))
-				session_clr_uflag(s, PERSIST);
+				session_clr_udata_flag(s, PERSIST);
 		}
 
 		return 1;
@@ -128,7 +128,7 @@ static int on_session(session s, void* param)
 	dst += sprintf(dst, "HTTP/%1.1f 200 OK\n", session_get_udata_real(s));
 	dst += sprintf(dst, "Content-Type: text/html\r\n");
 
-	if (session_get_uflag(s, PERSIST))
+	if (session_get_udata_flag(s, PERSIST))
 	{
 		dst += sprintf(dst, "Connection: keep-alive\r\n");
 		dst += sprintf(dst, "Content-Length: %llu\r\n", (unsigned long long)(dst2-tmpbuf2));
@@ -152,10 +152,10 @@ static int on_session(session s, void* param)
 
 	// If persistent, clean-up...
 
-	if (session_get_uflag(s, PERSIST))
+	if (session_get_udata_flag(s, PERSIST))
 	{
-		session_clr_uflags(s);
-		session_set_uflag(s, CMD);
+		session_clr_udata_flags(s);
+		session_set_udata_flag(s, CMD);
 		return 1;
 	}
 
