@@ -115,7 +115,6 @@ to make network programming easier. A simple echo server example...
 
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <network.h>
 
 // The session object lasts the lifetime of a TCP connection.
@@ -164,7 +163,6 @@ int main(int ac, char** av)
 
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <network.h>
 
 int main(int ac, char** av)
@@ -175,20 +173,18 @@ int main(int ac, char** av)
 	int ssl = (ac>4?atoi(av[4]):0);
 
 	session s = session_open(host, port, tcp, ssl);
-	if(!session) return 1;
+	if (!session) return 1;
 
 	while (session_writemsg(s, "thequickbrownfoxjumpedoverthelazydog\n"))
 	{
 		char* msg;
 
 		if (!session_readmsg(s, &msg))
-		break;
+			break;
 
 		printf("%s", msg);
 	}
 
 	return 0;
 }
-
-
 

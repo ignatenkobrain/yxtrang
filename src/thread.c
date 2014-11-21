@@ -26,8 +26,8 @@ struct _thread
 	void* id;
 	int (*f)(void*);
 	void* data;
-	int cnt, busy;
-	volatile int running;
+	int cnt;
+	volatile int running, busy;
 
 #ifndef _WIN32
 	pthread_cond_t cond;
@@ -155,7 +155,6 @@ static int thread_resume(thread t, int (*f)(void*), void* data)
 	pthread_cond_signal(&t->cond);
 	pthread_mutex_unlock(&t->mutex);
 #endif
-
 	return 1;
 }
 
@@ -212,7 +211,6 @@ static void thread_destroy(thread t)
 	pthread_cond_destroy(&t->cond);
 	pthread_mutex_destroy(&t->mutex);
 #endif
-
 	free(t);
 }
 
@@ -269,7 +267,7 @@ int tpool_start(thread_pool tp, int (*f)(void*), void* data)
 
 		if (t->busy)
 			continue;
-;
+
 		t->f = f;
 		t->data = data;
 		thread_resume(t, f, data);
@@ -291,13 +289,16 @@ void tpool_destroy(thread_pool tp)
 	{
 		thread t = tp->threads[i];
 		t->running = 0;
+		int cnt = 0;
 
-		if (!t->busy)
-			thread_resume(t, NULL, NULL);
+		while (t->busy && (cnt++ < (1000*5)))
+			msleep(1);
 
+		thread_resume(t, NULL, NULL);
+		msleep(1);
 		thread_destroy(t);
 	}
 
-	msleep(100);
 	free(tp);
 }
+
