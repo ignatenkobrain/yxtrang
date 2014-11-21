@@ -60,10 +60,11 @@ static int binary_search(const struct _node n[], const TREE_KEY* k, int imin, in
 	while (imax >= imin)
 	{
 		int imid = (imax + imin) / 2;
+		int x = TREE_KEY_compare(&n[imid].k, k);
 
-		if (TREE_KEY_compare(&n[imid].k, k) == 0)
+		if (x == 0)
 			return imid;
-		else if (TREE_KEY_compare(&n[imid].k, k) < 0)
+		else if (x < 0)
 			imin = imid + 1;
 		else
 			imax = imid - 1;
@@ -81,10 +82,11 @@ static int binary_search2(const struct _node n[], const TREE_KEY* k, int imin, i
 	while (imax >= imin)
 	{
 		imid = (imax + imin) / 2;
+		int x = TREE_KEY_compare(&n[imid].k, k);
 
-		if (TREE_KEY_compare(&n[imid].k, k) == 0)
+		if (x == 0)
 			return -1;
-		else if (TREE_KEY_compare(&n[imid].k, k) < 0)
+		else if (x < 0)
 			imin = imid + 1;
 		else
 			imax = imid - 1;
@@ -179,12 +181,14 @@ static int branch_insert(tree tptr, branch* b2, const TREE_KEY* k, uint64_t v)
 
 	for (i = 0; i < b->nodes; i++, n++)
 	{
-		if (TREE_KEY_compare(k, &n->k) < 0)
+		int x = TREE_KEY_compare(k, &n->k);
+
+		if (x < 0)
 			break;
 
 		last = &n->b;
 
-		if (TREE_KEY_compare(k, &n->k) == 0)
+		if (x == 0)
 			break;
 	}
 
@@ -317,12 +321,14 @@ static int branch_del(tree tptr, branch b, const TREE_KEY* k)
 
 	for (i = 0; i < b->nodes; i++, n++)
 	{
-		if (TREE_KEY_compare(k, &n->k) < 0)
+		int x = TREE_KEY_compare(k, &n->k);
+
+		if (x < 0)
 			break;
 
 		last = n;
 
-		if (TREE_KEY_compare(k, &n->k) == 0)
+		if (x == 0)
 			break;
 	}
 
@@ -376,12 +382,14 @@ static int branch_get(const tree tptr, const branch b, const TREE_KEY* k, uint64
 
 	for (i = 0; i < b->nodes; i++, n++)
 	{
-		if (TREE_KEY_compare(k, &n->k) < 0)
+		int x = TREE_KEY_compare(k, &n->k);
+
+		if (x < 0)
 			break;
 
 		last = n->b;
 
-		if (TREE_KEY_compare(k, &n->k) == 0)
+		if (x == 0)
 			break;
 	}
 
@@ -415,12 +423,14 @@ static int branch_set(const tree tptr, const branch b, const TREE_KEY* k, uint64
 
 	for (i = 0; i < b->nodes; i++, n++)
 	{
-		if (TREE_KEY_compare(k, &n->k) < 0)
+		int x = TREE_KEY_compare(k, &n->k);
+
+		if (x < 0)
 			break;
 
 		last = n->b;
 
-		if (TREE_KEY_compare(k, &n->k) == 0)
+		if (x == 0)
 			break;
 	}
 
