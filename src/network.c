@@ -105,15 +105,10 @@ struct _session
 	const char* src;
 	char* dstbuf;
 	char* dst;
-	uint64_t uflags;
 	lock strand;
-
-	struct
-	{
-		uint64_t udata_int;
-		double udata_real;
-	};
-
+	uint64_t uflags;
+	uint64_t udata_int;
+	double udata_real;
 	int connected, disconnected, len, busy;
 	int fd, port, tcp, is_ssl, ipv4, idx, use_cnt;
 	int (*f)(session, void*);
@@ -1365,7 +1360,6 @@ static int kqueue_accept(void* data)
 static int kqueue_run(void* data)
 {
 	session s = (session)data;
-
 	lock_lock(s->strand);
 
 	// Running edge-triggered,
@@ -1593,8 +1587,8 @@ static int poll_run(void* data)
 	while (s->f(s, s->v))
 		;
 
-	s->h->rpollfds[s->idx].fd = s->fd;
 	lock_unlock(s->strand);
+	s->h->rpollfds[s->idx].fd = s->fd;
 	return 1;
 }
 
@@ -1735,10 +1729,10 @@ static int select_run(void* data)
 	while (s->f(s, s->v))
 		;
 
+	lock_unlock(s->strand);
 	handler_select_set(s->h, s->fd, s);
 	s->h->srvs[s->idx].fd = s->fd;
 	s->busy = 0;
-	lock_unlock(s->strand);
 	return 1;
 }
 
