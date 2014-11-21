@@ -5,6 +5,8 @@
  * In-order adds are extremely quick (effectively an append)
  * Out-of-order inserts not so much.
  *
+ * Thread-safe for a single writer and readers.
+ *
  * Future enhancement: if nbr of nodes in a branch drops below half,
  * then reallocate the branch at half the size. But only if
  * the number is above a certain minimum. This way we can  garbage
