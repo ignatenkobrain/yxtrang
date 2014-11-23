@@ -29,6 +29,11 @@ json:
  JSON parser/generator.
 
 
+jsonq:
+
+ JSON quick and dirty search for named value.
+
+
 network:
 
  Threadpooled socket handling with support for select, poll, epoll

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-// JSON quick and dirty parse for named value. Calls can
+// JSON quick and dirty search for named value. Calls can
 // be concatenated to drill down through object layers.
 
 // TO DO: need to be able to iterate objects and arrays
