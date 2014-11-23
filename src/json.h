@@ -2,7 +2,7 @@
 #define JSON_H
 
 // This parser also accepts single quotes as
-// a convenience with certain languages.
+// za convenience with certain languages.
 
 typedef struct _json* json;
 

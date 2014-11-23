@@ -424,8 +424,6 @@ static void do_base64()
 
 static void do_json()
 {
-	// Do it the easy way...
-
 	const char* s = "{'a':1,'b':2.2,"
 		"'c':'the quick brown fox jumped over the lazy dog',"
 		"'d':true,'e':false,'f':null,"
@@ -433,13 +431,17 @@ static void do_json()
 		"'h':{'h1':33,'h2':44}"
 		"}";
 
+	printf("%s\n", s);
+
+	// Parse and reformat...
+
 	json ptr = json_open(s);
 	char* pdst;
 	printf("%s\n", pdst=json_to_string(ptr));
 	free(pdst);
 	json_close(ptr);
 
-	// Do it the hard way...
+	// Build it manually...
 
 	ptr = json_init();
 	json_set_object(ptr);
