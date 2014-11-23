@@ -4,7 +4,7 @@
 
 #include "jsonq.h"
 
-const char* json_quick(const char* s, const char* name, int* len)
+const char* jsonq(const char* s, const char* name, int* len)
 {
 	const char* src = s;
 	const char ch = *s;
@@ -65,22 +65,22 @@ const char* json_quick(const char* s, const char* name, int* len)
 	return NULL;
 }
 
-uint64_t json_quick_int(const char* s, const char* name)
+uint64_t jsonq_int(const char* s, const char* name)
 {
 	return 0;
 }
 
-double json_quick_real(const char* s, const char* name)
+double jsonq_real(const char* s, const char* name)
 {
 	return 0.0;
 }
 
-int json_quick_bool(const char* s, const char* name)
+int jsonq_bool(const char* s, const char* name)
 {
 	return 0;
 }
 
-int json_quick_null(const char* s, const char* name)
+int jsonq_null(const char* s, const char* name)
 {
 	return 0;
 }
