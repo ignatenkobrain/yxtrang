@@ -4,32 +4,39 @@
 
 #include "jsonq.h"
 
-const char* jsonq(const char* s, const char* name, int* len)
+const char* jsonq(const char* s, const char* name, char* value)
 {
 	const char* src = s;
-	const char ch = *s;
 	char token[256];
 	char* dst = token;
 	int found = 0, quoted = 0, level = 0, lhs = 1;
-
-	*len = 0;
+	char quote = 0;
 
 	if (*s == '{')
 		s++;
 
-	while ((ch == *s++) != 0)
+	while (*s)
 	{
+		const char ch = *s++;
+
 		if (!quoted && (ch == '"'))
 		{
+			quote = '"';
 			quoted = 1;
 		}
-		else if (quoted && (ch == '"'))
+		else if (!quoted && (ch == '\''))
+		{
+			quote = '\'';
+			quoted = 1;
+		}
+		else if (quoted && (ch == quote))
 		{
 			quoted = 0;
 		}
 		else if (!quoted && !found && !level && (ch == ':'))
 		{
 			*dst = 0;
+			dst = token;
 
 			if (!strcmp(name, token))
 			{
@@ -41,8 +48,17 @@ const char* jsonq(const char* s, const char* name, int* len)
 		}
 		else if (found && !level && ((ch == ',') || (ch == '}')))
 		{
-			*len = s-src;
-			return src;
+			int len = (s-src)-1;
+
+			if (*src == quote)
+			{
+				src++;
+				len -= 2;
+			}
+
+			strncpy(value, src, len);
+			value[len] = 0;
+			return value;
 		}
 		else if (!level && (ch == ','))
 		{
@@ -58,7 +74,7 @@ const char* jsonq(const char* s, const char* name, int* len)
 		}
 		else if (lhs)
 		{
-			*dst = ch;
+			*dst++ = ch;
 		}
 	}
 

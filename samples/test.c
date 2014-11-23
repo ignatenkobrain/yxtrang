@@ -470,16 +470,24 @@ static void do_json()
 	json_close(ptr);
 }
 
-static void do_jsonq()
+static void do_jsonq(const char* name)
 {
-	const char* s = "{'a':1,'b':2.2,"
+	const char* s = "{"
+		"'a':1,"
+		"'b':2.2,"
 		"'c':'the quick brown fox jumped over the lazy dog',"
-		"'d':true,'e':false,'f':null,"
+		"'d':true,"
+		"'e':false,"
+		"'f':null,"
 		"'g':[11,22],"
 		"'h':{'h1':33,'h2':44}"
 		"}";
 
 	printf("%s\n", s);
+	char tmp[1024];
+	tmp[0] = 0;
+	const char* v = jsonq(s, name, tmp);
+	printf("%s = %s\n", name, tmp);
 }
 
 int main(int ac, char* av[])
@@ -506,6 +514,9 @@ int main(int ac, char* av[])
 			sscanf(av[i], "%*[^=]=%d", &loops2);
 
 		if (!strncmp(av[i], "--host=", 7))
+			sscanf(av[i], "%*[^=]=%s", host);
+
+		if (!strncmp(av[i], "--name=", 7))
 			sscanf(av[i], "%*[^=]=%s", host);
 
 		if (!strncmp(av[i], "--port=", 7))
@@ -577,7 +588,7 @@ int main(int ac, char* av[])
 
 	if (test_jsonq)
 	{
-		do_jsonq();
+		do_jsonq(host);
 		return 0;
 	}
 
