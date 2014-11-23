@@ -81,23 +81,35 @@ const char* jsonq(const char* s, const char* name, char* value)
 	return NULL;
 }
 
-uint64_t jsonq_int(const char* s, const char* name)
+int64_t jsonq_int(const char* s, const char* name)
 {
-	return 0;
+	char tmpbuf[1024];
+	jsonq(s, name, tmpbuf);
+	long long v = 0;
+	sscanf(tmpbuf, "%lld", &v);
+	return v;
 }
 
 double jsonq_real(const char* s, const char* name)
 {
-	return 0.0;
+	char tmpbuf[1024];
+	jsonq(s, name, tmpbuf);
+	double v = 0.0;
+	sscanf(tmpbuf, "%lg", &v);
+	return v;
 }
 
 int jsonq_bool(const char* s, const char* name)
 {
-	return 0;
+	char tmpbuf[1024];
+	jsonq(s, name, tmpbuf);
+	return !strcmp(tmpbuf, "true");
 }
 
 int jsonq_null(const char* s, const char* name)
 {
-	return 0;
+	char tmpbuf[1024];
+	jsonq(s, name, tmpbuf);
+	return !strcmp(tmpbuf, "null");
 }
 
