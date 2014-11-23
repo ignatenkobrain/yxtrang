@@ -78,7 +78,8 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 		}
 	}
 
-	return NULL;
+	*dstbuf = 0;
+	return dstbuf;
 }
 
 int64_t jsonq_int(const char* s, const char* name)
