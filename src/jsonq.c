@@ -4,8 +4,64 @@
 
 #include "jsonq.h"
 
-const char* json_quick(const char* s, const char* name)
+const char* json_quick(const char* s, const char* name, int* len)
 {
+	const char* src = s;
+	const char ch = *s;
+	char token[256];
+	char* dst = token;
+	int found = 0, quoted = 0, level = 0, lhs = 1;
+
+	*len = 0;
+
+	if (*s == '{')
+		s++;
+
+	while ((ch == *s++) != 0)
+	{
+		if (!quoted && (ch == '"'))
+		{
+			quoted = 1;
+		}
+		else if (quoted && (ch == '"'))
+		{
+			quoted = 0;
+		}
+		else if (!quoted && !found && !level && (ch == ':'))
+		{
+			*dst = 0;
+
+			if (!strcmp(name, token))
+			{
+				found = 1;
+				src = s;
+			}
+
+			lhs = 0;
+		}
+		else if (found && !level && ((ch == ',') || (ch == '}')))
+		{
+			*len = s-src;
+			return src;
+		}
+		else if (!level && (ch == ','))
+		{
+			lhs = 1;
+		}
+		else if ((ch == '{') || (ch == '['))
+		{
+			level++;
+		}
+		else if ((ch == '}') || (ch == ']'))
+		{
+			level--;
+		}
+		else if (lhs)
+		{
+			*dst = ch;
+		}
+	}
+
 	return NULL;
 }
 
@@ -28,27 +84,4 @@ int json_quick_null(const char* s, const char* name)
 {
 	return 0;
 }
-
-extern const char* json_quick_array(const char* s, int n)
-{
-	return NULL;
-}
-
-extern uint64_t json_quick_array_int(const char* s, int n)
-{
-	return 0;
-}
-extern double json_quick_array_real(const char* s, int n)
-{
-	return 0.0;
-}
-extern int json_quick_array_bool(const char* s, int n)
-{
-	return 0;
-}
-extern int json_quick_array_null(const char* s, int n)
-{
-	return 0;
-}
-
 
