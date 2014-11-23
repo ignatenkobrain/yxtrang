@@ -5,7 +5,7 @@
 
 // JSON quick parse
 
-extern const char* jsonq(const char* s, const char* name, char* dstbuf);
+extern const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen);
 extern int64_t jsonq_int(const char* s, const char* name);
 extern double jsonq_real(const char* s, const char* name);
 extern int jsonq_bool(const char* s, const char* name);

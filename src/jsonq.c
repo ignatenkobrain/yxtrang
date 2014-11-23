@@ -4,7 +4,7 @@
 
 #include "jsonq.h"
 
-const char* jsonq(const char* s, const char* name, char* value)
+const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 {
 	const char* src = s;
 	char token[256];
@@ -56,9 +56,9 @@ const char* jsonq(const char* s, const char* name, char* value)
 				len -= 2;
 			}
 
-			strncpy(value, src, len);
-			value[len] = 0;
-			return value;
+			strncpy(dstbuf, src, len<dstlen?len:dstlen);
+			dstbuf[len] = 0;
+			return dstbuf;
 		}
 		else if (!level && (ch == ','))
 		{
@@ -84,7 +84,7 @@ const char* jsonq(const char* s, const char* name, char* value)
 int64_t jsonq_int(const char* s, const char* name)
 {
 	char tmpbuf[1024];
-	jsonq(s, name, tmpbuf);
+	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
 	long long v = 0;
 	sscanf(tmpbuf, "%lld", &v);
 	return v;
@@ -93,7 +93,7 @@ int64_t jsonq_int(const char* s, const char* name)
 double jsonq_real(const char* s, const char* name)
 {
 	char tmpbuf[1024];
-	jsonq(s, name, tmpbuf);
+	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
 	double v = 0.0;
 	sscanf(tmpbuf, "%lg", &v);
 	return v;
@@ -102,14 +102,14 @@ double jsonq_real(const char* s, const char* name)
 int jsonq_bool(const char* s, const char* name)
 {
 	char tmpbuf[1024];
-	jsonq(s, name, tmpbuf);
+	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
 	return !strcmp(tmpbuf, "true");
 }
 
 int jsonq_null(const char* s, const char* name)
 {
 	char tmpbuf[1024];
-	jsonq(s, name, tmpbuf);
+	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
 	return !strcmp(tmpbuf, "null");
 }
 
