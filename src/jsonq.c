@@ -17,7 +17,7 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 
 	while (*s)
 	{
-		const char ch = *s++;
+		char ch = *s++;
 
 		if (!quoted && (ch == '"'))
 		{
@@ -32,6 +32,31 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 		else if (quoted && (ch == quote))
 		{
 			quoted = 0;
+		}
+		else if (quoted && (ch == '\\'))
+		{
+			ch = *s++;
+
+			if (ch == '"')
+				*dst++ = ch;
+			else if (ch == '\'')
+				*dst++ = ch;
+			else if (ch == '\\')
+				*dst++ = ch;
+			else if (ch == '/')
+				*dst++ = ch;
+			else if (ch == 'b')
+				*dst++ = '\b';
+			else if (ch == 'f')
+				*dst++ = '\f';
+			else if (ch == 'n')
+				*dst++ = '\n';
+			else if (ch == 'r')
+				*dst++ = '\r';
+			else if (ch == 't')
+				*dst++ = '\t';
+			else
+				*dst++ = ch;
 		}
 		else if (!quoted && !found && !level && (ch == ':'))
 		{
