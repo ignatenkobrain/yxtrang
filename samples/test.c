@@ -5,6 +5,7 @@
 #include <float.h>
 
 #include <json.h>
+#include <jsonq.h>
 #include <base64.h>
 #include <tree.h>
 #include <store.h>
@@ -469,12 +470,24 @@ static void do_json()
 	json_close(ptr);
 }
 
+static void do_jsonq()
+{
+	const char* s = "{'a':1,'b':2.2,"
+		"'c':'the quick brown fox jumped over the lazy dog',"
+		"'d':true,'e':false,'f':null,"
+		"'g':[11,22],"
+		"'h':{'h1':33,'h2':44}"
+		"}";
+
+	printf("%s\n", s);
+}
+
 int main(int ac, char* av[])
 {
 	int loops = 10*1000, loops2 = 10, test_tree = 0, test_store = 0;
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
-	int broadcast = 0, threads = 0, test_script = 0;
+	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
 	char host[1024];
 	srand(time(0)|1);
 	int i;
@@ -509,6 +522,9 @@ int main(int ac, char* av[])
 
 		if (!strcmp(av[i], "--json"))
 			test_json = 1;
+
+		if (!strcmp(av[i], "--jsonq"))
+			test_jsonq = 1;
 
 		if (!strcmp(av[i], "--store"))
 			test_store = 1;
@@ -556,6 +572,12 @@ int main(int ac, char* av[])
 	if (test_json)
 	{
 		do_json();
+		return 0;
+	}
+
+	if (test_jsonq)
+	{
+		do_jsonq();
 		return 0;
 	}
 
