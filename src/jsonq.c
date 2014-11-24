@@ -31,7 +31,7 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 		{
 			quoted = 0;
 		}
-		else if (quoted && (ch == '\\'))
+		else if (quoted && lhs && (ch == '\\'))
 		{
 			ch = *s++;
 
@@ -56,7 +56,7 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 			else
 				*dst++ = ch;
 		}
-		else if (!quoted && !found && !level && (ch == ':'))
+		else if (!quoted && lhs && !found && !level && (ch == ':'))
 		{
 			*dst = 0;
 			dst = token;
