@@ -484,10 +484,9 @@ static void do_jsonq(const char* name)
 		"}";
 
 	printf("%s\n", s);
+
 	char tmp[1024];
-	tmp[0] = 0;
-	const char* v = jsonq(s, name, tmp, sizeof(tmp));
-	printf("%s = %s\n", name, tmp);
+	printf("%s = %s\n", name, jsonq(s, name, tmp, sizeof(tmp)));
 }
 
 int main(int ac, char* av[])
