@@ -124,6 +124,6 @@ extern int handler_add_client(handler h, int (*f)(session, void* data), void* da
 
 extern int handler_wait(handler h);
 
-extern int handler_close(handler h);
+extern int handler_destroy(handler h);
 
 #endif

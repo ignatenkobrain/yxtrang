@@ -2124,7 +2124,7 @@ handler handler_create(int threads)
 	return h;
 }
 
-int handler_close(handler h)
+int handler_destroy(handler h)
 {
 	if (!h)
 		return 0;

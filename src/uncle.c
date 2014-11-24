@@ -7,11 +7,14 @@
 
 struct _uncle
 {
+	handler h;
 };
 
 uncle uncle_create(const char* binding, short port)
 {
-	return NULL;
+	uncle u = (uncle)calloc(1, sizeof(struct _uncle));
+	u->h = handler_create(0);
+	return u;
 }
 
 int uncle_add(uncle u, const char* name, short port, int tcp, int ssl)
@@ -31,5 +34,7 @@ int uncle_rem(uncle u, int id)
 
 void uncle_destroy(uncle u)
 {
+	handler_destroy(u->h);
+	free(u);
 }
 

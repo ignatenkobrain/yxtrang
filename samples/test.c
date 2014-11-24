@@ -69,7 +69,7 @@ static void do_server(int tcp, int ssl, int threads)
 	}
 
 	handler_wait(h);
-	handler_close(h);
+	handler_destroy(h);
 }
 
 static void do_client(const char* host, long cnt, int tcp, int ssl, int broadcast)

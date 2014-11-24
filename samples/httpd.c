@@ -185,6 +185,6 @@ int main(int ac, char** av)
 		return 1;
 
 	handler_wait(h);
-	handler_close(h);
+	handler_destroy(h);
 	return 0;
 }

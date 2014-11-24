@@ -81,6 +81,6 @@ int main(int ac, char** av)
 
 	handler_wait(h);
 	printf("DONE\n");
-	handler_close(h);
+	handler_destroy(h);
 	return 0;
 }
