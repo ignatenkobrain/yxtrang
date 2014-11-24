@@ -25,5 +25,5 @@ skiplist.o: skiplist.h
 store.o: store.h uuid.h tree.h
 thread.o: thread.h
 tree.o: tree.h uuid.h
-uncle.o: uncle.h jsonq.h network.h
+uncle.o: uncle.h jsonq.h network.h thread.h
 uuid.o: uuid.h
