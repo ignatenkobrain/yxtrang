@@ -9,26 +9,27 @@ struct _uncle
 {
 };
 
-uncle uncle_create(const char* binding, short port);
+uncle uncle_create(const char* binding, short port)
+{
+	return NULL;
+}
 
-// Add, query, remove ephemeral resources.
-
-int uncle_add(const char* name, short port, int tcp, int ssl)
+int uncle_add(uncle u, const char* name, short port, int tcp, int ssl)
 {
 	return 0;
 }
 
-int uncle_query(const char* name, short port, int tcp, int ssl)
+int uncle_query(uncle u, const char* name, short port, int tcp, int ssl)
 {
 	return 0;
 }
 
-int uncle_rem(int id)
+int uncle_rem(uncle u, int id)
 {
 	return 0;
 }
 
-void uncle_destroy()
+void uncle_destroy(uncle u)
 {
 }
 
