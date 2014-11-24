@@ -10,15 +10,13 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 	char token[256];
 	char* dst = token;
 	int found = 0, quoted = 0, level = 0, lhs = 1;
-	char quote = 0;
+	char quote = 0, ch;
 
 	if (*s == '{')
 		s++;
 
-	while (*s)
+	while ((ch = *s++) != 0)
 	{
-		char ch = *s++;
-
 		if (!quoted && (ch == '"'))
 		{
 			quote = '"';
@@ -77,11 +75,47 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 
 			if (*src == quote)
 			{
+				dst = dstbuf;
 				src++;
 				len -= 2;
-			}
 
-			strncpy(dstbuf, src, len<dstlen?len:dstlen);
+				while (len-- > 0)
+				{
+					ch = *src++;
+
+					if (ch == '\\')
+					{
+						ch = *src++;
+						len--;
+
+						if (ch == '"')
+							*dst++ = ch;
+						else if (ch == '\'')
+							*dst++ = ch;
+						else if (ch == '\\')
+							*dst++ = ch;
+						else if (ch == '/')
+							*dst++ = ch;
+						else if (ch == 'b')
+							*dst++ = '\b';
+						else if (ch == 'f')
+							*dst++ = '\f';
+						else if (ch == 'n')
+							*dst++ = '\n';
+						else if (ch == 'r')
+							*dst++ = '\r';
+						else if (ch == 't')
+							*dst++ = '\t';
+						else
+							*dst++ = ch;
+					}
+					else
+						*dst++ = ch;
+				}
+			}
+			else
+				strncpy(dstbuf, src, len<dstlen?len:dstlen);
+
 			dstbuf[len] = 0;
 			return dstbuf;
 		}
