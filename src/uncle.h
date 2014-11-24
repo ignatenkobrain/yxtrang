@@ -7,9 +7,9 @@ extern uncle uncle_create(const char* binding, short port);
 
 // Add, query, remove ephemeral resources.
 
-extern int uncle_add(uncle u, const char* name, short port, int tcp, int ssl);
-extern int uncle_query(uncle u, const char* name, short port, int tcp, int ssl);
-extern int uncle_rem(uncle u, int id);
+extern int uncle_add(uncle u, const char* name, const char* addr, short port, int tcp, int ssl);
+extern int uncle_query(uncle u, const char* name, const char* addr, short* port, int* tcp, int* ssl);
+extern int uncle_rem(uncle u, const char* addr, short port, int cp, int ssl);
 
 extern void uncle_destroy(uncle u);
 

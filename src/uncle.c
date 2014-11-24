@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "uncle.h"
 #include "network.h"
@@ -29,14 +30,22 @@ static int uncle_handler(session s, void* data)
 uncle uncle_create(const char* binding, short port)
 {
 	uncle u = (uncle)calloc(1, sizeof(struct _uncle));
-	u->db = sl_string_create();
+	u->db = sl_string_create2();
 	u->h = handler_create(0);
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
 	thread_run(&uncle_wait, u);
 	return u;
 }
 
-int uncle_add(uncle u, const char* name, short port, int tcp, int ssl)
+int uncle_add(uncle u, const char* name, const char* addr, short port, int tcp, int ssl)
+{
+	if (!u)
+		return 0;
+
+	return 1;
+}
+
+int uncle_query(uncle u, const char* name, const char* addr, short* port, int* tcp, int* ssl)
 {
 	if (!u)
 		return 0;
@@ -44,15 +53,7 @@ int uncle_add(uncle u, const char* name, short port, int tcp, int ssl)
 	return 0;
 }
 
-int uncle_query(uncle u, const char* name, short port, int tcp, int ssl)
-{
-	if (!u)
-		return 0;
-
-	return 0;
-}
-
-int uncle_rem(uncle u, int id)
+int uncle_rem(uncle u, const char* addr, short port, int cp, int ssl)
 {
 	if (!u)
 		return 0;
@@ -63,7 +64,7 @@ int uncle_rem(uncle u, int id)
 void uncle_destroy(uncle u)
 {
 	if (!u)
-		return 0;
+		return;
 
 	handler_destroy(u->h);
 	sl_string_destroy(u->db);
