@@ -3,12 +3,13 @@ Yxtrang
 
 An ongoing quest of penance to undo my last 20+ years of C++
 programming by rewriting and reimagining (as much as is feasible)
-in the pure, elegant, beautifully precise C language. Small, fast
-and in-control!
+in the pure, elegant, beautifully precise C language.
 
 The 'trang is not a framework, it's a library. A loose collection of
 small modules that do interesting things and which can be used together
-if need be or not. From little things big things grow!
+if need be or not. And it is absolutely free.
+
+From little things big things grow!
 
 
 Current modules
