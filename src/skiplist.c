@@ -451,7 +451,7 @@ int sl_rem(skiplist l, const void *key)
 	return 1;
 }
 
-void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void *arg)
+void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void* arg)
 {
 	if (!l)
 		return;
@@ -470,10 +470,8 @@ void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void *arg)
 
 		for (j = 0; j < p->nbr; j++)
 		{
-			int ok = f(arg, p->bkt[j].key, p->bkt[j].val);
-
-			if (!ok)
-				break;
+			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+				return;
 		}
 
 		p = q;

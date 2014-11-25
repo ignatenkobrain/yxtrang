@@ -15,7 +15,7 @@ extern skiplist sl_create2(int (*compare)(const void*, const void*), void* (*cop
 extern int sl_add(skiplist sptr, const void *key, const void* value);
 extern int sl_rem(skiplist sptr, const void *key);
 extern int sl_get(const skiplist sptr, const void *key, const void** value);
-extern void sl_iter(const skiplist sptr, int (*f)(void*, void*, void*), void *arg);
+extern void sl_iter(const skiplist sptr, int (*f)(void*, void*, void*), void* arg);
 extern size_t sl_count(const skiplist sptr);
 
 extern void sl_destroy(skiplist sptr);
@@ -28,7 +28,7 @@ extern void sl_destroy(skiplist sptr);
 #define sl_int_add(s,k,v) sl_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
 #define sl_int_rem(s,k) sl_rem(s, (const void*)(size_t)k)
 #define sl_int_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
-#define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void *)a);
+#define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a);
 #define sl_int_count sl_count
 #define sl_int_destroy sl_destroy
 
@@ -40,7 +40,7 @@ extern void sl_destroy(skiplist sptr);
 #define sl_string_add(s,k,v) sl_add(s, (const void*)k, (const void*)v)
 #define sl_string_rem(s,k) sl_rem(s, (const void*)k)
 #define sl_string_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
-#define sl_string_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void *)a);
+#define sl_string_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a);
 #define sl_string_count sl_count
 #define sl_string_destroy sl_destroy
 

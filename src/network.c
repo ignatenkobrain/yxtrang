@@ -396,7 +396,7 @@ static int parse_addr6(const char* host, struct sockaddr_in6* addr6)
 		return 0;
 }
 
-session session_open(const char* host, short port, int tcp, int ssl)
+session session_open(const char* host, unsigned short port, int tcp, int ssl)
 {
 	if (!host || (port == 0))
 		return 0;
@@ -1928,7 +1928,7 @@ int handler_set_tls(handler h, const char* keyfile)
 #endif
 }
 
-int handler_add_server(handler h, int (*f)(session, void* v), void* v, const char* binding, short port, int tcp, int ssl)
+int handler_add_server(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl)
 {
 	int fd6 = socket(AF_INET6, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
 

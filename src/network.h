@@ -20,7 +20,7 @@ typedef struct _handler* handler;
 // Use 'ssl' to immediately enable TLS (SSL fallback is not supported)
 // on the new connection.
 
-extern session session_open(const char* host, short port, int tcp, int ssl);
+extern session session_open(const char* host, unsigned short port, int tcp, int ssl);
 
 // Or application-level control of TLS.
 
@@ -113,7 +113,7 @@ extern int handler_set_tls(handler h, const char* keyfile);
 // Specify 'tcp' to enable TCP streams or UDP datagrams.
 // Use 'ssl' to immediately enable TLS (SSL is not supported).
 
-extern int handler_add_server(handler h, int (*f)(session, void* data), void* data, const char* binding, short port, int tcp, int ssl);
+extern int handler_add_server(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, int tcp, int ssl);
 
 // Established client session can be added to a handler to be managed.
 
