@@ -12,14 +12,23 @@ extern skiplist sl_create(int (*compare)(const void*, const void*), void* (*copy
 
 extern skiplist sl_create2(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*), void* (*copyval)(const void*), void (*freeval)(void*));
 
-extern int sl_add(skiplist sptr, const void *key, const void* value);
-extern int sl_rem(skiplist sptr, const void *key);
-extern int sl_get(const skiplist sptr, const void *key, const void** value);
-extern void sl_iter(const skiplist sptr, int (*f)(void*, void*, void*), void* arg);
-extern size_t sl_count(const skiplist sptr);
+extern int sl_add(skiplist s, const void* key, const void* value);
+extern int sl_rem(skiplist s, const void* key);
+extern int sl_get(const skiplist s, const void* key, const void** value);
+extern size_t sl_count(const skiplist s);
 
-extern void sl_destroy(skiplist sptr);
+// Iterate over the whole range. f returns zero to halt.
 
+extern void sl_iter(const skiplist s, int (*f)(void*, void*, void*), void* arg);
+
+// Iterate over key equal. f returns zero to halt.
+
+extern void sl_find(const skiplist s, const void* key, int (*f)(void*, void*, void*), void* arg);
+
+extern void sl_destroy(skiplist s);
+
+// Specialized variant:
+//
 // sl_int_create - int key, int value
 // sl_int_create2 - int key, string value
 
@@ -29,9 +38,12 @@ extern void sl_destroy(skiplist sptr);
 #define sl_int_rem(s,k) sl_rem(s, (const void*)(size_t)k)
 #define sl_int_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
 #define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a);
+#define sl_int_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a);
 #define sl_int_count sl_count
 #define sl_int_destroy sl_destroy
 
+// Specialized variant:
+//
 // sl_string_create - string key, int value
 // sl_string_create2 - string key, string value
 
@@ -41,6 +53,7 @@ extern void sl_destroy(skiplist sptr);
 #define sl_string_rem(s,k) sl_rem(s, (const void*)k)
 #define sl_string_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
 #define sl_string_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a);
+#define sl_string_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a);
 #define sl_string_count sl_count
 #define sl_string_destroy sl_destroy
 

@@ -229,7 +229,7 @@ static int RandomLevelskiplist()
     return lvl < MaxLevel ? lvl : MaxLevel;
 }
 
-int sl_add(skiplist l, const void *key, const void* value)
+int sl_add(skiplist l, const void* key, const void* value)
 {
 	if (!l || !key)
 		return 0;
@@ -347,7 +347,7 @@ int sl_add(skiplist l, const void *key, const void* value)
 	return 1;
 }
 
-int sl_get(const skiplist l, const void *key, const void** value)
+int sl_get(const skiplist l, const void* key, const void** value)
 {
 	if (!l || !key)
 		return 0;
@@ -376,7 +376,7 @@ int sl_get(const skiplist l, const void *key, const void** value)
 	return 1;
 }
 
-int sl_rem(skiplist l, const void *key)
+int sl_rem(skiplist l, const void* key)
 {
 	if (!l || !key)
 		return 0;
@@ -470,6 +470,63 @@ void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void* arg)
 
 		for (j = 0; j < p->nbr; j++)
 		{
+			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+				return;
+		}
+
+		p = q;
+	}
+}
+
+void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), void* arg)
+{
+	if (!l)
+		return;
+
+	if (!f)
+		return;
+
+	int k;
+	node p, q = 0;
+
+	p = l->header;
+
+	for (k = l->level-1; k >= 0; k--)
+	{
+		while ((q = p->forward[k]) && (l->compare(q->bkt[q->nbr-1].key, key) < 0))
+			p = q;
+	}
+
+	if (q == NULL)
+		return;
+
+	int imid = binary_search(l, q->bkt, key, 0, q->nbr-1);
+
+	if (imid < 0)
+		return;
+
+	p = q;
+	int j;
+
+	for (j = imid; j < p->nbr; j++)
+	{
+		if (l->compare(p->bkt[j].key, key) != 0)
+			return;
+
+		if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+			return;
+	}
+
+	while (p != NULL)
+	{
+		node q = p->forward[0];
+		int j;
+
+		for (j = 0; j < p->nbr; j++)
+		{
+			if (l->compare(p->bkt[j].key, key) != 0)
+				return;
+
 			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
 				return;
 		}

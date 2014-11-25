@@ -269,7 +269,15 @@ static void do_skip(long cnt)
 
 	printf("Writing...\n");
 
-#if !SKIP_RANDOM && 1
+#if !SKIP_RANDOM && 0
+	for (i = 1; i <= cnt; i++)
+		sl_int_add(sl, i, i);
+
+	// Add dulicates
+
+	for (i = 1; i <= cnt; i++)
+		sl_int_add(sl, i, i);
+#elif !SKIP_RANDOM && 1
 	for (i = 1; i <= cnt; i++)
 		sl_int_add(sl, i, i);
 #elif !SKIP_RANDOM && 0

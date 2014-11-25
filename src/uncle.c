@@ -40,7 +40,7 @@ static int uncle_handler(session s, void* data)
 uncle uncle_create(const char* binding, unsigned short port)
 {
 	uncle u = (uncle)calloc(1, sizeof(struct _uncle));
-	u->db = sl_string_create();
+	u->db = sl_string_create2();
 	u->h = handler_create(0);
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
 	thread_run(&uncle_wait, u);
@@ -54,13 +54,15 @@ int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, 
 
 	char tmpbuf[1024];
 	sprintf(tmpbuf, "%s/%s/%u/%d/%d", name, addr, port, tcp, ssl);
-	sl_string_rem(u->db, tmpbuf);
-	sl_string_add(u->db, tmpbuf, 1);
+	sl_string_add(u->db, name, tmpbuf);
 	return 1;
 }
 
 static int uncle_iter(uncle u, const char* k, const char* v)
 {
+	if (strcmp(u->search.name, k))
+		return 1;
+
 	char name[256], addr[256];
 	int port, tcp, ssl;
 	sscanf(v, "%255[^/]/%255[^/]/%d/%d/%d", name, addr, &port, &tcp, &ssl);
