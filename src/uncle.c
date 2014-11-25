@@ -162,6 +162,7 @@ static int uncle_handler(session s, void* data)
 		sprintf(tmpbuf,
 			"{\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
 				name, port, tcp?"true":"false", ssl?"true":"false");
+		session_writemsg(s, tmpbuf);
 	}
 
 	return 1;
