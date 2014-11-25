@@ -25,6 +25,7 @@ struct _uncle
 		char addr[256];
 		unsigned short port;
 		int tcp, ssl, local;
+		session s;
 	}
 	 search;
 };
@@ -147,6 +148,31 @@ int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, 
 	return uncle_rem2(u, name, addr, 1, port, tcp, ssl);
 }
 
+static int uncle_iter2(uncle u, const char* k, const char* v)
+{
+	char name[256], addr[256];
+	name[255] = addr[255] = 0;
+	unsigned port = 0;
+	int tcp = 0, ssl = 0, local = 0;
+	sscanf(v, "%255[^/]/%255[^/]/%d/%u/%d/%d", name, addr, &local, &port, &tcp, &ssl);
+
+	if (u->search.name[0] && strcmp(u->search.name, name))
+		return 1;
+
+	if ((u->search.tcp >= 0) && (u->search.tcp != tcp))
+		return 1;
+
+	if ((u->search.ssl >= 0) && (u->search.ssl != ssl))
+		return 1;
+
+	char tmpbuf[1024];
+	sprintf(tmpbuf,
+		"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
+			u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
+	session_writemsg(u->search.s, tmpbuf);
+	return 1;
+}
+
 static int uncle_handler(session s, void* data)
 {
 	uncle u = (uncle)data;
@@ -188,16 +214,15 @@ static int uncle_handler(session s, void* data)
 	}
 	else if (!strcmp("$cmd", "?"))
 	{
-		char addr[256];
+		u->search.name = name;
+		u->search.addr[0] = 0;
+		u->search.tcp = tcp;
+		u->search.ssl = ssl;
+		u->search.s = s;
 
-		if (!uncle_query(u, name, addr, &port, &tcp, &ssl))
-			return 1;
-
-		char tmpbuf[1024];
-		sprintf(tmpbuf,
-			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
-				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
-		session_writemsg(s, tmpbuf);
+		lock_lock(u->l);
+		sl_string_find(u->db, name, &uncle_iter2, u);
+		lock_unlock(u->l);
 	}
 
 	return 1;
