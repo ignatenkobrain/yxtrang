@@ -1,0 +1,26 @@
+Unified Network Client Liason Engine
+------------------------------------
+
+Resource registration and lookup by attribute. A JSON message
+is sent by multicast between hosts detailing the availability of
+named network resources.
+
+The format of a message is:
+
+	{
+		"$cmd":text,
+		"$name":text,
+		"$port":int,
+		"$tcp":boolean,
+		"$ssl":boolean
+	}
+
+All messages are single-line and linefeed terminated. Where '$cmd'
+may take the values:
+
+	"+"	- add resource
+	"-"	- remove resource
+	"?"	- query resource
+
+That's all for now.
+
