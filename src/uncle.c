@@ -35,21 +35,34 @@ static int uncle_handler(session s, void* data)
 	if (!session_readmsg(s, &buf))
 		return 0;
 
-	if (g_debug) printf("UNCLE: %s", buf);
+	const char* addr = session_remote_host(s, 0);
+	if (g_debug) printf("UNCLE %s: %s", addr, buf);
 
-	char cmd[256], name[256], addr[256];
+	char cmd[256], name[256];
+	cmd[0] = name[0] = 0;
 	jsonq(buf, "$cmd", cmd, sizeof(cmd));
 	jsonq(buf, "$name", name, sizeof(name));
 	unsigned short port = (short)jsonq_int(buf, "$port");
-	int tcp = jsonq_int(buf, "$tcp");
-	int ssl = jsonq_int(buf, "$ssl");
+	int tcp = -1, ssl = -1;
+
+	if (!jsonq_null(buf, "$tcp"))
+		tcp = jsonq_bool(buf, "$tcp");
+
+	if (!jsonq_null(buf, "$ssl"))
+		ssl = jsonq_bool(buf, "$ssl");
 
 	if (!strcmp("$cmd", "+"))
+	{
 		uncle_add(u, name, addr, port, tcp, ssl);
+	}
 	else if (!strcmp("$cmd", "-"))
+	{
 		uncle_rem(u, name, addr, port, tcp, ssl);
+	}
 	else if (!strcmp("$cmd", "?"))
 	{
+		char addr[256];
+		uncle_query(u, name, addr, &port, &tcp, &ssl);
 	}
 
 	return 1;
