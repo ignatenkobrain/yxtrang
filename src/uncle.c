@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "uncle.h"
 #include "network.h"
@@ -15,6 +16,7 @@ struct _uncle
 	lock l;
 	session s;				// use to broadcast on
 	char scope[256];
+	time_t unique;
 
 	struct _search
 	{
@@ -92,8 +94,8 @@ static int uncle_add2(uncle u, const char* name, const char* addr, int local, un
 	if (local)
 	{
 		sprintf(tmpbuf,
-			"{\"$scope\":\"%s\",\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
-				u->scope, name, port, tcp?"true":"false", ssl?"true":"false");
+			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
+				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
 		session_bcastmsg(u->s, tmpbuf);
 	}
 
@@ -132,8 +134,8 @@ static int uncle_rem2(uncle u, const char* name, const char* addr, int local, un
 	{
 		char tmpbuf[1024];
 		sprintf(tmpbuf,
-			"{\"$scope\":\"%s\",\"$cmd\":\"-\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
-				u->scope, name, port, tcp?"true":"false", ssl?"true":"false");
+			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"-\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
+				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
 		session_bcastmsg(u->s, tmpbuf);
 	}
 
@@ -158,6 +160,9 @@ static int uncle_handler(session s, void* data)
 	char scope[256];
 
 	if (strcmp(jsonq(buf, "$scope", scope, sizeof(scope)), u->scope))
+		return 1;
+
+	if (jsonq_int(buf, "$unique") == u->unique)
 		return 1;
 
 	char cmd[256], name[256];
@@ -190,8 +195,8 @@ static int uncle_handler(session s, void* data)
 
 		char tmpbuf[1024];
 		sprintf(tmpbuf,
-			"{\"$scope\":\"%s\",\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
-				u->scope, name, port, tcp?"true":"false", ssl?"true":"false");
+			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
+				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
 		session_writemsg(s, tmpbuf);
 	}
 
@@ -211,12 +216,14 @@ uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 	u->db = sl_string_create2();
 	u->h = handler_create(0);
 	u->l = lock_create();
+	u->unique = time(NULL);
 	strcpy(u->scope, scope?scope:SCOPE_DEFAULT);
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
 	thread_run(&uncle_wait, u);
 
 	char tmpbuf[1024];
-	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$cmd\":\"?\"}\n", scope);
+	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"?\"}\n",
+		u->scope, (unsigned long long)u->unique);
 
 	u->s = session_open("255.255.255.255", port, 0, 0);
 	session_enable_broadcast(u->s);

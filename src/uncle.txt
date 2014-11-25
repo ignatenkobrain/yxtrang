@@ -8,7 +8,8 @@ detailing the availability of named resources.
 The format of a message is:
 
 	{
-		"$scope":text,
+		"$scope":text,			// application grouping
+		"$unique":int,			// for loopback detection
 		"$cmd":text,
 		"$name":text,
 		"$port":int,
