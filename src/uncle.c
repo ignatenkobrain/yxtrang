@@ -61,8 +61,10 @@ int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, 
 static int uncle_iter(uncle u, const char* k, const char* v)
 {
 	char name[256], addr[256];
-	int port, tcp, ssl;
-	sscanf(v, "%255[^/]/%255[^/]/%d/%d/%d", name, addr, &port, &tcp, &ssl);
+	name[255] = addr[255] = 0;
+	unsigned port = 0;
+	int tcp = 0, ssl = 0;
+	sscanf(v, "%255[^/]/%255[^/]/%u/%d/%d", name, addr, &port, &tcp, &ssl);
 
 	if (strcmp(u->search.name, name))
 		return 1;
