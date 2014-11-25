@@ -75,23 +75,15 @@ tree:
  equal to skiplist above but twice as fast.
 
 
+uncle:
+
+ Resource discovery and notifcation. Uses UDP broadcast (for now,
+ will move to multicast).
+
+
 uuid:
 
  Universal unique identifiers.
-
-
-
-Future modules
---------------
-
-uncle:
-
- Discovery and synchronization?
-
-
-linda:
-
- Data coordination language?
 
 
 

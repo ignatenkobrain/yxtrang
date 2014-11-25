@@ -27,4 +27,4 @@ may take the values:
 When querying use 'true' or 'false' to select a desired tcp and/or ssl
 state, use 'null' or leave off to select any state.
 
-That's all for now.
+Other fields may be added in time.
