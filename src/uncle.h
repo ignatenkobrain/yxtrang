@@ -8,7 +8,7 @@ extern uncle uncle_create(const char* binding, unsigned short port);
 // Add, remove ephemeral resources.
 
 extern int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);
-extern int uncle_rem(uncle u, const char* addr, unsigned short port, int tcp, int ssl);
+extern int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);
 
 // Query for named resource.
 // Set tcp and/or ssl to >= 0 to refine search.
