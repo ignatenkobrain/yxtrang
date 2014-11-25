@@ -240,16 +240,15 @@ static int uncle_wait(void* data)
 	return 1;
 }
 
-uncle uncle_create(const char* binding, unsigned short port, const char* scope)
+uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope)
 {
 	uncle u = (uncle)calloc(1, sizeof(struct _uncle));
 	u->db = sl_string_create2();
-	u->h = handler_create(0);
+	u->h = h;
 	u->l = lock_create();
 	u->unique = time(NULL);
 	strcpy(u->scope, scope?scope:SCOPE_DEFAULT);
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
-	thread_run(&uncle_wait, u);
 
 	char tmpbuf[1024];
 	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"?\"}\n",
@@ -258,6 +257,14 @@ uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 	u->s = session_open("255.255.255.255", port, 0, 0);
 	session_enable_broadcast(u->s);
 	session_bcastmsg(u->s, tmpbuf);
+	return u;
+}
+
+uncle uncle_create(const char* binding, unsigned short port, const char* scope)
+{
+	handler h = handler_create(0);
+	uncle u = uncle_create2(h, binding, port, scope);
+	thread_run(&uncle_wait, u);
 	return u;
 }
 

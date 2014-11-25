@@ -2,10 +2,12 @@
 #define UNCLE_H
 
 typedef struct _uncle* uncle;
+typedef struct _handler* handler;
 
 #define SCOPE_DEFAULT "test"
 
 extern uncle uncle_create(const char* binding, unsigned short port, const char* scope);
+extern uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope);
 
 // Add, remove ephemeral resources.
 // Resources are named and there can be many duplicates, but
