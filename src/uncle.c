@@ -91,10 +91,8 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 
 	u->search.addr[0] = 0;
 	u->search.name = name;
-	u->search.port = *port;
 	u->search.tcp = *tcp;
 	u->search.ssl = *ssl;
-
 	sl_string_iter(u->db, &uncle_iter, u);
 
 	if (!u->search.addr[0])
