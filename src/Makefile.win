@@ -36,7 +36,7 @@ jsonq.obj: $*.h $*.c
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-network.obj: $*.h $*.c skiplist.h thread.h
+network.obj: $*.h $*.c skiplist.h thread.h uncle.h
         cl /DWANT_POLL=$(WANT_POLL) @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<

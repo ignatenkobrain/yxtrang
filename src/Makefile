@@ -19,7 +19,7 @@ base64.o: base64.h
 daemon.o: daemon.h
 json.o: json.h
 jsonq.o: jsonq.h
-network.o: network.h skiplist.h thread.h
+network.o: network.h skiplist.h thread.h uncle.h
 scriptlet.o: scriptlet.h skiplist.h
 skiplist.o: skiplist.h
 store.o: store.h uuid.h tree.h
