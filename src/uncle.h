@@ -5,12 +5,12 @@ typedef struct _uncle* uncle;
 
 extern uncle uncle_create(const char* binding, unsigned short port);
 
-// Add, query, remove ephemeral resources.
+// Add, remove ephemeral resources.
 
 extern int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);
 extern int uncle_rem(uncle u, const char* addr, unsigned short port, int tcp, int ssl);
 
-// Set port to > 0 to refine search.
+// Query for named resource.
 // Set tcp and/or ssl to >= 0 to refine search.
 // Set addr to a buffer to receive the address string.
 
