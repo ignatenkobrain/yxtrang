@@ -242,6 +242,9 @@ static int uncle_wait(void* data)
 
 uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope)
 {
+	if (!h || !port)
+		return NULL;
+
 	uncle u = (uncle)calloc(1, sizeof(struct _uncle));
 	u->db = sl_string_create2();
 	u->h = h;
@@ -262,6 +265,9 @@ uncle uncle_create2(handler h, const char* binding, unsigned short port, const c
 
 uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 {
+	if (!port)
+		return NULL;
+
 	handler h = handler_create(0);
 	uncle u = uncle_create2(h, binding, port, scope);
 	thread_run(&uncle_wait, u);

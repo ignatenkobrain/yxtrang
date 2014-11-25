@@ -6,7 +6,12 @@ typedef struct _handler* handler;
 
 #define SCOPE_DEFAULT "test"
 
+// Create using an internal handler and thread.
+
 extern uncle uncle_create(const char* binding, unsigned short port, const char* scope);
+
+// Create but use an existing handler.
+
 extern uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope);
 
 // Add, remove ephemeral resources.
