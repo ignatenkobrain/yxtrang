@@ -3,7 +3,9 @@
 
 typedef struct _uncle* uncle;
 
-extern uncle uncle_create(const char* binding, unsigned short port);
+#define SCOPE_DEFAULT "test"
+
+extern uncle uncle_create(const char* binding, unsigned short port, const char* scope);
 
 // Add, remove ephemeral resources.
 // Resources are named and there can be many duplicates, but

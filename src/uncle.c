@@ -13,6 +13,7 @@ struct _uncle
 	handler h;
 	skiplist db;
 	lock l;
+	char scope[256];
 
 	struct _search
 	{
@@ -129,6 +130,10 @@ static int uncle_handler(session s, void* data)
 
 	const char* addr = session_remote_host(s, 0);
 	if (g_debug) printf("UNCLE %s: %s", addr, buf);
+	char scope[256];
+
+	if (strcmp(jsonq(buf, "$scope", scope, sizeof(scope)), u->scope))
+		return 1;
 
 	char cmd[256], name[256];
 	cmd[0] = name[0] = 0;
@@ -160,8 +165,8 @@ static int uncle_handler(session s, void* data)
 
 		char tmpbuf[1024];
 		sprintf(tmpbuf,
-			"{\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
-				name, port, tcp?"true":"false", ssl?"true":"false");
+			"{\"$scope\":\"%s\",\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
+				u->scope, name, port, tcp?"true":"false", ssl?"true":"false");
 		session_writemsg(s, tmpbuf);
 	}
 
@@ -175,17 +180,18 @@ static int uncle_wait(void* data)
 	return 1;
 }
 
-uncle uncle_create(const char* binding, unsigned short port)
+uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 {
 	uncle u = (uncle)calloc(1, sizeof(struct _uncle));
 	u->db = sl_string_create2();
 	u->h = handler_create(0);
 	u->l = lock_create();
+	strcpy(u->scope, scope?scope:SCOPE_DEFAULT);
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
 	thread_run(&uncle_wait, u);
 
 	char tmpbuf[1024];
-	sprintf(tmpbuf,	"{\"$cmd\":\"?\"}\n");
+	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$cmd\":\"?\"}\n", scope);
 
 	session s = session_open("255.255.255.255", port, 0, 0);
 	session_enable_broadcast(s);
