@@ -73,7 +73,6 @@ static int uncle_iter(uncle u, const char* name, const char* v)
 		return 1;
 
 	strcpy(u->search.addr, tmpbuf);
-	u->search.name = name;
 	u->search.port = (unsigned short)port;
 	u->search.tcp = tcp;
 	u->search.ssl = ssl;
@@ -95,12 +94,13 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 	u->search.port = *port;
 	u->search.tcp = *tcp;
 	u->search.ssl = *ssl;
+
 	sl_string_iter(u->db, &uncle_iter, u);
 
 	if (!u->search.addr[0])
 		return 0;
 
-	addr = u->search.addr;
+	strcpy(addr, u->search.addr);
 	*port = u->search.port;
 	*tcp = u->search.tcp;
 	*ssl = u->search.ssl;
