@@ -16,7 +16,7 @@ struct _uncle
 	struct _search
 	{
 		const char* name;
-		char* addr;
+		char addr[256];
 		unsigned short port;
 		int tcp, ssl;
 	}
@@ -59,7 +59,28 @@ int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, 
 
 static int uncle_iter(uncle u, const char* name, const char* v)
 {
-	return 1;
+	if (strcmp(name, u->search.name))
+		return 1;
+
+	char tmpbuf[256];
+	int port, tcp, ssl;
+	sscanf(v, "%*[^/]/%255[^/]/%d/%d/%d", tmpbuf, &port, &tcp, &ssl);
+
+	if (u->search.port && (u->search.port != port))
+		return 1;
+
+	if (u->search.tcp && (u->search.tcp != tcp))
+		return 1;
+
+	if (u->search.ssl && (u->search.ssl != ssl))
+		return 1;
+
+	strcpy(u->search.addr, tmpbuf);
+	u->search.name = name;
+	u->search.port = (unsigned short)port;
+	u->search.tcp = tcp;
+	u->search.ssl = ssl;
+	return 0;
 }
 
 int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int* tcp, int* ssl)
@@ -72,6 +93,7 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 	if (!sl_string_get(u->db, name, &tmpbuf))
 		return 0;
 
+	u->search.addr[0] = 0;
 	u->search.name = name;
 	u->search.port = *port;
 	u->search.tcp = *tcp;
