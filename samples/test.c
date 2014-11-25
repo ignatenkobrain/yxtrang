@@ -32,15 +32,10 @@ static int on_server_session(session s, void* v)
 
 	char* buf = 0;
 
-	// Check for complete message:
-
 	if (!session_readmsg(s, &buf))
 		return 0;
 
 	if (debug) printf("SERVER: %s", buf);
-
-	// Echo it back...
-
 	return session_writemsg(s, buf);
 }
 
@@ -51,21 +46,10 @@ static void do_server(int tcp, int ssl, int threads)
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
-	if (tcp)
+	if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)port, tcp, ssl))
 	{
-		if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)port, 1, ssl))
-		{
-			printf("server failed\n");
-			return;
-		}
-	}
-	else
-	{
-		if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)port, 0, 0))
-		{
-			printf("server failed\n");
-			return;
-		}
+		printf("server failed\n");
+		return;
 	}
 
 	handler_wait(h);
