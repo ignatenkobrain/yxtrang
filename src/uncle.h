@@ -15,6 +15,7 @@ extern int uncle_add(uncle u, const char* name, const char* addr, unsigned short
 extern int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);
 
 // Query for named resource.
+// A datagram service will normally be returned before a tcp one.
 // Set tcp and/or ssl to >= 0 to refine search.
 // Set addr to a buffer to receive the address string.
 
