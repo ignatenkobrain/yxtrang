@@ -66,13 +66,13 @@ static int uncle_iter(uncle u, const char* name, const char* v)
 	int port, tcp, ssl;
 	sscanf(v, "%*[^/]/%255[^/]/%d/%d/%d", tmpbuf, &port, &tcp, &ssl);
 
-	if (u->search.port && (u->search.port != port))
+	if ((u->search.port > 0) && (u->search.port != port))
 		return 1;
 
-	if (u->search.tcp && (u->search.tcp != tcp))
+	if ((u->search.tcp >= 0) && (u->search.tcp != tcp))
 		return 1;
 
-	if (u->search.ssl && (u->search.ssl != ssl))
+	if ((u->search.ssl >= 0) && (u->search.ssl != ssl))
 		return 1;
 
 	strcpy(u->search.addr, tmpbuf);
