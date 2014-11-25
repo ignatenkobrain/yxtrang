@@ -274,6 +274,11 @@ uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 	return u;
 }
 
+const char* uncle_get_scope(uncle u)
+{
+	return u->scope;
+}
+
 void uncle_destroy(uncle u)
 {
 	if (!u)

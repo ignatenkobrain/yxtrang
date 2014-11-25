@@ -137,14 +137,14 @@ struct _handler
 {
 	skiplist fds, badfds;
 	thread_pool tp;
-	uncle u;
+	uncle u[MAX_SERVERS];
 	fd_set rfds;
 	struct _server srvs[MAX_SERVERS];
 #if defined(POLLIN) && WANT_POLL
 	struct pollfd rpollfds[FD_POLLSIZE];
 #endif
 	void* ctx;
-	int cnt, hi, fd, threads;
+	int cnt, hi, fd, threads, uncs;
 	volatile int halt, use;
 };
 
@@ -1936,13 +1936,21 @@ static int leave_multicast(int fd6, int fd4, const char* addr)
 int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope)
 {
 	extern uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope);
-	h->u = uncle_create2(h, binding, port, scope);
-	return h->u ? 1 : 0;
+	uncle u = h->u[h->uncs++] = uncle_create2(h, binding, port, scope);
+	return u ? 1 : 0;
 }
 
-uncle handler_get_uncle(handler h)
+uncle handler_get_uncle(handler h, const char* scope)
 {
-	return h->u;
+	int i;
+
+	for (i = 0; i < h->uncs; i++)
+	{
+		if (!strcmp(uncle_get_scope(h->u[i]), scope))
+			return h->u[i];
+	}
+
+	return NULL;
 }
 
 static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* maddr6, const char* maddr4)
@@ -2164,9 +2172,11 @@ int handler_destroy(handler h)
 
 	h->halt = 1;
 	msleep(100);
+	int i;
 
-	if (h->u)
-		uncle_destroy(h->u);
+
+	for (i = 0; i < h->uncs; i++)
+		uncle_destroy(h->u[i]);
 
 	if (h->tp)
 		tpool_destroy(h->tp);
@@ -2178,8 +2188,6 @@ int handler_destroy(handler h)
 	if (h->ctx)
 		SSL_CTX_free((SSL_CTX*)h->ctx);
 #endif
-
-	int i;
 
 	for (i = 0; i < h->cnt; i++)
 	{

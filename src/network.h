@@ -117,7 +117,7 @@ extern int handler_add_multicast(handler h, int (*f)(session, void* data), void*
 extern int handler_add_server(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, int tcp, int ssl);
 extern int handler_add_client(handler h, int (*f)(session, void* data), void* data, session s);
 
-extern uncle handler_get_uncle(handler h);
+extern uncle handler_get_uncle(handler h, const char* scope);
 
 // There is where the action occurs. It will not return until
 // there are no more sockets to monitor.
