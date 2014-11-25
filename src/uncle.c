@@ -13,6 +13,7 @@ struct _uncle
 	handler h;
 	skiplist db;
 	lock l;
+	session s;
 	char scope[256];
 
 	struct _search
@@ -193,10 +194,9 @@ uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 	char tmpbuf[1024];
 	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$cmd\":\"?\"}\n", scope);
 
-	session s = session_open("255.255.255.255", port, 0, 0);
-	session_enable_broadcast(s);
-	session_bcastmsg(s, tmpbuf);
-	session_close(s);
+	u->s = session_open("255.255.255.255", port, 0, 0);
+	session_enable_broadcast(u->s);
+	session_bcastmsg(u->s, tmpbuf);
 	return u;
 }
 
@@ -208,6 +208,7 @@ void uncle_destroy(uncle u)
 	handler_destroy(u->h);
 	sl_string_destroy(u->db);
 	lock_destroy(u->l);
+	session_close(u->s);
 	free(u);
 }
 
