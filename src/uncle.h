@@ -1,6 +1,8 @@
 #ifndef UNCLE_H
 #define UNCLE_H
 
+// Universal Network Client Liason Engine (UNCLE).
+
 typedef struct _uncle* uncle;
 
 extern uncle uncle_create(const char* binding, unsigned short port);
