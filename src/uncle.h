@@ -1,8 +1,9 @@
 #ifndef UNCLE_H
 #define UNCLE_H
 
+#include "network.h"
+
 typedef struct _uncle* uncle;
-typedef struct _handler* handler;
 
 #define SCOPE_DEFAULT "test"
 
