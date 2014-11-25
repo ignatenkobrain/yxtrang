@@ -1,9 +1,9 @@
-Unified Network Client Liason Engine
-------------------------------------
+uncle
+-----
 
-Resource registration and lookup by attribute. A JSON message
-is sent by broadcast (initially, multicast to be added) between hosts
-detailing the availability of named resources.
+Resource registration and lookup by attribute. A message is sent by
+broadcast (initially, multicast to be added) between hosts detailing
+the availability of named resources.
 
 The format of a message is:
 
@@ -17,8 +17,8 @@ The format of a message is:
 		"$ssl":boolean
 	}
 
-All messages are single-line and linefeed terminated. Where '$cmd'
-may take the values:
+All messages are in JSON, single-line and linefeed terminated. Where
+'$cmd' may take the values:
 
 	"+"	- add resource
 	"-"	- remove resource
