@@ -6,6 +6,8 @@ typedef struct _uncle* uncle;
 extern uncle uncle_create(const char* binding, unsigned short port);
 
 // Add, remove ephemeral resources.
+// Resources are named and there can be many duplicates, but
+// the combination of name/addr/port/tcp is unique.
 
 extern int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);
 extern int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);

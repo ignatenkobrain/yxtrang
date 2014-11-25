@@ -510,9 +510,6 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 
 	for (j = imid; j < p->nbr; j++)
 	{
-		if (l->compare(p->bkt[j].key, key) != 0)
-			return;
-
 		if (!f(arg, p->bkt[j].key, p->bkt[j].val))
 			return;
 	}
@@ -524,9 +521,6 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 
 		for (j = 0; j < p->nbr; j++)
 		{
-			if (l->compare(p->bkt[j].key, key) != 0)
-				return;
-
 			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
 				return;
 		}

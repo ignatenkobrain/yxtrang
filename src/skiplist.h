@@ -21,7 +21,7 @@ extern size_t sl_count(const skiplist s);
 
 extern void sl_iter(const skiplist s, int (*f)(void*, void*, void*), void* arg);
 
-// Iterate over key equal. f returns zero to halt.
+// Iterate over >= key. f returns zero to halt.
 
 extern void sl_find(const skiplist s, const void* key, int (*f)(void*, void*, void*), void* arg);
 
