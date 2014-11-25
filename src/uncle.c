@@ -25,16 +25,40 @@ struct _uncle
 	 search;
 };
 
+static const int g_debug = 1;
+
+static int uncle_handler(session s, void* data)
+{
+	uncle u = (uncle)data;
+	char* buf = 0;
+
+	if (!session_readmsg(s, &buf))
+		return 0;
+
+	if (g_debug) printf("UNCLE: %s", buf);
+
+	char cmd[256], name[256], addr[256];
+	jsonq(buf, "$cmd", cmd, sizeof(cmd));
+	jsonq(buf, "$name", name, sizeof(name));
+	unsigned short port = (short)jsonq_int(buf, "$port");
+	int tcp = jsonq_int(buf, "$tcp");
+	int ssl = jsonq_int(buf, "$ssl");
+
+	if (!strcmp("$cmd", "+"))
+		uncle_add(u, name, addr, port, tcp, ssl);
+	else if (!strcmp("$cmd", "-"))
+		uncle_rem(u, name, addr, port, tcp, ssl);
+	else if (!strcmp("$cmd", "?"))
+	{
+	}
+
+	return 1;
+}
+
 static int uncle_wait(void* data)
 {
 	uncle u = (uncle)data;
 	handler_wait(u->h);
-	return 1;
-}
-
-static int uncle_handler(session s, void* data)
-{
-	//uncle u = (uncle)data;
 	return 1;
 }
 
