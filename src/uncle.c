@@ -65,6 +65,9 @@ static int uncle_iter(uncle u, const char* k, const char* v)
 	int port, tcp, ssl;
 	sscanf(v, "%255[^/]/%255[^/]/%d/%d/%d", name, addr, &port, &tcp, &ssl);
 
+	if (u->search.addr[0] && strcmp(u->search.addr, addr))
+		return 1;
+
 	if (strcmp(u->search.name, name))
 		return 1;
 
@@ -88,9 +91,9 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 		return 0;
 
 	u->search.name = name;
+	u->search.addr[0] = 0;
 	u->search.tcp = *tcp;
 	u->search.ssl = *ssl;
-	u->search.addr[0] = 0;
 	sl_string_iter(u->db, &uncle_iter, u);
 
 	if (!u->search.addr[0])
@@ -109,6 +112,7 @@ int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, 
 		return 0;
 
 	u->search.name = name;
+	strcpy(u->search.addr, addr);
 	u->search.tcp = tcp;
 	u->search.ssl = ssl;
 	u->search.addr[0] = 0;
