@@ -13,7 +13,7 @@ struct _uncle
 	handler h;
 	skiplist db;
 	lock l;
-	session s;
+	session s;				// use to broadcast on
 	char scope[256];
 
 	struct _search
