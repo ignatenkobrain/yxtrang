@@ -68,7 +68,12 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 	u->search.ssl = *ssl;
 
 	lock_lock(u->l);
-	sl_string_find(u->db, name, &uncle_iter, u);
+
+	if (name[0])
+		sl_string_find(u->db, name, &uncle_iter, u);
+	else
+		sl_string_iter(u->db, &uncle_iter, u);
+
 	lock_unlock(u->l);
 
 	if (!u->search.addr[0])

@@ -25,6 +25,7 @@ All messages are in JSON, single-line and linefeed terminated. Where
 	"?"	- query resource
 
 When querying use 'true' or 'false' to select a desired tcp and/or ssl
-state, use 'null' or leave off to select any state.
+state, use 'null' or leave off to select any state. If name is is
+blank or null then all names are returned.
 
 Other fields may be added in time.

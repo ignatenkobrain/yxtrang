@@ -37,8 +37,8 @@ extern void sl_destroy(skiplist s);
 #define sl_int_add(s,k,v) sl_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
 #define sl_int_rem(s,k) sl_rem(s, (const void*)(size_t)k)
 #define sl_int_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
-#define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a);
-#define sl_int_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a);
+#define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_int_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
 #define sl_int_count sl_count
 #define sl_int_destroy sl_destroy
 
@@ -52,8 +52,8 @@ extern void sl_destroy(skiplist s);
 #define sl_string_add(s,k,v) sl_add(s, (const void*)k, (const void*)v)
 #define sl_string_rem(s,k) sl_rem(s, (const void*)k)
 #define sl_string_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
-#define sl_string_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a);
-#define sl_string_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a);
+#define sl_string_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_string_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
 #define sl_string_count sl_count
 #define sl_string_destroy sl_destroy
 
