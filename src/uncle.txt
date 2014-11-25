@@ -1,5 +1,5 @@
-uncle
------
+             Unified Network Client Liason Engine
+             ------------------------------------
 
 Resource registration and lookup by attribute. A message is sent by
 broadcast (initially, multicast to be added) between hosts detailing

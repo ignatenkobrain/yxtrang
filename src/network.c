@@ -137,6 +137,7 @@ struct _handler
 {
 	skiplist fds, badfds;
 	thread_pool tp;
+	uncle u;
 	fd_set rfds;
 	struct _server srvs[MAX_SERVERS];
 #if defined(POLLIN) && WANT_POLL
@@ -1932,6 +1933,12 @@ static int leave_multicast(int fd6, int fd4, const char* addr)
 }
 #endif
 
+uncle handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope)
+{
+	extern uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope);
+	return h->u = uncle_create2(h, binding, port, scope);
+}
+
 static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* maddr6, const char* maddr4)
 {
 	int fd6 = socket(AF_INET6, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
@@ -2151,6 +2158,9 @@ int handler_destroy(handler h)
 
 	h->halt = 1;
 	msleep(100);
+
+	if (h->u)
+		uncle_destroy(h->u);
 
 	if (h->tp)
 		tpool_destroy(h->tp);
