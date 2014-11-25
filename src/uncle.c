@@ -158,7 +158,10 @@ static int uncle_handler(session s, void* data)
 		if (!uncle_query(u, name, addr, &port, &tcp, &ssl))
 			return 1;
 
-		//char tmpbuf[1024];
+		char tmpbuf[1024];
+		sprintf(tmpbuf,
+			"{\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
+				name, port, tcp?"true":"false", ssl?"true":"false");
 	}
 
 	return 1;
