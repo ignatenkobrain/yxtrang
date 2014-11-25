@@ -131,6 +131,8 @@ struct _server
 	int fd, port, tcp, ssl, ipv4;
 };
 
+typedef struct _server* server;
+
 struct _handler
 {
 	skiplist fds, badfds;
@@ -144,8 +146,6 @@ struct _handler
 	int cnt, hi, fd, threads;
 	volatile int halt, use;
 };
-
-typedef struct _server* server;
 
 #if USE_SSL
 ///////////////////////////////////////////////////////////////////////////////
@@ -856,80 +856,6 @@ int session_enable_multicast(session s, int loop, int hops)
 	{
 		setsockopt(s->fd, IPPROTO_IP, IP_MULTICAST_LOOP, (const char*)&loop, sizeof(loop));
 		status = setsockopt(s->fd, IPPROTO_IP, IP_MULTICAST_TTL, (const char*)&hops, sizeof(hops));
-	}
-
-	return status;
-}
-
-int join_multicast(session s, const char* addr)
-{
-	if (!s || !addr)
-		return 0;
-
-	int status = 0;
-
-	if (!s->ipv4)
-	{
-		struct sockaddr_in6 addr6 = {0};
-		addr6.sin6_family = AF_INET6;
-
-		if (parse_addr6(addr, &addr6))
-		{
-			struct ipv6_mreq mreq;
-			memcpy(&mreq.ipv6mr_multiaddr, &addr6.sin6_addr, sizeof(struct in6_addr));
-			mreq.ipv6mr_interface = 0;
-			status = setsockopt(s->fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, sizeof(mreq));
-		}
-	}
-	else
-	{
-		struct sockaddr_in addr4 = {0};
-		addr4.sin_family = AF_INET;
-
-		if (parse_addr4(addr, &addr4))
-		{
-			struct ip_mreq mreq;
-			memcpy(&mreq.imr_multiaddr, &addr4.sin_addr, sizeof(struct in_addr));
-			mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-			status = setsockopt(s->fd, IPPROTO_IP, IPV6_JOIN_GROUP, (char*)&mreq, sizeof(mreq));
-		}
-	}
-
-	return status;
-}
-
-int leave_multicast(session s, const char* addr)
-{
-	if (!s || !addr)
-		return 0;
-
-	int status = 0;
-
-	if (!s->ipv4)
-	{
-		struct sockaddr_in6 addr6 = {0};
-		addr6.sin6_family = AF_INET6;
-
-		if (parse_addr6(addr, &addr6))
-		{
-			struct ipv6_mreq mreq;
-			memcpy(&mreq.ipv6mr_multiaddr, &addr6.sin6_addr, sizeof(struct in6_addr));
-			mreq.ipv6mr_interface = 0;
-			status = setsockopt(s->fd, IPPROTO_IPV6, IPV6_LEAVE_GROUP, (char*)&mreq, sizeof(mreq));
-		}
-	}
-	else
-	{
-		struct sockaddr_in addr4 = {0};
-		addr4.sin_family = AF_INET;
-
-		if (parse_addr4(addr, &addr4))
-		{
-			struct ip_mreq mreq;
-			memcpy(&mreq.imr_multiaddr, &addr4.sin_addr, sizeof(struct in_addr));
-			mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-			status = setsockopt(s->fd, IPPROTO_IP, IPV6_LEAVE_GROUP, (char*)&mreq, sizeof(mreq));
-		}
 	}
 
 	return status;
@@ -1928,7 +1854,85 @@ int handler_set_tls(handler h, const char* keyfile)
 #endif
 }
 
-int handler_add_server(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl)
+static int join_multicast(int fd6, int fd4, const char* addr)
+{
+	if (!addr)
+		return 0;
+
+	int status = 0;
+
+	if (fd6 >= 0)
+	{
+		struct sockaddr_in6 addr6 = {0};
+		addr6.sin6_family = AF_INET6;
+
+		if (parse_addr6(addr, &addr6))
+		{
+			struct ipv6_mreq mreq;
+			memcpy(&mreq.ipv6mr_multiaddr, &addr6.sin6_addr, sizeof(struct in6_addr));
+			mreq.ipv6mr_interface = 0;
+			status = setsockopt(fd6, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, sizeof(mreq));
+		}
+	}
+
+	if (fd4 >= 0)
+	{
+		struct sockaddr_in addr4 = {0};
+		addr4.sin_family = AF_INET;
+
+		if (parse_addr4(addr, &addr4))
+		{
+			struct ip_mreq mreq;
+			memcpy(&mreq.imr_multiaddr, &addr4.sin_addr, sizeof(struct in_addr));
+			mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+			status = setsockopt(fd4, IPPROTO_IP, IPV6_JOIN_GROUP, (char*)&mreq, sizeof(mreq));
+		}
+	}
+
+	return status;
+}
+
+#if 0
+static int leave_multicast(int fd6, int fd4, const char* addr)
+{
+	if (!addr)
+		return 0;
+
+	int status = 0;
+
+	if (fd6 >= 0)
+	{
+		struct sockaddr_in6 addr6 = {0};
+		addr6.sin6_family = AF_INET6;
+
+		if (parse_addr6(addr, &addr6))
+		{
+			struct ipv6_mreq mreq;
+			memcpy(&mreq.ipv6mr_multiaddr, &addr6.sin6_addr, sizeof(struct in6_addr));
+			mreq.ipv6mr_interface = 0;
+			status = setsockopt(fd6, IPPROTO_IPV6, IPV6_LEAVE_GROUP, (char*)&mreq, sizeof(mreq));
+		}
+	}
+
+	if (fd4 >= 0)
+	{
+		struct sockaddr_in addr4 = {0};
+		addr4.sin_family = AF_INET;
+
+		if (parse_addr4(addr, &addr4))
+		{
+			struct ip_mreq mreq;
+			memcpy(&mreq.imr_multiaddr, &addr4.sin_addr, sizeof(struct in_addr));
+			mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+			status = setsockopt(fd4, IPPROTO_IP, IPV6_LEAVE_GROUP, (char*)&mreq, sizeof(mreq));
+		}
+	}
+
+	return status;
+}
+#endif
+
+static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* maddr6, const char* maddr4)
 {
 	int fd6 = socket(AF_INET6, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
 
@@ -1982,6 +1986,9 @@ int handler_add_server(handler h, int (*f)(session, void* v), void* v, const cha
 		srv->ipv4 = 0;
 		srv->f = f;
 		srv->v = v;
+
+		if (maddr6)
+			join_multicast(fd6, -1, maddr6);
 	}
 
 	if (tcp && (fd6 != -1))
@@ -2039,6 +2046,9 @@ int handler_add_server(handler h, int (*f)(session, void* v), void* v, const cha
 		srv->ipv4 = 1;
 		srv->f = f;
 		srv->v = v;
+
+		if (maddr4)
+			join_multicast(-1, fd4, maddr4);
 	}
 
 	if (tcp && (fd4 != -1))
@@ -2053,6 +2063,11 @@ int handler_add_server(handler h, int (*f)(session, void* v), void* v, const cha
 
 	h->use++;
 	return 1;
+}
+
+int handler_add_server(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl)
+{
+	return handler_add_server2(h, f, v, binding, port, tcp, ssl, NULL, NULL);
 }
 
 int handler_add_client(handler h, int (*f)(session, void* data), void* data, session s)
@@ -2122,6 +2137,11 @@ handler handler_create(int threads)
 #endif
 
 	return h;
+}
+
+int handler_add_multicast(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, const char* addr6, const char* addr4)
+{
+	return handler_add_server2(h, f, v, binding, port, 0, 0, addr6, addr4);
 }
 
 int handler_destroy(handler h)

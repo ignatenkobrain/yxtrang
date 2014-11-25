@@ -183,6 +183,14 @@ uncle uncle_create(const char* binding, unsigned short port)
 	u->l = lock_create();
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
 	thread_run(&uncle_wait, u);
+
+	char tmpbuf[1024];
+	sprintf(tmpbuf,	"{\"$cmd\":\"?\"}\n");
+
+	session s = session_open("255.255.255.255", port, 0, 0);
+	session_enable_broadcast(s);
+	session_bcastmsg(s, tmpbuf);
+	session_close(s);
 	return u;
 }
 

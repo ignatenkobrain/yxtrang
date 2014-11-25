@@ -36,11 +36,6 @@ extern int session_enable_broadcast(session s);
 
 extern int session_enable_multicast(session s, int loop, int hops);
 
-// With UDP this will enable multicast receiving on an address.
-
-extern int join_multicast(session s, const char* addr);
-extern int leave_multicast(session s, const char* addr);
-
 // Check connect and/or disconnect state change.
 
 extern int session_on_connect(session s);
@@ -113,6 +108,7 @@ extern int handler_set_tls(handler h, const char* keyfile);
 // Specify 'tcp' to enable TCP streams or UDP datagrams.
 // Use 'ssl' to immediately enable TLS (SSL is not supported).
 
+extern int handler_add_multicast(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, const char* addr6, const char* addr4);
 extern int handler_add_server(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, int tcp, int ssl);
 
 // Established client session can be added to a handler to be managed.
