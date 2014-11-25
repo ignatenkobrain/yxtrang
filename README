@@ -80,6 +80,8 @@ uncle:
  Resource discovery and notifcation. Uses UDP broadcast (for now,
  will move to multicast).
 
+ Create a stand-alone uncle or use network to do it for you.
+
 
 uuid:
 

@@ -1933,10 +1933,16 @@ static int leave_multicast(int fd6, int fd4, const char* addr)
 }
 #endif
 
-uncle handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope)
+int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope)
 {
 	extern uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope);
-	return h->u = uncle_create2(h, binding, port, scope);
+	h->u = uncle_create2(h, binding, port, scope);
+	return h->u ? 1 : 0;
+}
+
+uncle handler_get_uncle(handler h)
+{
+	return h->u;
 }
 
 static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* maddr6, const char* maddr4)

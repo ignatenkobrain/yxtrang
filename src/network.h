@@ -110,12 +110,14 @@ extern int handler_set_tls(handler h, const char* keyfile);
 // Specify 'tcp' to enable TCP streams or UDP datagrams.
 // Use 'ssl' to immediately enable TLS (SSL is not supported).
 
-// Create but use an existing handler.
+// Add socket-based services to the handler.
 
-extern uncle handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope);
+extern int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope);
 extern int handler_add_multicast(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, const char* maddr6, const char* maddr4);
 extern int handler_add_server(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, int tcp, int ssl);
 extern int handler_add_client(handler h, int (*f)(session, void* data), void* data, session s);
+
+extern uncle handler_get_uncle(handler h);
 
 // There is where the action occurs. It will not return until
 // there are no more sockets to monitor.
