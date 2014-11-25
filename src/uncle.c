@@ -185,10 +185,10 @@ static int uncle_handler(session s, void* data)
 	if (g_debug) printf("UNCLE %s: %s", addr, buf);
 	char scope[256];
 
-	if (strcmp(jsonq(buf, "$scope", scope, sizeof(scope)), u->scope))
+	if (jsonq_int(buf, "$unique") == u->unique)
 		return 1;
 
-	if (jsonq_int(buf, "$unique") == u->unique)
+	if (strcmp(jsonq(buf, "$scope", scope, sizeof(scope)), u->scope))
 		return 1;
 
 	char cmd[256], name[256];
