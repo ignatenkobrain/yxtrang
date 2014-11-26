@@ -2165,6 +2165,16 @@ int handler_add_multicast(handler h, int (*f)(session, void* v), void* v, const 
 	return handler_add_server2(h, f, v, binding, port, 0, 0, addr6, addr4);
 }
 
+const char* hostname(void)
+{
+	static char tmpbuf[256];
+
+	if (gethostname(tmpbuf, sizeof(tmpbuf)) == 0)
+		return tmpbuf;
+	else
+		return "LOCALHOST.LOCALDOMAIN";
+}
+
 int handler_destroy(handler h)
 {
 	if (!h)

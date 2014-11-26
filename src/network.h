@@ -8,6 +8,8 @@
 typedef struct _session* session;
 typedef struct _handler* handler;
 
+extern const char* hostname(void);
+
 // Sessions are message oriented (ie. newline delimited text string)
 // of arbitrary and unlimited length, and can traverse TCP or UDP. This
 // might be different to expectations with UDP, but allows messages to

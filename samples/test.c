@@ -17,6 +17,7 @@
 #define SERVER_PORT 6198
 
 static int g_debug = 0, g_uncle = UNCLE_PORT, g_port = SERVER_PORT;
+static const char* g_service = "TEST";
 
 static int on_server_session(session s, void* v)
 {
@@ -59,6 +60,10 @@ static void do_server(int tcp, int ssl, int threads)
 		printf("add server failed\n");
 		return;
 	}
+
+	// The handler should do this, but would need to provide a name
+
+	uncle_add(handler_get_uncle(h, SCOPE_DEFAULT), g_service, hostname(), g_port, tcp, ssl);
 
 	handler_wait(h);
 	handler_destroy(h);
