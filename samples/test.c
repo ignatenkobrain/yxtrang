@@ -16,6 +16,12 @@
 #define UNCLE_PORT 6199
 #define SERVER_PORT 6198
 
+#ifdef _WIN32
+#define sleep _sleep
+#else
+#include <unistd.h>
+#endif
+
 static int g_debug = 0;
 static unsigned short g_uncle = UNCLE_PORT, g_port = SERVER_PORT;
 static const char* g_service = "TEST";
@@ -595,6 +601,7 @@ int main(int ac, char* av[])
 	if (client && discovery)
 	{
 		uncle u = uncle_create(NULL, g_uncle, SCOPE_DEFAULT);
+		sleep(1);
 		tcp = ssl = -1;
 		uncle_query(u, g_service, host, &g_port, &tcp, &ssl);
 	}

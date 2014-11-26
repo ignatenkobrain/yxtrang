@@ -52,8 +52,7 @@ extern int session_set_rcvbuffer(session s, int bufsize);
 
 extern int session_write(session s, const void* buf, size_t len);
 extern int session_writemsg(session s, const char* buf);
-extern int session_bcast(session s, const void* buf, size_t len);
-extern int session_bcastmsg(session s, const char* buf);
+
 extern int session_read(session s, void* buf, size_t len);
 
 // Readmsg returns 1 on a complete message being read. It will

@@ -40,11 +40,8 @@ static int uncle_iter(uncle u, const char* k, const char* v)
 	int tcp = 0, ssl = 0, local = 0;
 	sscanf(v, "%255[^/]/%255[^/]/%d/%u/%d/%d", name, addr, &local, &port, &tcp, &ssl);
 
-	//printf("*** uncle_iter search name='%s', tcp=%d, ssl=%d\n", u->search.name, u->search.tcp, u->search.ssl);
-	//printf("*** uncle_iter got name='%s', tcp=%d, ssl=%d, addr='%s'\n", name, tcp, ssl, addr);
-
 	if (u->search.name[0] && strcmp(u->search.name, name))
-		return 1;
+		return 0;
 
 	if ((u->search.tcp >= 0) && (u->search.tcp != tcp))
 		return 1;
@@ -105,7 +102,7 @@ static int uncle_add2(uncle u, const char* name, const char* addr, int local, un
 		sprintf(tmpbuf,
 			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
 				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
-		session_bcastmsg(u->s, tmpbuf);
+		session_writemsg(u->s, tmpbuf);
 	}
 
 	return 1;
@@ -145,7 +142,7 @@ static int uncle_rem2(uncle u, const char* name, const char* addr, int local, un
 		sprintf(tmpbuf,
 			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"-\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
 				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
-		session_bcastmsg(u->s, tmpbuf);
+		session_writemsg(u->s, tmpbuf);
 	}
 
 	return 1;
@@ -165,7 +162,7 @@ static int uncle_iter2(uncle u, const char* k, const char* v)
 	sscanf(v, "%255[^/]/%255[^/]/%d/%u/%d/%d", name, addr, &local, &port, &tcp, &ssl);
 
 	if (u->search.name[0] && strcmp(u->search.name, name))
-		return 1;
+		return 0;
 
 	if ((u->search.tcp >= 0) && (u->search.tcp != tcp))
 		return 1;
@@ -242,13 +239,6 @@ static int uncle_handler(session s, void* data)
 	return 1;
 }
 
-static int uncle_wait(void* data)
-{
-	uncle u = (uncle)data;
-	handler_wait(u->h);
-	return 1;
-}
-
 uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope)
 {
 	if (!h || !port)
@@ -267,9 +257,16 @@ uncle uncle_create2(handler h, const char* binding, unsigned short port, const c
 	char tmpbuf[1024];
 	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"?\"}\n",
 		u->scope, (unsigned long long)u->unique);
-	session_bcastmsg(u->s, tmpbuf);
+	session_writemsg(u->s, tmpbuf);
 
 	return u;
+}
+
+static int uncle_wait(void* data)
+{
+	uncle u = (uncle)data;
+	handler_wait(u->h);
+	return 1;
 }
 
 uncle uncle_create(const char* binding, unsigned short port, const char* scope)
