@@ -253,6 +253,7 @@ uncle uncle_create2(handler h, const char* binding, unsigned short port, const c
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
 	u->s = session_open("255.255.255.255", port, 0, 0);
 	session_enable_broadcast(u->s);
+	handler_add_client(h, &uncle_handler, u, u->s);
 
 	char tmpbuf[1024];
 	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"?\"}\n",

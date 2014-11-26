@@ -604,6 +604,7 @@ int main(int ac, char* av[])
 		sleep(1);
 		tcp = ssl = -1;
 		uncle_query(u, g_service, host, &g_port, &tcp, &ssl);
+		printf("DOSCOVERY: host='%s', port=%d, tcp=%d, ssl=%d\n", host, g_port, tcp, ssl);
 	}
 
 	if (test_json)
