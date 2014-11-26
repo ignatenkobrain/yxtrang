@@ -72,8 +72,6 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 
 	lock_lock(u->l);
 
-	printf("*** uncle_query '%s'\n", name);
-
 	if (name[0])
 		sl_string_find(u->db, name, &uncle_iter, u);
 	else
