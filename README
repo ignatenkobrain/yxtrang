@@ -80,10 +80,7 @@ uncle:
  Resource discovery and notifcation. Uses UDP broadcast (for now,
  will move to multicast). Uncle is scope based, meaning it can
  organize resources by group: those within the same scope can
- find about each other, but not those outside.
-
- Create a stand-alone uncle or use network to do it. Can create
- multiple uncles for multi-scope awareness.
+ find each other, but not those outside.
 
 
 uuid:
