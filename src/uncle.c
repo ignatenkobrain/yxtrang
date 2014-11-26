@@ -40,6 +40,9 @@ static int uncle_iter(uncle u, const char* k, const char* v)
 	int tcp = 0, ssl = 0, local = 0;
 	sscanf(v, "%255[^/]/%255[^/]/%d/%u/%d/%d", name, addr, &local, &port, &tcp, &ssl);
 
+	//printf("*** uncle_iter search name='%s', tcp=%d, ssl=%d\n", u->search.name, u->search.tcp, u->search.ssl);
+	//printf("*** uncle_iter got name='%s', tcp=%d, ssl=%d, addr='%s'\n", name, tcp, ssl, addr);
+
 	if (u->search.name[0] && strcmp(u->search.name, name))
 		return 1;
 
@@ -68,6 +71,8 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 	u->search.ssl = *ssl;
 
 	lock_lock(u->l);
+
+	printf("*** uncle_query '%s'\n", name);
 
 	if (name[0])
 		sl_string_find(u->db, name, &uncle_iter, u);
@@ -175,6 +180,7 @@ static int uncle_iter2(uncle u, const char* k, const char* v)
 		"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
 			u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
 	session_writemsg(u->search.s, tmpbuf);
+	if (g_debug) printf("SND: %s", tmpbuf);
 	return 1;
 }
 
@@ -187,7 +193,7 @@ static int uncle_handler(session s, void* data)
 		return 0;
 
 	const char* addr = session_remote_host(s, 0);
-	if (g_debug) printf("UNCLE %s: %s", addr, buf);
+	if (g_debug) printf("UNCLE RCV %s: %s", addr, buf);
 	char scope[256];
 
 	if (jsonq_int(buf, "$unique") == u->unique)
@@ -209,15 +215,15 @@ static int uncle_handler(session s, void* data)
 	if (!jsonq_null(buf, "$ssl"))
 		ssl = jsonq_bool(buf, "$ssl");
 
-	if (!strcmp("$cmd", "+"))
+	if (!strcmp(cmd, "+"))
 	{
 		uncle_add2(u, name, addr, 0, port, tcp, ssl);
 	}
-	else if (!strcmp("$cmd", "-"))
+	else if (!strcmp(cmd, "-"))
 	{
 		uncle_rem2(u, name, addr, 0, port, tcp, ssl);
 	}
-	else if (!strcmp("$cmd", "?"))
+	else if (!strcmp(cmd, "?"))
 	{
 		u->search.name = name;
 		u->search.addr[0] = 0;
@@ -226,7 +232,12 @@ static int uncle_handler(session s, void* data)
 		u->search.s = s;
 
 		lock_lock(u->l);
-		sl_string_find(u->db, name, &uncle_iter2, u);
+
+		if (name[0])
+			sl_string_find(u->db, name, &uncle_iter2, u);
+		else
+			sl_string_iter(u->db, &uncle_iter2, u);
+
 		lock_unlock(u->l);
 	}
 
@@ -252,14 +263,14 @@ uncle uncle_create2(handler h, const char* binding, unsigned short port, const c
 	u->unique = time(NULL);
 	strcpy(u->scope, scope?scope:SCOPE_DEFAULT);
 	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
+	u->s = session_open("255.255.255.255", port, 0, 0);
+	session_enable_broadcast(u->s);
 
 	char tmpbuf[1024];
 	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"?\"}\n",
 		u->scope, (unsigned long long)u->unique);
-
-	u->s = session_open("255.255.255.255", port, 0, 0);
-	session_enable_broadcast(u->s);
 	session_bcastmsg(u->s, tmpbuf);
+
 	return u;
 }
 

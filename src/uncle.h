@@ -3,7 +3,7 @@
 
 typedef struct _uncle* uncle;
 
-#define SCOPE_DEFAULT "test"
+#define SCOPE_DEFAULT "DEFAULT"
 
 // Create using an internal handler and thread.
 

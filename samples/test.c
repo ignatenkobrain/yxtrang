@@ -16,7 +16,8 @@
 #define UNCLE_PORT 6199
 #define SERVER_PORT 6198
 
-static int g_debug = 0, g_uncle = UNCLE_PORT, g_port = SERVER_PORT;
+static int g_debug = 0;
+static unsigned short g_uncle = UNCLE_PORT, g_port = SERVER_PORT;
 static const char* g_service = "TEST";
 
 static int on_server_session(session s, void* v)
@@ -500,9 +501,10 @@ int main(int ac, char* av[])
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
-	srand(time(0)|1);
+	int discovery = 0;
 	int i;
 
+	srand(time(0)|1);
 	char host[1024];
 	sprintf(host, "localhost");
 
@@ -583,8 +585,18 @@ int main(int ac, char* av[])
 		if (!strcmp(av[i], "--ssl"))
 			ssl = 1;
 
+		if (!strcmp(av[i], "--disc") || !strcmp(av[i], "--discovery"))
+			discovery = 1;
+
 		if (!strcmp(av[i], "--quiet"))
 			quiet = 1;
+	}
+
+	if (client && discovery)
+	{
+		uncle u = uncle_create(NULL, g_uncle, SCOPE_DEFAULT);
+		tcp = ssl = -1;
+		uncle_query(u, g_service, host, &g_port, &tcp, &ssl);
 	}
 
 	if (test_json)
