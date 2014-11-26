@@ -13,8 +13,10 @@
 #include <scriptlet.h>
 #include <skiplist.h>
 
-#define PORT 6199
-static int debug = 0, port = PORT;
+#define UNCLE_PORT 6199
+#define SERVER_PORT 6198
+
+static int g_debug = 0, g_uncle = UNCLE_PORT, g_port = SERVER_PORT;
 
 static int on_server_session(session s, void* v)
 {
@@ -35,7 +37,7 @@ static int on_server_session(session s, void* v)
 	if (!session_readmsg(s, &buf))
 		return 0;
 
-	if (debug) printf("SERVER: %s", buf);
+	if (g_debug) printf("SERVER: %s", buf);
 	return session_writemsg(s, buf);
 }
 
@@ -46,9 +48,15 @@ static void do_server(int tcp, int ssl, int threads)
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
-	if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)port, tcp, ssl))
+	if (!handler_add_uncle(h, NULL, (short)g_uncle, SCOPE_DEFAULT))
 	{
-		printf("server failed\n");
+		printf("add uncle failed\n");
+		return;
+	}
+
+	if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)g_port, tcp, ssl))
+	{
+		printf("add server failed\n");
 		return;
 	}
 
@@ -58,7 +66,7 @@ static void do_server(int tcp, int ssl, int threads)
 
 static void do_client(const char* host, long cnt, int tcp, int ssl, int broadcast)
 {
-	session s = session_open(host, (short)port, tcp, ssl);
+	session s = session_open(host, (short)g_port, tcp, ssl);
 	if (!s) { printf("CLIENT: session failed\n"); return; }
 
 	printf("CLIENT: connected '%s'\n", session_remote_host(s, 0));
@@ -93,7 +101,7 @@ static void do_client(const char* host, long cnt, int tcp, int ssl, int broadcas
 			break;
 		}
 
-		if (debug) printf("CLIENT: %s", buf);
+		if (g_debug) printf("CLIENT: %s", buf);
 		tot++;
 
 		if (!session_readmsg(s, &buf))
@@ -102,7 +110,7 @@ static void do_client(const char* host, long cnt, int tcp, int ssl, int broadcas
 			break;
 		}
 
-		if (debug) printf("CLIENT: %s", buf);
+		if (g_debug) printf("CLIENT: %s", buf);
 		tot++;
 
 		if (!session_readmsg(s, &buf))
@@ -111,7 +119,7 @@ static void do_client(const char* host, long cnt, int tcp, int ssl, int broadcas
 			break;
 		}
 
-		if (debug) printf("CLIENT: %s", buf);
+		if (g_debug) printf("CLIENT: %s", buf);
 		tot++;
 	}
 
@@ -496,7 +504,7 @@ int main(int ac, char* av[])
 	for (i = 1; i < ac; i++)
 	{
 		if (!strncmp(av[i], "--debug=", 8))
-			sscanf(av[i], "%*[^=]=%d", &debug);
+			sscanf(av[i], "%*[^=]=%d", &g_debug);
 
 		if (!strncmp(av[i], "--loops=", 8))
 			sscanf(av[i], "%*[^=]=%d", &loops);
@@ -510,8 +518,11 @@ int main(int ac, char* av[])
 		if (!strncmp(av[i], "--name=", 7))
 			sscanf(av[i], "%*[^=]=%s", host);
 
+		if (!strncmp(av[i], "--uncle=", 8))
+			sscanf(av[i], "%*[^=]=%d", &g_uncle);
+
 		if (!strncmp(av[i], "--port=", 7))
-			sscanf(av[i], "%*[^=]=%d", &port);
+			sscanf(av[i], "%*[^=]=%d", &g_port);
 
 		if (!strncmp(av[i], "--threads=", 10))
 			sscanf(av[i], "%*[^=]=%d", &threads);
