@@ -495,10 +495,10 @@ int main(int ac, char* av[])
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
-	char host[1024];
 	srand(time(0)|1);
 	int i;
 
+	char host[1024];
 	sprintf(host, "localhost");
 
 	for (i = 1; i < ac; i++)
