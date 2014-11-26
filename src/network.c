@@ -2174,7 +2174,6 @@ int handler_destroy(handler h)
 	msleep(100);
 	int i;
 
-
 	for (i = 0; i < h->uncs; i++)
 		uncle_destroy(h->u[i]);
 
