@@ -528,10 +528,18 @@ int main(int ac, char* av[])
 			sscanf(av[i], "%*[^=]=%s", host);
 
 		if (!strncmp(av[i], "--uncle=", 8))
-			sscanf(av[i], "%*[^=]=%d", &g_uncle);
+		{
+			int port;
+			sscanf(av[i], "%*[^=]=%u", &port);
+			g_uncle = port;
+		}
 
 		if (!strncmp(av[i], "--port=", 7))
-			sscanf(av[i], "%*[^=]=%d", &g_port);
+		{
+			unsigned port;
+			sscanf(av[i], "%*[^=]=%u", &port);
+			g_port = port;
+		}
 
 		if (!strncmp(av[i], "--threads=", 10))
 			sscanf(av[i], "%*[^=]=%d", &threads);
