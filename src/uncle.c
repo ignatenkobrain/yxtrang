@@ -38,7 +38,7 @@ static int uncle_iter(uncle u, const char* k, const char* v)
 	name[255] = addr[255] = 0;
 	unsigned port = 0;
 	int tcp = 0, ssl = 0, local = 0;
-	sscanf(v, "%255[^/]/%255[^/]/%d/%u/%d/%d", name, addr, &local, &port, &tcp, &ssl);
+	sscanf(k, "%255[^/]/%255[^/]/%d/%u/%d/%d", name, addr, &local, &port, &tcp, &ssl);
 
 	if (u->search.name[0] && strcmp(u->search.name, name))
 		return 0;
@@ -101,7 +101,8 @@ static int uncle_add2(uncle u, const char* name, const char* addr, int local, un
 	{
 		sprintf(tmpbuf,
 			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"+\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
-				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
+				u->scope, (unsigned long long)u->unique, name, port,
+				tcp?"true":"false", ssl?"true":"false");
 		session_writemsg(u->s, tmpbuf);
 	}
 
@@ -250,7 +251,7 @@ uncle uncle_create2(handler h, const char* binding, unsigned short port, const c
 	u->l = lock_create();
 	u->unique = time(NULL);
 	strcpy(u->scope, scope?scope:SCOPE_DEFAULT);
-	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0);
+	handler_add_server(u->h, &uncle_handler, u, binding, port, 0, 0, NULL);
 	u->s = session_open("255.255.255.255", port, 0, 0);
 	session_enable_broadcast(u->s);
 	handler_add_client(h, &uncle_handler, u, u->s);

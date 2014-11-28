@@ -327,6 +327,19 @@ static int SSL_smart_shutdown(SSL *ssl)
 }
 #endif
 
+const char* hostname(void)
+{
+	static char tmpbuf[256] = {0};
+
+	if (tmpbuf[0])
+		return tmpbuf;
+
+	if (gethostname(tmpbuf, sizeof(tmpbuf)) == 0)
+		return tmpbuf;
+	else
+		return "LOCALHOST.LOCALDOMAIN";
+}
+
 static int _parse_addr4(const char* host, struct sockaddr_in* addr4, int numeric)
 {
     struct addrinfo hints = {0};
@@ -1957,7 +1970,7 @@ uncle handler_get_uncle(handler h, const char* scope)
 	return NULL;
 }
 
-static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* maddr6, const char* maddr4)
+static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* maddr6, const char* maddr4, const char* name)
 {
 	int fd6 = socket(AF_INET6, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
 
@@ -2086,13 +2099,19 @@ static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, c
 		}
 	}
 
+	if (name && name[0] && h->uncs)
+	{
+		uncle u = h->u[h->uncs-1];
+		uncle_add(u, name, hostname(), port, tcp, ssl);
+	}
+
 	h->use++;
 	return 1;
 }
 
-int handler_add_server(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl)
+int handler_add_server(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* name)
 {
-	return handler_add_server2(h, f, v, binding, port, tcp, ssl, NULL, NULL);
+	return handler_add_server2(h, f, v, binding, port, tcp, ssl, NULL, NULL, name);
 }
 
 int handler_add_client(handler h, int (*f)(session, void* data), void* data, session s)
@@ -2162,19 +2181,9 @@ handler handler_create(int threads)
 	return h;
 }
 
-int handler_add_multicast(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, const char* addr6, const char* addr4)
+int handler_add_multicast(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, const char* addr6, const char* addr4, const char* name)
 {
-	return handler_add_server2(h, f, v, binding, port, 0, 0, addr6, addr4);
-}
-
-const char* hostname(void)
-{
-	static char tmpbuf[256];
-
-	if (gethostname(tmpbuf, sizeof(tmpbuf)) == 0)
-		return tmpbuf;
-	else
-		return "LOCALHOST.LOCALDOMAIN";
+	return handler_add_server2(h, f, v, binding, port, 0, 0, addr6, addr4, name);
 }
 
 int handler_destroy(handler h)

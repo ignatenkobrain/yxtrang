@@ -92,7 +92,7 @@ extern void session_unshare(session s);
 
 extern int session_shutdown(session s);
 
-// Close, and possibly (depending on use count) free session.
+// Close, and maybe free session.
 
 extern int session_close(session s);
 
@@ -114,11 +114,12 @@ extern int handler_set_tls(handler h, const char* keyfile);
 // Add socket-based services to the handler.
 
 extern int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope);
-extern int handler_add_multicast(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, const char* maddr6, const char* maddr4);
-extern int handler_add_server(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, int tcp, int ssl);
-extern int handler_add_client(handler h, int (*f)(session, void* data), void* data, session s);
 
-extern uncle handler_get_uncle(handler h, const char* scope);
+// If name is not NULL then it is added to the uncle as a named service.
+
+extern int handler_add_multicast(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, const char* maddr6, const char* maddr4, const char* name);
+extern int handler_add_server(handler h, int (*f)(session, void* data), void* data, const char* binding, unsigned short port, int tcp, int ssl, const char* name);
+extern int handler_add_client(handler h, int (*f)(session, void* data), void* data, session s);
 
 // There is where the action occurs. It will not return until
 // there are no more sockets to monitor.

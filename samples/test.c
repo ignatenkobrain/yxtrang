@@ -62,15 +62,11 @@ static void do_server(int tcp, int ssl, int threads)
 		return;
 	}
 
-	if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)g_port, tcp, ssl))
+	if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)g_port, tcp, ssl, g_service))
 	{
 		printf("add server failed\n");
 		return;
 	}
-
-	// The handler should do this, but would need to provide a name
-
-	uncle_add(handler_get_uncle(h, SCOPE_DEFAULT), g_service, hostname(), g_port, tcp, ssl);
 
 	handler_wait(h);
 	handler_destroy(h);

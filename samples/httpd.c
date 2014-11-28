@@ -181,7 +181,7 @@ int main(int ac, char** av)
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
-	if (!handler_add_server(h, &on_session, param, binding, port, 1, ssl))
+	if (!handler_add_server(h, &on_session, param, binding, port, 1, ssl, NULL))
 		return 1;
 
 	handler_wait(h);
