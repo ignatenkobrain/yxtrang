@@ -605,6 +605,8 @@ int main(int ac, char* av[])
 
 		if (uncle_query(u, g_service, host, &g_port, &tcp, &ssl))
 			printf("DISCOVERY: service=%s, host=%s, port=%d, tcp=%d, ssl=%d\n", g_service, host, g_port, tcp, ssl);
+
+		uncle_destroy(u);
 	}
 
 	if (test_json)

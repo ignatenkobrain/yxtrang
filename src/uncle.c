@@ -30,7 +30,7 @@ struct _uncle
 	 search;
 };
 
-static const int g_debug = 1;
+static const int g_debug = 0;
 
 static int uncle_iter(uncle u, const char* k, const char* v)
 {

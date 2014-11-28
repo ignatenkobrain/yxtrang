@@ -96,6 +96,8 @@
 #define POLLRDHUP 0
 #endif
 
+static const int g_debug = 0;
+
 struct _session
 {
 	handler h;
@@ -1301,6 +1303,7 @@ static int kqueue_run(void* data)
 
 int handler_wait_kqueue(handler h)
 {
+	if (g_debug) printf("USING KQUEUE\n");
 	struct kevent ev = {0}, events[MAX_EVENTS];
 	int i;
 
@@ -1413,6 +1416,7 @@ static int epoll_run(void* data)
 
 int handler_wait_epoll(handler h)
 {
+	if (g_debug) printf("USING EPOLL\n");
 	struct epoll_event ev = {0}, events[MAX_EVENTS];
 	int i;
 
@@ -1521,7 +1525,7 @@ static int poll_run(void* data)
 
 int handler_wait_poll(handler h)
 {
-	printf("USING POLL\n");
+	if (g_debug) printf("USING POLL\n");
 	int i;
 
 	for (i = 0; i < h->cnt; i++)
@@ -1711,7 +1715,7 @@ static int handler_select_bads(void* _h, int fd, void* _s)
 
 int handler_wait_select(handler h)
 {
-	printf("USING SELECT\n");
+	if (g_debug) printf("USING SELECT\n");
 	h->badfds = sl_int_create();
 
 	while (!h->halt && h->use)
@@ -2140,14 +2144,12 @@ handler handler_create(int threads)
 	h->tp = tpool_create(h->threads=threads);
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__)
-	printf("USING KQUEUE\n");
 	h->fd = kqueue();
 
 	if (h->fd < 0)
 		return 0;
 
 #elif defined(__linux__)
-	printf("USING EPOLL\n");
 	h->fd = epoll_create(10);
 
 	if (h->fd < 0)
