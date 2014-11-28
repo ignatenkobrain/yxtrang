@@ -500,7 +500,7 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 	if (q == NULL)
 		return;
 
-	int imid = binary_search(l, q->bkt, key, 0, q->nbr-1);
+	int imid = binary_search2(l, q->bkt, key, 0, q->nbr-1);
 
 	if (imid < 0)
 		return;
