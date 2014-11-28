@@ -1094,7 +1094,7 @@ int session_readmsg(session s, char** buf)
 	{
 		*s->dst++ = *s->src++;
 
-		// Allow space for NL+NULL
+		// Allow space for \n\0
 
 		if ((s->dst - s->dstbuf) == (s->len-2))
 		{
