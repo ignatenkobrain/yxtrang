@@ -1,15 +1,10 @@
 Yxtrang
 -------
 
-An ongoing quest of penance to undo my last 20+ years of C++
-programming by rewriting and reimagining in the pure, elegant,
-beautifully precise C language.
-
 The 'trang is not a framework, it's a library. A toolkit. A loose
 collection of small modules that do interesting things and which can
-be used together if need be or not. And it is absolutely free.
-
-From little things big things grow!
+be used together if need be or not. It is all written in C and it is
+absolutely free. From little things big things grow!
 
 
 Current modules
@@ -79,8 +74,10 @@ uncle:
 
  Resource discovery and notifcation. Uses UDP broadcast (for now,
  will move to multicast). Uncle is scope based, meaning it can
- organize resources by group: those within the same scope can
- find each other, but not those outside.
+ organize resources by group: those within the same scope can find
+ each other, but not those outside. Uncle is not a centralized
+ server. It's job will be to facilitate decentralized and distributed
+ services reach a consensus of parts.
 
 
 uuid:
