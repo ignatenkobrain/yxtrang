@@ -8,13 +8,14 @@ the availability of named resources.
 The format of a message is:
 
 	{
-		"$scope":text,			// application grouping
-		"$unique":int,			// for loopback detection
+		"$scope":text,
 		"$cmd":text,
-		"$name":text,
+		"$addr":text,
 		"$port":int,
-		"$tcp":boolean,
-		"$ssl":boolean
+		"$name":text,			// search term
+		"$tcp":boolean,			// search term
+		"$ssl":boolean,			// search term
+		...
 	}
 
 All messages are in JSON, single-line and linefeed terminated. Where
@@ -24,8 +25,6 @@ All messages are in JSON, single-line and linefeed terminated. Where
 	"-"	- remove resource
 	"?"	- query resource
 
-When querying use 'true' or 'false' to select a desired tcp and/or ssl
-state, use 'null' or leave off to select any state. If name is is
-blank or null then all names are returned.
+If name is is blank or null then all names are queried.
 
-Other fields may be added in time.
+Other terms may be added in time.
