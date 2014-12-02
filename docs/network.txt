@@ -34,3 +34,6 @@ The handler will use the optimal method (kqueue/epoll/poll/select)
 depending upon the platform. Kqueue and epoll are used edge-triggered
 for maximum efficiency.
 
+The handler can also add an uncle for automatic control of resources
+over a network. This uses a broadcast or multicast protocol.
+

@@ -5,7 +5,9 @@ typedef struct _uncle* uncle;
 
 #define SCOPE_DEFAULT "DEFAULT"
 
-// Create using an internal handler and thread.
+// Create using an internal handler and thread for manual
+// control of resources. See network.h for how to create an
+// automatic uncle that self-manages all resources.
 
 extern uncle uncle_create(const char* binding, unsigned short port, const char* scope);
 
