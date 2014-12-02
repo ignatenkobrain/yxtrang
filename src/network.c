@@ -691,6 +691,14 @@ int session_on_disconnect(session s)
 	return s->disconnected;
 }
 
+void session_lock_handler()
+{
+}
+
+void session_unlock_handler()
+{
+}
+
 #ifdef _WIN32
 const char* inet_ntop(int family, void* address, char* buffer, socklen_t len)
 {

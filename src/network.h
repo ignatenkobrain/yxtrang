@@ -15,14 +15,9 @@ extern const char* hostname(void);
 // might be different to expectations with UDP, but allows messages to
 // span hardware limitations...
 
-// Client sessions are created by a 'session_open' call and must be
-// disposed of by a 'session_close' call.
-//
-// Specify 'tcp' to enable stream-oriented TCP use or datagram-oriented
-// UDP.
-//
-// Use 'ssl' to immediately enable TLS (SSL fallback is not supported)
-// on the new connection.
+// Client sessions are created by a 'session_open' call.
+// Client sessions are disposed of by a 'session_close' call.
+// Use 'ssl' to immediately enable TLS (SSL fallback is not supported).
 
 extern session session_open(const char* host, unsigned short port, int tcp, int ssl);
 
@@ -35,6 +30,9 @@ extern int session_on_disconnect(session s);
 
 extern int session_enable_multicast(session s, int loop, int hops);
 extern int session_enable_broadcast(session s);
+
+// Programmatically enable TLS (SSL fallback is not supported).
+
 extern int session_enable_tls(session s, const char* certfile, int level);
 
 extern const char* session_get_remote_host(session s, int /*resolve*/);
@@ -71,9 +69,10 @@ extern const char* session_get_stash(session s, const char* key);
 extern void session_share(session s);
 extern void session_unshare(session s);
 
-// Graceful network shutdown.
-
 extern int session_shutdown(session s);
+
+extern void session_lock_handler();
+extern void session_unlock_handler();
 
 // Close, and maybe (depends on share count) free session.
 
