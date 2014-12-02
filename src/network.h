@@ -31,8 +31,6 @@ extern int session_on_disconnect(session s);
 extern int session_enable_multicast(session s, int loop, int hops);
 extern int session_enable_broadcast(session s);
 
-// Programmatically enable TLS (SSL fallback is not supported).
-
 extern int session_enable_tls(session s, const char* certfile, int level);
 
 extern const char* session_get_remote_host(session s, int /*resolve*/);
@@ -66,17 +64,13 @@ extern void session_set_stash(session s, const char* key, const char* value);
 extern void session_del_stash(session s, const char* key);
 extern const char* session_get_stash(session s, const char* key);
 
-extern void session_share(session s);
-extern void session_unshare(session s);
-
-extern int session_shutdown(session s);
-
-// Access handler-wide lock.
-
 extern void session_lock(session s);
 extern void session_unlock(session s);
 
-// Close, and maybe (depends on share count) free session.
+extern int session_shutdown(session s);
+
+extern void session_share(session s);
+extern void session_unshare(session s);
 
 extern int session_close(session s);
 
