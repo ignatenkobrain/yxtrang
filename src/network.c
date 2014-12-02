@@ -129,7 +129,7 @@ struct _server
 {
 	int (*f)(session, void*);
 	void* v;
-	lock l;
+	lock strand;
 	int fd, port, tcp, ssl, ipv4;
 };
 
@@ -2016,7 +2016,7 @@ static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, c
 	if (fd6 != -1)
 	{
 		server srv = &h->srvs[h->cnt++];
-		srv->l = lock_create();
+		srv->strand = lock_create();
 		srv->fd = fd6;
 		srv->port = port;
 		srv->tcp = tcp;
@@ -2076,7 +2076,7 @@ static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, c
 	if (fd4 != -1)
 	{
 		server srv = &h->srvs[h->cnt++];
-		srv->l = lock_create();
+		srv->strand = lock_create();
 		srv->fd = fd4;
 		srv->port = port;
 		srv->tcp = tcp;
@@ -2212,7 +2212,7 @@ int handler_destroy(handler h)
 	for (i = 0; i < h->cnt; i++)
 	{
 		server srv = &h->srvs[i];
-		lock_destroy(srv->l);
+		lock_destroy(srv->strand);
 	}
 
 	free(h);
