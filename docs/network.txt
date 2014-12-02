@@ -30,3 +30,7 @@ of configurable size. If the size is set to zero then no pool is used
 and instead all operations of the handler are serial. There can be
 multiple handlers instantiated.
 
+The handler will use the optimal method (kqueue/epoll/poll/select)
+depending upon the platform. Kqueue and epoll are used edge-triggered
+for maximum efficiency.
+
