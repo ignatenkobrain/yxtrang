@@ -691,11 +691,11 @@ int session_on_disconnect(session s)
 	return s->disconnected;
 }
 
-void session_lock_handler()
+void session_lock_handler(session s)
 {
 }
 
-void session_unlock_handler()
+void session_unlock_handler(session s)
 {
 }
 

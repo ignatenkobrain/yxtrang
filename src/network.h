@@ -71,8 +71,8 @@ extern void session_unshare(session s);
 
 extern int session_shutdown(session s);
 
-extern void session_lock_handler();
-extern void session_unlock_handler();
+extern void session_lock_handler(session s);
+extern void session_unlock_handler(session s);
 
 // Close, and maybe (depends on share count) free session.
 
