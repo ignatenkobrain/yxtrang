@@ -691,12 +691,14 @@ int session_on_disconnect(session s)
 	return s->disconnected;
 }
 
-void session_lock_handler(session s)
+void session_lock(session s)
 {
+	lock_lock(s->h->strand);
 }
 
-void session_unlock_handler(session s)
+void session_unlock(session s)
 {
+	lock_unlock(s->h->strand);
 }
 
 #ifdef _WIN32
