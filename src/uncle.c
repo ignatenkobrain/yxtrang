@@ -188,7 +188,7 @@ static int uncle_handler(session s, void* data)
 	if (!session_readmsg(s, &buf))
 		return 0;
 
-	const char* addr = session_remote_host(s, 0);
+	const char* addr = session_get_remote_host(s, 0);
 	if (g_debug) printf("UNCLE RCV %s: %s", addr, buf);
 	char scope[256];
 

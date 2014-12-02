@@ -30,7 +30,7 @@ static int on_server_session(session s, void* v)
 {
 	if (session_on_connect(s))
 	{
-		printf("SERVER: connected '%s'\n", session_remote_host(s, 0));
+		printf("SERVER: connected '%s'\n", session_get_remote_host(s, 0));
 		return 1;
 	}
 
@@ -77,7 +77,7 @@ static void do_client(const char* host, long cnt, int tcp, int ssl, int broadcas
 	session s = session_open(host, (short)g_port, tcp, ssl);
 	if (!s) { printf("CLIENT: session failed\n"); return; }
 
-	printf("CLIENT: connected '%s'\n", session_remote_host(s, 0));
+	printf("CLIENT: connected '%s'\n", session_get_remote_host(s, 0));
 	if (broadcast) session_enable_broadcast(s);
 
 	long tot = 0;

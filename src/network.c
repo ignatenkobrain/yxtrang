@@ -102,7 +102,6 @@ struct _server
 {
 	int (*f)(session, void*);
 	void* v;
-	lock strand;
 	int fd, port, tcp, ssl, ipv4;
 };
 
@@ -111,6 +110,7 @@ typedef struct _server* server;
 struct _handler
 {
 	skiplist fds, badfds;
+	lock strand;
 	thread_pool tp;
 	uncle u[MAX_SERVERS];
 	fd_set rfds;
@@ -895,7 +895,7 @@ int session_set_rcvbuffer(session s, int bufsize)
 	return 1;
 }
 
-const char* session_remote_host(session s, int resolve)
+const char* session_get_remote_host(session s, int resolve)
 {
 	if (!s)
 		return "";
@@ -2016,7 +2016,6 @@ static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, c
 	if (fd6 != -1)
 	{
 		server srv = &h->srvs[h->cnt++];
-		srv->strand = lock_create();
 		srv->fd = fd6;
 		srv->port = port;
 		srv->tcp = tcp;
@@ -2076,7 +2075,6 @@ static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, c
 	if (fd4 != -1)
 	{
 		server srv = &h->srvs[h->cnt++];
-		srv->strand = lock_create();
 		srv->fd = fd4;
 		srv->port = port;
 		srv->tcp = tcp;
@@ -2161,6 +2159,7 @@ handler handler_create(int threads)
 	if (!h) return NULL;
 	h->fds = sl_int_create();
 	h->tp = tpool_create(h->threads=threads);
+	h->strand = lock_create();
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__)
 	h->fd = kqueue();
@@ -2201,6 +2200,8 @@ int handler_destroy(handler h)
 	if (h->tp)
 		tpool_destroy(h->tp);
 
+	lock_destroy(h->strand);
+
 	sl_int_iter(h->fds, &handler_force_drop, h);
 	sl_int_destroy(h->fds);
 
@@ -2208,12 +2209,6 @@ int handler_destroy(handler h)
 	if (h->ctx)
 		SSL_CTX_free((SSL_CTX*)h->ctx);
 #endif
-
-	for (i = 0; i < h->cnt; i++)
-	{
-		server srv = &h->srvs[i];
-		lock_destroy(srv->strand);
-	}
 
 	free(h);
 	return 1;

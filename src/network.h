@@ -26,26 +26,18 @@ extern const char* hostname(void);
 
 extern session session_open(const char* host, unsigned short port, int tcp, int ssl);
 
-// Or application-level control of TLS.
-
-extern int session_enable_tls(session s, const char* certfile, int level);
-
-// With UDP this will enable broadcast sending.
-
-extern int session_enable_broadcast(session s);
+extern int session_on_connect(session s);
+extern int session_on_disconnect(session s);
 
 // With UDP this will enable multicast sending.
 // LOOP = 1 (the default) allow loopback to same host.
 // HOPS = 0 same host only, 1 (the default) same sub-net etc.
 
 extern int session_enable_multicast(session s, int loop, int hops);
+extern int session_enable_broadcast(session s);
+extern int session_enable_tls(session s, const char* certfile, int level);
 
-// Check connect and/or disconnect state change.
-
-extern int session_on_connect(session s);
-extern int session_on_disconnect(session s);
-
-extern const char* session_remote_host(session s, int /*resolve*/);
+extern const char* session_get_remote_host(session s, int /*resolve*/);
 
 extern int session_set_sndbuffer(session s, int bufsize);
 extern int session_set_rcvbuffer(session s, int bufsize);
@@ -55,35 +47,26 @@ extern int session_writemsg(session s, const char* buf);
 
 extern int session_read(session s, void* buf, size_t len);
 
-// Readmsg returns 1 on a complete message being read. It will
-// return 0 otherwise. Readmsg allocates and disposes of the buffer
-// internally.
+// Readmsg returns 1 on a complete message being read.
+// Readmsg returns 0 otherwise.
+// Readmsg allocates and disposes of the buffer internally.
 
 extern int session_readmsg(session s, char** buf);
-
-// User flags.
 
 extern void session_clr_udata_flags(session s);
 extern void session_clr_udata_flag(session s, int flag);   // flag=0..63
 extern void session_set_udata_flag(session s, int flag);   // flag=0..63
 extern int session_get_udata_flag(session s, int flag);    // flag=0..63
 
-// User data (int/real are separate values).
-
 extern void session_set_udata_int(session s, uint64_t data);
 extern uint64_t session_get_udata_int(session s);
 extern void session_set_udata_real(session s, double data);
 extern double session_get_udata_real(session s);
 
-// User key-values. Note: makes internal copies and returned
-// 'value' on the get points to it.
-
 extern void session_clr_stash(session s);
 extern void session_set_stash(session s, const char* key, const char* value);
 extern void session_del_stash(session s, const char* key);
 extern const char* session_get_stash(session s, const char* key);
-
-// Increment/decrement use count. Use to manage life-cycle.
 
 extern void session_share(session s);
 extern void session_unshare(session s);
@@ -92,7 +75,7 @@ extern void session_unshare(session s);
 
 extern int session_shutdown(session s);
 
-// Close, and maybe free session.
+// Close, and maybe (depends on share count) free session.
 
 extern int session_close(session s);
 
