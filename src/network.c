@@ -98,6 +98,31 @@
 
 static const int g_debug = 0;
 
+struct _server
+{
+	int (*f)(session, void*);
+	void* v;
+	lock strand;
+	int fd, port, tcp, ssl, ipv4;
+};
+
+typedef struct _server* server;
+
+struct _handler
+{
+	skiplist fds, badfds;
+	thread_pool tp;
+	uncle u[MAX_SERVERS];
+	fd_set rfds;
+	struct _server srvs[MAX_SERVERS];
+#if defined(POLLIN) && WANT_POLL
+	struct pollfd rpollfds[FD_POLLSIZE];
+#endif
+	void* ctx;
+	int cnt, hi, fd, threads, uncs;
+	volatile int halt, use;
+};
+
 struct _session
 {
 	handler h;
@@ -123,31 +148,6 @@ struct _session
 		struct sockaddr_in addr4;
 		struct sockaddr_in6 addr6;
 	};
-};
-
-struct _server
-{
-	int (*f)(session, void*);
-	void* v;
-	lock strand;
-	int fd, port, tcp, ssl, ipv4;
-};
-
-typedef struct _server* server;
-
-struct _handler
-{
-	skiplist fds, badfds;
-	thread_pool tp;
-	uncle u[MAX_SERVERS];
-	fd_set rfds;
-	struct _server srvs[MAX_SERVERS];
-#if defined(POLLIN) && WANT_POLL
-	struct pollfd rpollfds[FD_POLLSIZE];
-#endif
-	void* ctx;
-	int cnt, hi, fd, threads, uncs;
-	volatile int halt, use;
 };
 
 #if USE_SSL
