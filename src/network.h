@@ -10,15 +10,6 @@ typedef struct _handler* handler;
 
 extern const char* hostname(void);
 
-// Sessions are message oriented (ie. newline delimited text string)
-// of arbitrary and unlimited length, and can traverse TCP or UDP. This
-// might be different to expectations with UDP, but allows messages to
-// span hardware limitations...
-
-// Client sessions are created by a 'session_open' call.
-// Client sessions are disposed of by a 'session_close' call.
-// Use 'ssl' to immediately enable TLS (SSL fallback is not supported).
-
 extern session session_open(const char* host, unsigned short port, int tcp, int ssl);
 
 extern int session_on_connect(session s);
@@ -56,6 +47,7 @@ extern int session_get_udata_flag(session s, int flag);    // flag=0..63
 
 extern void session_set_udata_int(session s, uint64_t data);
 extern uint64_t session_get_udata_int(session s);
+
 extern void session_set_udata_real(session s, double data);
 extern double session_get_udata_real(session s);
 

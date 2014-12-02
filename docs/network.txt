@@ -2,3 +2,31 @@
                ****************
 
 
+Sessions are message oriented (ie. newline delimited text string)
+of arbitrary and unlimited length, and can traverse TCP or UDP.
+Multiple messages may be in a physical packet. This might be different
+to expectations with UDP, but allows messages to exceed hardware
+limitations.
+
+Client sessions are created by a 'session_open' call, they are
+destroyed by a 'session_close' call. This behaviour can be modified
+by 'session_share/session_unshare' calls which manage a use count.
+A 'session_close' will always close the socket, but not destroy the
+session if there is an outstanding share. The last 'session_unshare'
+will instead then do this.
+
+Use  the 'ssl' to immediately enable TLS (note SSL fallback is not
+supported). Or use 'sessiona_enable_tls' to do so programmatically.
+
+The stash lasts the life-time (from connect to disconnect) of each
+session and can be used to store and retrieve session-wide data
+over multiple callbacks.
+
+Sessions can use 'session_lock/session_unlock' which is a handler-wide
+guard in order to control access to resources that are not thread-safe.
+
+The handler itself is multi-threaded and uses an internal thead-pool
+of configurable size. If the size is set to zero then no pool is used
+and instead all operations of the handler are serial. There can be
+multiple handlers instantiated.
+
