@@ -519,8 +519,8 @@ session session_open(const char* host, unsigned short port, int tcp, int ssl)
 
 	session s = (session)calloc(1, sizeof(struct _session));
 	if (!s) return NULL;
-	s->strand = lock_create();
 	session_share(s);
+	s->strand = lock_create();
 	s->connected = 1;
 	s->fd = fd;
 	s->ipv4 = !try_ipv6;
@@ -1216,8 +1216,11 @@ void session_unshare(session s)
 	if (!s)
 		return;
 
-	if (!atomic_dec(&s->use_cnt))
-		session_free(s);
+	if (atomic_dec(&s->use_cnt))
+		return;
+
+	lock_destroy(s->strand);
+	session_free(s);
 }
 
 int session_close(session s)
@@ -1231,7 +1234,6 @@ int session_close(session s)
 		close(s->fd);
 	}
 
-	lock_destroy(s->strand);
 	session_unshare(s);
 	return 1;
 }
