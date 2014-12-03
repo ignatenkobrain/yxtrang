@@ -374,7 +374,7 @@ void do_tree(long cnt, int rnd)
 	for (i = 1; i <= cnt; i++)
 	{
 		uuid u = uuid_set((rand()%cnt)+1,1);
-		uint64_t v = 0;
+		unsigned long long v = 0;
 
 		if (!tree_get(tptr, &u, &v))
 		{
