@@ -147,7 +147,7 @@ void sl_destroy(skiplist l)
 	free(l);
 }
 
-size_t sl_count(const skiplist l)
+unsigned long sl_count(const skiplist l)
 {
 	return l->count;
 }

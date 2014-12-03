@@ -23,7 +23,7 @@ extern store store_open(const char* path1, const char* path2, int compact);
 extern int store_get(const store st, const uuid* u, void** buf, int* len);
 extern int store_add(store st, const uuid* u, void* buf, int len);
 extern int store_rem(store st, const uuid* u);
-extern size_t store_count(const store st);
+extern unsigned long store_count(const store st);
 
 // Transactions...
 

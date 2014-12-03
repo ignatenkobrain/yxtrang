@@ -121,7 +121,7 @@ static int parse(const char* buf, unsigned* nbr, uuid* u, unsigned* flags, unsig
 	return src-buf;
 }
 
-size_t store_count(const store st)
+unsigned long store_count(const store st)
 {
 	return tree_count(st->tptr);
 }
