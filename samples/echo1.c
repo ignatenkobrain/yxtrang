@@ -11,7 +11,7 @@ int main(int ac, char** av)
 {
 	printf("Usage: echo1 [host|localhost [port|12345 [tcp|1 [ssl|0 [loops|10 [quiet|0]]]]]]\n");
 	const char* host = ac>1?av[1]:"localhost";
-	short port = (short)(ac>2?atoi(av[2]):12345);
+	unsigned short port = (short)(ac>2?atoi(av[2]):12345);
 	int tcp = (ac>3?atoi(av[3]):1);
 	int ssl = (ac>4?atoi(av[4]):0);
 	int loops = (ac>5?atoi(av[5]):10);

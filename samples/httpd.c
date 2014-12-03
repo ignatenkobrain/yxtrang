@@ -169,7 +169,7 @@ int main(int ac, char** av)
 {
 	printf("Usage: httpd [port|8080 [ssl|0 [quiet|0 [threads|0 [www|/var/www]]]]]]\n");
 	const char* binding = NULL;
-	short port = (short)(ac>1?atoi(av[1]):8080);
+	unsigned short port = (short)(ac>1?atoi(av[1]):8080);
 	int ssl = (ac>2?atoi(av[2]):0);
 	g_quiet = (ac>3?atoi(av[3]):0);
 	int threads = (ac>4?atoi(av[4]):0);

@@ -33,7 +33,7 @@ int main(int ac, char** av)
 {
 	printf("Usage: echod [port|12345 [tcp|1 [ssl|0 [quiet|0 [threads|0]]]]]\n");
 	const char* binding = NULL;
-	short port = (short)(ac>1?atoi(av[1]):12345);
+	unsigned short port = (short)(ac>1?atoi(av[1]):12345);
 	int tcp = (ac>2?atoi(av[2]):1);
 	int ssl = (ac>3?atoi(av[3]):0);
 	g_quiet = (ac>4?atoi(av[4]):0);
