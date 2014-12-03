@@ -75,15 +75,15 @@ extern handler handler_create(int threads);
 
 extern int handler_set_tls(handler h, const char* keyfile);
 
+// Add an application discovery layer.
+
+extern int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope);
+
 // Server sessions are created and disposed of automatically by the
 // connection handler, accessing the user-supplied callback function.
 // Callbacks happen in-line if 'threads' is zero.
 // Specify 'tcp' to enable TCP streams or UDP datagrams.
 // Use 'ssl' to immediately enable TLS (SSL is not supported).
-
-// Add socket-based services to the handler.
-
-extern int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope);
 
 // If name is not NULL then it is added to the uncle as a named service.
 
