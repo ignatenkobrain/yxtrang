@@ -297,7 +297,7 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 		return 0;
 	}
 
-	uint64_t v;
+	unsigned long long v;
 
 	if (!tree_get(st->tptr, u, &v))
 		return 0;
@@ -605,7 +605,7 @@ static void store_load_file(store st)
 	printf("store_load_file: '%s' applied=%u, size=%llu MiB\n", st->filename[st->idx-1], cnt, (unsigned long long)pos/1024/1024);
 }
 
-static int store_merge_item(void* h, const uuid* u, uint64_t* v)
+static int store_merge_item(void* h, const uuid* u, unsigned long long* v)
 {
 	store st = (store)h;
 	int idx = FILEIDX(*v);

@@ -1,8 +1,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include <stdint.h>
-
 #include "uncle.h"
 
 typedef struct _session* session;
@@ -45,8 +43,8 @@ extern void session_clr_udata_flag(session s, int flag);   // flag=0..63
 extern void session_set_udata_flag(session s, int flag);   // flag=0..63
 extern int session_get_udata_flag(session s, int flag);    // flag=0..63
 
-extern void session_set_udata_int(session s, uint64_t data);
-extern uint64_t session_get_udata_int(session s);
+extern void session_set_udata_int(session s, long long data);
+extern long long session_get_udata_int(session s);
 
 extern void session_set_udata_real(session s, double data);
 extern double session_get_udata_real(session s);

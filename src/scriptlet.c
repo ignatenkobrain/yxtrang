@@ -146,7 +146,7 @@ struct _bytecode
 
 	union
 	{
-		int64_t int_val;
+		long long int_val;
 		double real_val;
 		token str_val;
 	};
@@ -251,7 +251,7 @@ int scriptlet_done(runtime r)
 	return 1;
 }
 
-int scriptlet_set_int(runtime r, const char* k, int64_t value)
+int scriptlet_set_int(runtime r, const char* k, long long value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = int_tc;
@@ -291,7 +291,7 @@ static bytecode substitute(const runtime r, const bytecode v)
 	return code;
 }
 
-int scriptlet_get_int(runtime r, const char* k, int64_t* value)
+int scriptlet_get_int(runtime r, const char* k, long long* value)
 {
 	bytecode code = NULL;
 
@@ -299,9 +299,9 @@ int scriptlet_get_int(runtime r, const char* k, int64_t* value)
 		return 0;
 
 	if (code->tc == int_tc)
-		*value = (int64_t)code->int_val;
+		*value = (long long)code->int_val;
 	else if (code->tc == real_tc)
-		*value = (int64_t)code->real_val;
+		*value = (long long)code->real_val;
 	else
 		return 0;
 
@@ -967,7 +967,7 @@ static int pop_stack(runtime r, bytecode* value)
 	return code->tc;
 }
 
-static void push_stack_int(runtime r, int64_t value)
+static void push_stack_int(runtime r, long long value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = int_tc;

@@ -31,7 +31,7 @@ struct _node
 
 	union
 	{
-		uint64_t v;		// if a leaf: stores value
+		unsigned long long v;		// if a leaf: stores value
 		branch b;		// otherwise: points to branch
 	};
 };
@@ -136,7 +136,7 @@ size_t tree_count(const tree tptr)
 	return tptr->leafs;
 }
 
-static int branch_insert(tree tptr, branch* b2, const TREE_KEY* k, uint64_t v)
+static int branch_insert(tree tptr, branch* b2, const TREE_KEY* k, unsigned long long v)
 {
 	branch b = *b2;
 
@@ -200,7 +200,7 @@ static int branch_insert(tree tptr, branch* b2, const TREE_KEY* k, uint64_t v)
 	return branch_insert(tptr, last, k, v);
 }
 
-int tree_insert(tree tptr, const TREE_KEY* k, uint64_t v)
+int tree_insert(tree tptr, const TREE_KEY* k, unsigned long long v)
 {
 	if (!tptr)
 		return 0;
@@ -249,7 +249,7 @@ static void trunk_add(tree tptr, trunk t, branch save, branch b, const TREE_KEY*
 	t->active->nodes++;
 }
 
-int tree_add(tree tptr, const TREE_KEY* k, uint64_t v)
+int tree_add(tree tptr, const TREE_KEY* k, unsigned long long v)
 {
 	if (!tptr || !k)
 		return 0;
@@ -368,7 +368,7 @@ int tree_del(tree tptr, const TREE_KEY* k)
 	return branch_del(tptr, tptr->last->active, k);
 }
 
-static int branch_get(const tree tptr, const branch b, const TREE_KEY* k, uint64_t* v)
+static int branch_get(const tree tptr, const branch b, const TREE_KEY* k, unsigned long long* v)
 {
 	if (b->leaf)
 	{
@@ -401,7 +401,7 @@ static int branch_get(const tree tptr, const branch b, const TREE_KEY* k, uint64
 	return branch_get(tptr, last, k, v);
 }
 
-int tree_get(const tree tptr, const TREE_KEY* k, uint64_t* v)
+int tree_get(const tree tptr, const TREE_KEY* k, unsigned long long* v)
 {
 	if (!tptr || !k)
 		return 0;
@@ -409,7 +409,7 @@ int tree_get(const tree tptr, const TREE_KEY* k, uint64_t* v)
 	return branch_get(tptr, tptr->last->active, k, v);
 }
 
-static int branch_set(const tree tptr, const branch b, const TREE_KEY* k, uint64_t v)
+static int branch_set(const tree tptr, const branch b, const TREE_KEY* k, unsigned long long v)
 {
 	if (b->leaf)
 	{
@@ -442,7 +442,7 @@ static int branch_set(const tree tptr, const branch b, const TREE_KEY* k, uint64
 	return branch_set(tptr, last, k, v);
 }
 
-int tree_set(const tree tptr, const TREE_KEY* k, uint64_t v)
+int tree_set(const tree tptr, const TREE_KEY* k, unsigned long long v)
 {
 	if (!tptr || !k)
 		return 0;
@@ -450,7 +450,7 @@ int tree_set(const tree tptr, const TREE_KEY* k, uint64_t v)
 	return branch_set(tptr, tptr->last->active, k, v);
 }
 
-static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, int (*f)(void* h, const TREE_KEY* u, uint64_t* v))
+static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, int (*f)(void* h, const TREE_KEY* u, unsigned long long* v))
 {
 	int i;
 
@@ -477,7 +477,7 @@ static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, in
 	return 1;
 }
 
-size_t tree_iter(const tree tptr, void* h, int (*f)(void* h, const TREE_KEY* u, uint64_t* v))
+size_t tree_iter(const tree tptr, void* h, int (*f)(void* h, const TREE_KEY* u, unsigned long long* v))
 {
 	if (!tptr)
 		return 0;

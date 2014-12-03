@@ -134,7 +134,7 @@ struct _session
 	char* dst;
 	lock strand;
 	uint64_t udata_flags;
-	uint64_t udata_int;
+	unsigned long long udata_int;
 	double udata_real;
 	int connected, disconnected, len, busy;
 	int fd, port, tcp, is_ssl, ipv4, idx, use_cnt;
@@ -769,7 +769,7 @@ int session_get_udata_flag(session s, int flag)
 	return s->udata_flags & (((uint64_t)1) << flag);
 }
 
-void session_set_udata_int(session s, uint64_t data)
+void session_set_udata_int(session s, long long data)
 {
 	if (!s)
 		return;
@@ -777,7 +777,7 @@ void session_set_udata_int(session s, uint64_t data)
 	s->udata_int = data;
 }
 
-uint64_t session_get_udata_int(session s)
+long long session_get_udata_int(session s)
 {
 	if (!s)
 		return 0;
