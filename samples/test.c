@@ -23,7 +23,7 @@
 #endif
 
 static int g_debug = 0;
-static unsigned short g_uncle = UNCLE_PORT, g_port = SERVER_PORT;
+static unsigned short g_uncle = UNCLE_PORT;
 static const char* g_service = "TEST";
 
 static int on_server_session(session s, void* v)
@@ -49,7 +49,7 @@ static int on_server_session(session s, void* v)
 	return session_writemsg(s, buf);
 }
 
-static void do_server(int tcp, int ssl, int threads)
+static void do_server(unsigned short port, int tcp, int ssl, int threads)
 {
 	handler h = handler_create(threads);
 
@@ -62,7 +62,7 @@ static void do_server(int tcp, int ssl, int threads)
 		return;
 	}
 
-	if (!handler_add_server(h, &on_server_session, NULL, NULL, (short)g_port, tcp, ssl, g_service))
+	if (!handler_add_server(h, &on_server_session, NULL, NULL, port, tcp, ssl, g_service))
 	{
 		printf("add server failed\n");
 		return;
@@ -72,9 +72,9 @@ static void do_server(int tcp, int ssl, int threads)
 	handler_destroy(h);
 }
 
-static void do_client(const char* host, long cnt, int tcp, int ssl, int broadcast)
+static void do_client(long cnt, const char* host, unsigned short port, int tcp, int ssl, int broadcast)
 {
-	session s = session_open(host, (short)g_port, tcp, ssl);
+	session s = session_open(host, port, tcp, ssl);
 	if (!s) { printf("CLIENT: session failed\n"); return; }
 
 	printf("CLIENT: connected '%s'\n", session_get_remote_host(s, 0));
@@ -504,6 +504,7 @@ int main(int ac, char* av[])
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
 	int discovery = 0;
+	unsigned short port;
 	int i;
 
 	srand(time(0)|1);
@@ -529,16 +530,16 @@ int main(int ac, char* av[])
 
 		if (!strncmp(av[i], "--uncle=", 8))
 		{
-			int port;
-			sscanf(av[i], "%*[^=]=%u", &port);
-			g_uncle = port;
+			unsigned tmp_port;
+			sscanf(av[i], "%*[^=]=%u", &tmp_port);
+			g_uncle = (unsigned short)tmp_port;
 		}
 
 		if (!strncmp(av[i], "--port=", 7))
 		{
-			unsigned port;
-			sscanf(av[i], "%*[^=]=%u", &port);
-			g_port = port;
+			unsigned tmp_port;
+			sscanf(av[i], "%*[^=]=%u", &tmp_port);
+			port = (unsigned short)tmp_port;
 		}
 
 		if (!strncmp(av[i], "--threads=", 10))
@@ -607,8 +608,8 @@ int main(int ac, char* av[])
 		uncle u = uncle_create(NULL, g_uncle, SCOPE_DEFAULT);
 		sleep(1);
 
-		if (uncle_query(u, g_service, host, &g_port, &tcp, &ssl))
-			printf("DISCOVERY: service=%s, host=%s, port=%d, tcp=%d, ssl=%d\n", g_service, host, g_port, tcp, ssl);
+		if (uncle_query(u, g_service, host, &port, &tcp, &ssl))
+			printf("DISCOVERY: service=%s, host=%s, port=%u, tcp=%d, ssl=%d\n", g_service, host, port, tcp, ssl);
 
 		uncle_destroy(u);
 	}
@@ -657,13 +658,13 @@ int main(int ac, char* av[])
 
 	if (srvr)
 	{
-		do_server(tcp, ssl, threads);
+		do_server(port, tcp, ssl, threads);
 		return 0;
 	}
 
 	if (client)
 	{
-		do_client(host, loops, tcp, ssl, broadcast);
+		do_client(loops, host, port, tcp, ssl, broadcast);
 		return 0;
 	}
 
