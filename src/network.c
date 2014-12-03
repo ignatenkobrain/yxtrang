@@ -986,7 +986,9 @@ int session_write(session s, const void* _buf, size_t len)
 			wlen = sendto(s->fd, (const char*)buf, len, MSG_NOSIGNAL, (struct sockaddr*)&s->addr6, alen);
 		}
 
-		if ((wlen < 0) && (errno != EAGAIN) && (errno != EWOULDBLOCK))
+		if ((wlen < 0) && (errno != EAGAIN) &&
+				(errno != EWOULDBLOCK) &&
+					(errno != EINTR))
 			return 0;
 
 		if (wlen == len)
@@ -1070,7 +1072,8 @@ int session_read(session s, void* buf, size_t len)
 		rlen = recvfrom(s->fd, (char*)buf, len, 0, (struct sockaddr*)&s->addr6, &alen);
 	}
 
-	if ((rlen < 0) && ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
+	if ((rlen < 0) &&
+		((errno == EAGAIN) || (errno == EWOULDBLOCK) || (errno == EINTR)))
 		return 0;
 
 	if (rlen <= 0)
@@ -1092,6 +1095,9 @@ int session_readmsg(session s, char** buf)
 	if (s->disconnected)
 		return 0;
 
+	// Allocate destination message buffer
+	// if one doesn't already exist.
+
 	if (!s->dstbuf)
 	{
 		s->len = BUFLEN;
@@ -1099,6 +1105,9 @@ int session_readmsg(session s, char** buf)
 		if (!s->dstbuf) return 0;
 		s->dst = s->dstbuf;
 	}
+
+	// Read until end of input buffer or newline,
+	// whichever comes first.
 
 	while (*s->src && (*s->src != '\n'))
 	{
@@ -1116,6 +1125,9 @@ int session_readmsg(session s, char** buf)
 		}
 	}
 
+	// If we have a newline then we have a
+	// complete message to return.
+
 	if (*s->src == '\n')
 	{
 		*s->dst++ = *s->src++;
@@ -1125,6 +1137,8 @@ int session_readmsg(session s, char** buf)
 		s->dst = s->dstbuf;
 		return len;
 	}
+
+	// If not then read some more and repeat.
 
 	int rlen;
 	s->srcbuf[0] = 0;
@@ -1152,7 +1166,8 @@ int session_readmsg(session s, char** buf)
 		rlen = recvfrom(s->fd, s->srcbuf, BUFLEN-1, 0, (struct sockaddr*)&s->addr6, &slen);
 	}
 
-	if ((rlen < 0) && ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
+	if ((rlen < 0) &&
+		((errno == EAGAIN) || (errno == EWOULDBLOCK) || (errno == EINTR)))
 		return 0;
 
 	if (rlen <= 0)
