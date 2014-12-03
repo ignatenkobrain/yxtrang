@@ -387,7 +387,7 @@ void do_tree(long cnt, int rnd)
 			;//printf("Get k=%llu v=%llu\n", (unsigned long long)u.u1, (unsigned long long)v);
 	}
 
-	unsigned long trunks, branches, leafs;
+	size_t trunks, branches, leafs;
 	tree_stats(tptr, &trunks, &branches, &leafs);
 	printf("Stats: Trunks: %ld, Branches: %ld, Leafs: %ld\n", trunks, branches, leafs);
 

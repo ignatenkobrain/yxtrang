@@ -31,8 +31,8 @@ struct _node
 
 	union
 	{
-		unsigned long long v;		// if a leaf: stores value
-		branch b;		// otherwise: points to branch
+		unsigned long long v;	// if a leaf: stores value
+		branch b;				// otherwise: points to branch
 	};
 };
 
@@ -51,7 +51,7 @@ struct _trunk
 struct _tree
 {
 	trunk first, last;
-	unsigned long trunks, branches, leafs;
+	size_t trunks, branches, leafs;
 	TREE_KEY last_key;
 };
 
@@ -131,7 +131,7 @@ tree tree_create()
 	return tptr;
 }
 
-unsigned long tree_count(const tree tptr)
+size_t tree_count(const tree tptr)
 {
 	return tptr->leafs;
 }
@@ -450,7 +450,7 @@ int tree_set(const tree tptr, const TREE_KEY* k, unsigned long long v)
 	return branch_set(tptr, tptr->last->active, k, v);
 }
 
-static int branch_iter(const tree tptr, unsigned long* cnt, const branch b, void* h, int (*f)(void* h, const TREE_KEY* u, unsigned long long* v))
+static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, int (*f)(void* h, const TREE_KEY* u, unsigned long long* v))
 {
 	int i;
 
@@ -477,18 +477,18 @@ static int branch_iter(const tree tptr, unsigned long* cnt, const branch b, void
 	return 1;
 }
 
-unsigned long tree_iter(const tree tptr, void* h, int (*f)(void* h, const TREE_KEY* u, unsigned long long* v))
+size_t tree_iter(const tree tptr, void* h, int (*f)(void* h, const TREE_KEY* u, unsigned long long* v))
 {
 	if (!tptr)
 		return 0;
 
 	const trunk t = tptr->last;
-	unsigned long cnt = 0;
+	size_t cnt = 0;
 	branch_iter(tptr, &cnt, t->active, h, f);
 	return cnt;
 }
 
-int tree_stats(const tree tptr, unsigned long* trunks, unsigned long* branches, unsigned long* leafs)
+int tree_stats(const tree tptr, size_t* trunks, size_t* branches, size_t* leafs)
 {
 	if (!tptr)
 		return 0;
