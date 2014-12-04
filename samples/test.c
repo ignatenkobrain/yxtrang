@@ -504,7 +504,7 @@ int main(int ac, char* av[])
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
 	int discovery = 0;
-	unsigned short port;
+	unsigned short port = SERVER_PORT;
 	int i;
 
 	srand(time(0)|1);
