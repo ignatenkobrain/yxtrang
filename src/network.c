@@ -990,7 +990,7 @@ int session_write(session s, const void* _buf, size_t len)
 		if (wlen == len)
 			break;
 
-		if (errno == EINTR)
+		if (errno == EINTR)		// With SSL only?
 			continue;
 
 		if ((errno != EAGAIN) && (errno != EWOULDBLOCK))
