@@ -987,14 +987,15 @@ int session_write(session s, const void* _buf, size_t len)
 			wlen = sendto(s->fd, (const char*)buf, len, MSG_NOSIGNAL, (struct sockaddr*)&s->addr6, alen);
 		}
 
-		if ((wlen < 0) &&
-				(errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR))
-			return 0;
-
 		if (wlen == len)
 			break;
 
-		// NOTE: this can block the thread
+		if ((wlen < 0) || ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR)))
+			return 0;
+
+
+		len -= wlen;
+		buf += wlen;
 
 		if (!started)
 			started = time(NULL);
@@ -1004,9 +1005,6 @@ int session_write(session s, const void* _buf, size_t len)
 			close(s->fd);
 			return 0;
 		}
-
-		len -= wlen;
-		buf += wlen;
 
 		if (errno != EINTR)
 			msleep(1);
