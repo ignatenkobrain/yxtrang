@@ -990,11 +990,14 @@ int session_write(session s, const void* _buf, size_t len)
 		if (wlen == len)
 			break;
 
-		if ((wlen < 0) || ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR)))
+		if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR))
 			return 0;
 
-		len -= wlen;
-		buf += wlen;
+		if (wlen > 0)
+		{
+			len -= wlen;
+			buf += wlen;
+		}
 
 		if (!started)
 			started = time(NULL);
