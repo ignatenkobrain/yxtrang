@@ -1011,8 +1011,7 @@ int session_write(session s, const void* _buf, size_t len)
 			return 0;
 		}
 
-		if (errno != EINTR)
-			msleep(1);
+		msleep(1);
 	}
 
 	return 1;
