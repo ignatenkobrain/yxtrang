@@ -64,8 +64,8 @@ thread:
 
 tree:
 
- Binary tree designed primarily for append-mode in-order insertion.
- Though out-of-order and delete are supported with some performance
+ Binary tree designed primarily for append-mode in-order insertion,
+ though out-of-order and delete are supported with some performance
  loss. This variant is bucketized and is extremely space-efficient:
  equal to skiplist above but twice as fast.
 
@@ -76,8 +76,8 @@ uncle:
  will move to multicast). Uncle is scope based, meaning it can
  organize resources by group: those within the same scope can find
  each other, but not those outside. Uncle is not a centralized
- server. It's job will be to facilitate decentralized and distributed
- services reach a consensus of parts.
+ server. It's job is to facilitate decentralized/distributed
+ services via mutual discovery.
 
 
 uuid:
