@@ -993,7 +993,6 @@ int session_write(session s, const void* _buf, size_t len)
 		if ((wlen < 0) || ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR)))
 			return 0;
 
-
 		len -= wlen;
 		buf += wlen;
 
