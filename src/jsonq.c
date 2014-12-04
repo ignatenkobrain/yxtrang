@@ -141,7 +141,7 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 	return dstbuf;
 }
 
-int64_t jsonq_int(const char* s, const char* name)
+long long jsonq_int(const char* s, const char* name)
 {
 	char tmpbuf[1024];
 	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
