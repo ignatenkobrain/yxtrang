@@ -998,7 +998,7 @@ int session_write(session s, const void* _buf, size_t len)
 
 		if (!started)
 			started = time(NULL);
-		else if ((time(NULL) - started) > SESSION_TIMEOUT_SECONDS)
+		else if ((time(NULL) - started) >= SESSION_TIMEOUT_SECONDS)
 		{
 			s->disconnected = 1;
 			close(s->fd);
