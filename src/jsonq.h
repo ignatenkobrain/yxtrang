@@ -6,7 +6,7 @@
 //
 // Accepts single quotes as a convenience.
 //
-// eg. char* s = "{'a':1,'b'2,'c':{'c1':1,'c2':2,'c3':3},'d',4}";
+// eg. char* s = "{'a':1,'b':2,'c':{'c1':31,'c2':32,'c3':33},'d',4}";
 //
 //   char tmp[256];
 //   long long v = jsonq(s,"c",tmp,sizeof(tmp))->jsonq_int(tmp,"c2");
