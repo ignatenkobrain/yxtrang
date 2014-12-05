@@ -1,8 +1,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "uncle.h"
-
 typedef struct _session* session;
 typedef struct _handler* handler;
 

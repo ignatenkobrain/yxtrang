@@ -12,6 +12,7 @@
 #include <network.h>
 #include <scriptlet.h>
 #include <skiplist.h>
+#include <uncle.h>
 
 #define UNCLE_PORT 6199
 #define SERVER_PORT 6198
@@ -488,7 +489,7 @@ static void do_jsonq(const char* name)
 		"'e':false,"
 		"'f':null,"
 		"'g':[11,22],"
-		"'h':{'h1':33,'h2':44}"
+		"'h':{'h1':33,'h2':44,h3':'this is a \\\"quote\\\" character'}"
 		"}";
 
 	printf("%s\n", s);

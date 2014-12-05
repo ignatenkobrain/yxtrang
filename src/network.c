@@ -86,6 +86,7 @@
 #include "network.h"
 #include "skiplist.h"
 #include "thread.h"
+#include "uncle.h"
 
 #define BUFLEN 1500
 #define FD_POLLSIZE 10000
