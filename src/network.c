@@ -553,7 +553,7 @@ session session_open(const char* host, unsigned short port, int tcp, int ssl)
 	if (!init)
 	{
 		SSL_load_error_strings();
-		SSLeay_add_all_algorithms();
+		SSLeay_add_all_algorithms();		// ???
 		SSL_library_init();
 		init = 1;
 	}
