@@ -279,7 +279,7 @@ uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 const char* uncle_get_scope(uncle u)
 {
 	if (!u)
-		return SCOPE_DEFAULT;
+		return "";
 
 	return u->scope;
 }
