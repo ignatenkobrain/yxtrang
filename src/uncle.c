@@ -88,9 +88,6 @@ int uncle_query(uncle u, const char* name, char* addr, unsigned short* port, int
 
 static int uncle_list(uncle u, const char* name, int local, const char* addr, unsigned short port, int tcp, int ssl)
 {
-	if (!u)
-		return 0;
-
 	char tmpbuf[1024];
 	sprintf(tmpbuf, "%s/%s/%d/%u/%d/%d", name, addr, local, port, tcp, ssl);
 	lock_lock(u->l);
@@ -101,6 +98,9 @@ static int uncle_list(uncle u, const char* name, int local, const char* addr, un
 
 int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl)
 {
+	if (!u)
+		return 0;
+
 	uncle_list(u, name, 1, addr, port, tcp, ssl);
 
 	char tmpbuf[1024];
@@ -114,9 +114,6 @@ int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, 
 
 static int uncle_delist(uncle u, const char* name, int local, const char* addr, unsigned short port, int tcp)
 {
-	if (!u)
-		return 0;
-
 	u->search.name = name;
 	strcpy(u->search.addr, addr);
 	u->search.tcp = tcp;
@@ -139,6 +136,9 @@ static int uncle_delist(uncle u, const char* name, int local, const char* addr, 
 
 int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp)
 {
+	if (!u)
+		return 0;
+
 	uncle_delist(u, name, 1, addr, port, tcp);
 
 	char tmpbuf[1024];
@@ -255,7 +255,6 @@ uncle uncle_create2(handler h, const char* binding, unsigned short port, const c
 	sprintf(tmpbuf,	"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"?\"}\n",
 		u->scope, (unsigned long long)u->unique);
 	session_writemsg(u->s, tmpbuf);
-
 	return u;
 }
 
@@ -279,6 +278,9 @@ uncle uncle_create(const char* binding, unsigned short port, const char* scope)
 
 const char* uncle_get_scope(uncle u)
 {
+	if (!u)
+		return SCOPE_DEFAULT;
+
 	return u->scope;
 }
 
