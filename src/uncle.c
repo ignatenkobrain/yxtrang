@@ -114,7 +114,7 @@ int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, 
 	return uncle_add2(u, name, addr, 1, port, tcp, ssl);
 }
 
-static int uncle_rem2(uncle u, const char* name, const char* addr, int local, unsigned short port, int tcp, int ssl)
+static int uncle_rem2(uncle u, const char* name, const char* addr, int local, unsigned short port, int tcp)
 {
 	if (!u)
 		return 0;
@@ -122,7 +122,7 @@ static int uncle_rem2(uncle u, const char* name, const char* addr, int local, un
 	u->search.name = name;
 	strcpy(u->search.addr, addr);
 	u->search.tcp = tcp;
-	u->search.ssl = ssl;
+	u->search.ssl = -1;
 	u->search.addr[0] = 0;
 
 	lock_lock(u->l);
@@ -141,17 +141,17 @@ static int uncle_rem2(uncle u, const char* name, const char* addr, int local, un
 	{
 		char tmpbuf[1024];
 		sprintf(tmpbuf,
-			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"-\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s,\"$ssl\":%s}\n",
-				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false", ssl?"true":"false");
+			"{\"$scope\":\"%s\",\"$unique\":%llu,\"$cmd\":\"-\",\"$name\":\"%s\",\"$port\":%u,\"$tcp\":%s}\n",
+				u->scope, (unsigned long long)u->unique, name, port, tcp?"true":"false");
 		session_writemsg(u->s, tmpbuf);
 	}
 
 	return 1;
 }
 
-int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl)
+int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp)
 {
-	return uncle_rem2(u, name, addr, 1, port, tcp, ssl);
+	return uncle_rem2(u, name, addr, 1, port, tcp);
 }
 
 static int uncle_iter2(uncle u, const char* k, const char* v)
@@ -217,7 +217,7 @@ static int uncle_handler(session s, void* data)
 	}
 	else if (!strcmp(cmd, "-"))
 	{
-		uncle_rem2(u, name, addr, 0, port, tcp, ssl);
+		uncle_rem2(u, name, addr, 0, port, tcp);
 	}
 	else if (!strcmp(cmd, "?"))
 	{

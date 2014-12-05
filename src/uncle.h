@@ -18,7 +18,7 @@ extern const char* uncle_get_scope(uncle u);
 // the combination of name/addr/port/tcp is unique.
 
 extern int uncle_add(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);
-extern int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp, int ssl);
+extern int uncle_rem(uncle u, const char* name, const char* addr, unsigned short port, int tcp);
 
 // Query for named resource.
 // A datagram service will normally be returned before a tcp one.
