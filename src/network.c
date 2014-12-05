@@ -1985,8 +1985,10 @@ static int leave_multicast(int fd6, int fd4, const char* addr)
 int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope)
 {
 	extern uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope);
-	uncle u = h->u[h->uncs++] = uncle_create2(h, binding, port, scope);
-	return u ? 1 : 0;
+	uncle u = uncle_create2(h, binding, port, scope);
+	if (!u) return 0;
+	h->u[h->uncs++] = u;
+	return 1;
 }
 
 uncle handler_get_uncle(handler h, const char* scope)
