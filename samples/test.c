@@ -445,38 +445,38 @@ static void do_json()
 
 	// Parse and reformat...
 
-	json ptr = json_open(s);
+	json j = json_open(s);
 	char* pdst;
-	printf("%s\n", pdst=json_to_string(ptr));
+	printf("%s\n", pdst=json_to_string(j));
 	free(pdst);
-	json_close(ptr);
+	json_close(j);
 
 	// Build it manually...
 
-	ptr = json_init();
-	json_set_object(ptr);
+	j = json_init();
+	json_set_object(j);
 
-	json_set_integer(json_object_add(ptr, "a"), 1);
-	json_set_real(json_object_add(ptr, "b"), 2.2);
-	json_set_string(json_object_add(ptr, "c"), "the quick brown fox jumped over the lazy dog");
-	json_set_true(json_object_add(ptr, "d"));
-	json_set_false(json_object_add(ptr, "e"));
-	json_set_null(json_object_add(ptr, "f"));
+	json_set_integer(json_object_add(j, "a"), 1);
+	json_set_real(json_object_add(j, "b"), 2.2);
+	json_set_string(json_object_add(j, "c"), "the quick brown fox jumped over the lazy dog");
+	json_set_true(json_object_add(j, "d"));
+	json_set_false(json_object_add(j, "e"));
+	json_set_null(json_object_add(j, "f"));
 
 	json jptr;
-	jptr = json_object_add(ptr, "g");
+	jptr = json_object_add(j, "g");
 	json_set_array(jptr);
 	json_set_integer(json_array_add(jptr), 11);
 	json_set_integer(json_array_add(jptr), 22);
 
-	jptr = json_object_add(ptr, "h");
+	jptr = json_object_add(j, "h");
 	json_set_object(jptr);
 	json_set_integer(json_object_add(jptr, "h1"), 33);
 	json_set_integer(json_object_add(jptr, "h2"), 44);
 
-	printf("%s\n", pdst=json_to_string(ptr));
+	printf("%s\n", pdst=json_to_string(j));
 	free(pdst);
-	json_close(ptr);
+	json_close(j);
 }
 
 static void do_jsonq(const char* name)

@@ -19,7 +19,7 @@ base64.o: base64.h
 daemon.o: daemon.h
 json.o: json.h
 jsonq.o: jsonq.h
-linda.o: linda.h skiplist.h skiplist_int.h skiplist_string.h store.h json.h jsonq.h
+linda.o: linda.h skiplist.h skiplist_int.h skiplist_string.h store.h json.h
 network.o: network.h skiplist.h skiplist_int.h skiplist_string.h thread.h uncle.h
 scriptlet.o: scriptlet.h skiplist.h skiplist_string.h
 skiplist.o: skiplist.h

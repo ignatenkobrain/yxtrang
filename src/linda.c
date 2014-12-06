@@ -4,7 +4,6 @@
 
 #include "skiplist_int.h"
 #include "skiplist_string.h"
-#include "jsonq.h"
 #include "json.h"
 #include "store.h"
 #include "linda.h"
@@ -13,6 +12,7 @@ struct _linda
 {
 	store st;
 	skiplist sl;
+	int is_int, is_string;
 };
 
 int linda_out(linda l, const char* s)
@@ -20,6 +20,51 @@ int linda_out(linda l, const char* s)
 	if (!l)
 		return 0;
 
+	json j = json_open(s);
+	json j2 = json_find(j, "id");
+	uuid u = {0};
+
+	if (j2)
+	{
+		if (json_is_integer(j2))
+		{
+			long long k = json_get_integer(j2);
+
+			if (l->sl && !l->is_int)
+			{
+				printf("linda_out: expected integer id\n");
+				return 0;
+			}
+
+			if (!l->sl)
+			{
+				l->sl = sl_int_create();
+				l->is_int = 1;
+			}
+
+			sl_int_add(l->sl, k, &u);
+		}
+		else if (json_is_string(j2))
+		{
+			const char* k = json_get_string(j2);
+
+			if (l->sl && !l->is_string)
+			{
+				printf("linda_out: expected string id\n");
+				return 0;
+			}
+
+			if (!l->sl)
+			{
+				l->sl = sl_int_create();
+				l->is_string = 1;
+			}
+
+			sl_string_add(l->sl, k, &u);
+		}
+	}
+
+	json_close(j);
 	return 0;
 }
 
