@@ -84,7 +84,8 @@
 #endif
 
 #include "network.h"
-#include "skiplist.h"
+#include "skiplist_int.h"
+#include "skiplist_string.h"
 #include "thread.h"
 #include "uncle.h"
 

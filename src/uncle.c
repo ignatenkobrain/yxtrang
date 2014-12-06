@@ -6,7 +6,7 @@
 #include "uncle.h"
 #include "network.h"
 #include "thread.h"
-#include "skiplist.h"
+#include "skiplist_string.h"
 #include "jsonq.h"
 
 struct _uncle

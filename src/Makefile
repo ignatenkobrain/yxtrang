@@ -19,11 +19,11 @@ base64.o: base64.h
 daemon.o: daemon.h
 json.o: json.h
 jsonq.o: jsonq.h
-network.o: network.h skiplist.h thread.h uncle.h
-scriptlet.o: scriptlet.h skiplist.h
+network.o: network.h skiplist.h skiplist_int.h skiplist_string.h thread.h uncle.h
+scriptlet.o: scriptlet.h skiplist.h skiplist_string.h
 skiplist.o: skiplist.h
 store.o: store.h uuid.h tree.h
 thread.o: thread.h
 tree.o: tree.h uuid.h
-uncle.o: uncle.h jsonq.h network.h skiplist.h thread.h
+uncle.o: uncle.h jsonq.h network.h skiplist.h skiplist_string.h thread.h
 uuid.o: uuid.h

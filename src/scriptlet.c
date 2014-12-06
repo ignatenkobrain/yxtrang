@@ -6,7 +6,7 @@
 #include <math.h>
 
 #include "scriptlet.h"
-#include "skiplist.h"
+#include "skiplist_string.h"
 #include "thread.h"
 
 #ifdef _WIN32

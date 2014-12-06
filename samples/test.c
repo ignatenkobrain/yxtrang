@@ -11,7 +11,7 @@
 #include <store.h>
 #include <network.h>
 #include <scriptlet.h>
-#include <skiplist.h>
+#include <skiplist_int.h>
 #include <uncle.h>
 
 #define UNCLE_PORT 6199
