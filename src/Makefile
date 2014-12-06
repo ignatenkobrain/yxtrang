@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -O3 $(DBG) -I/usr/local/include -Wall -D_REENTRANT -D_BSD_SOURCE
 
-OBJECTS = base64.o daemon.o json.o jsonq.o network.o scriptlet.o \
+OBJECTS = base64.o daemon.o json.o jsonq.o linda.o network.o scriptlet.o \
 			skiplist.o store.o thread.o tree.o uncle.o uuid.o
 
 all: $(OBJECTS) yxtrang.a
@@ -19,6 +19,7 @@ base64.o: base64.h
 daemon.o: daemon.h
 json.o: json.h
 jsonq.o: jsonq.h
+linda.o: linda.h skiplist.h skiplist_int.h skiplist_string.h store.h json.h
 network.o: network.h skiplist.h skiplist_int.h skiplist_string.h thread.h uncle.h
 scriptlet.o: scriptlet.h skiplist.h skiplist_string.h
 skiplist.o: skiplist.h
