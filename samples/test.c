@@ -167,6 +167,8 @@ static void do_script(long cnt)
 
 static void do_linda(long cnt)
 {
+	linda l = linda_open("./db", NULL);
+	linda_close(l);
 }
 
 static void do_store(long cnt, int vfy, int compact)
