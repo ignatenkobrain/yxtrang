@@ -516,7 +516,7 @@ static void do_jsonq(const char* name)
 
 int main(int ac, char* av[])
 {
-	int loops = 10*1000, loops2 = 10, test_tree = 0, test_store = 0;
+	int loops = 100, loops2 = 10, test_tree = 0, test_store = 0;
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
