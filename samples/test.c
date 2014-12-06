@@ -173,7 +173,7 @@ static void do_linda(long cnt)
 	for (i = 1; i <= cnt; i++)
 	{
 		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"id\":%lu,\"col1\":1,\"col2\":2}\n", i);
+		sprintf(tmpbuf, "{\"$id\":%lu,\"col1\":1,\"col2\":2}\n", i);
 		linda_out(l, tmpbuf);
 	}
 
