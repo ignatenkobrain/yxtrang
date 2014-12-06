@@ -9,6 +9,7 @@
 #include <base64.h>
 #include <tree.h>
 #include <store.h>
+#include <linda.h>
 #include <network.h>
 #include <scriptlet.h>
 #include <skiplist_int.h>
@@ -162,6 +163,10 @@ static void do_script(long cnt)
 
 	scriptlet_done(r);
 	scriptlet_close(s);
+}
+
+static void do_linda(long cnt)
+{
 }
 
 static void do_store(long cnt, int vfy, int compact)
@@ -504,7 +509,7 @@ int main(int ac, char* av[])
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
-	int discovery = 0;
+	int discovery = 0, test_linda = 0;
 	unsigned short port = SERVER_PORT;
 	int i;
 
@@ -557,6 +562,9 @@ int main(int ac, char* av[])
 
 		if (!strcmp(av[i], "--jsonq"))
 			test_jsonq = 1;
+
+		if (!strcmp(av[i], "--linda"))
+			test_linda = 1;
 
 		if (!strcmp(av[i], "--store"))
 			test_store = 1;
@@ -630,6 +638,12 @@ int main(int ac, char* av[])
 	if (test_base64)
 	{
 		do_base64();
+		return 0;
+	}
+
+	if (test_linda)
+	{
+		do_linda(loops);
 		return 0;
 	}
 
