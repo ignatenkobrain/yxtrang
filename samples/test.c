@@ -172,8 +172,9 @@ static void do_linda(long cnt)
 
 	for (i = 1; i <= cnt; i++)
 	{
+		long id = rand();
 		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"$id\":%lu,\"col1\":1,\"col2\":2}\n", i);
+		sprintf(tmpbuf, "{\"$id\":%lu,\"col1\":1,\"col2\":\"two\"}\n", id);
 		linda_out(l, tmpbuf);
 	}
 
