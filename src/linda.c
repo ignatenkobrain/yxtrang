@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "skiplist_int.h"
 #include "skiplist_string.h"
 #include "json.h"
 #include "store.h"
+#include "uuid.h"
 #include "linda.h"
 
 struct _linda
@@ -21,14 +23,20 @@ int linda_out(linda l, const char* s)
 		return 0;
 
 	json j = json_open(s);
-	json j2 = json_find(j, "id");
-	uuid u = {0};
+	json jid = json_find(j, "id");
+	json juuid = json_find(j, "uuid");
+	uuid u;
 
-	if (j2)
+	if (juuid)
+		uuid_from_string(json_get_string(juuid), &u);
+	else
+		uuid_gen(&u);
+
+	if (jid)
 	{
-		if (json_is_integer(j2))
+		if (json_is_integer(jid))
 		{
-			long long k = json_get_integer(j2);
+			long long k = json_get_integer(jid);
 
 			if (l->sl && !l->is_int)
 			{
@@ -44,9 +52,9 @@ int linda_out(linda l, const char* s)
 
 			sl_int_add(l->sl, k, &u);
 		}
-		else if (json_is_string(j2))
+		else if (json_is_string(jid))
 		{
-			const char* k = json_get_string(j2);
+			const char* k = json_get_string(jid);
 
 			if (l->sl && !l->is_string)
 			{
@@ -64,23 +72,13 @@ int linda_out(linda l, const char* s)
 		}
 	}
 
+	store_add(l->st, &u, s, strlen(s));
 	json_close(j);
 	return 0;
 }
 
-int linda_in(linda l, const char* s, char** dst)
+static int linda_read(linda l, const char* s, char** dst, int rm, int pred)
 {
-	if (!l)
-		return 0;
-
-	return 0;
-}
-
-int linda_inp(linda l, const char* s, char** dst)
-{
-	if (!l)
-		return 0;
-
 	return 0;
 }
 
@@ -89,7 +87,7 @@ int linda_rd(linda l, const char* s, char** dst)
 	if (!l)
 		return 0;
 
-	return 0;
+	return linda_read(l, s, dst, 0, 0);
 }
 
 int linda_rdp(linda l, const char* s, char** dst)
@@ -97,12 +95,37 @@ int linda_rdp(linda l, const char* s, char** dst)
 	if (!l)
 		return 0;
 
-	return 0;
+	return linda_read(l, s, dst, 0, 1);
+}
+
+int linda_in(linda l, const char* s, char** dst)
+{
+	if (!l)
+		return 0;
+
+	return linda_read(l, s, dst, 1, 0);
+}
+
+int linda_inp(linda l, const char* s, char** dst)
+{
+	if (!l)
+		return 0;
+
+	return linda_read(l, s, dst, 1, 1);
 }
 
 linda linda_open(const char* name)
 {
+	static int first_time = 1;
+
+	if (first_time)
+	{
+		uuid_seed(time(NULL));
+		first_time = 0;
+	}
+
 	linda l = (linda)calloc(1, sizeof(struct _linda));
+	if (!l) return NULL;
 	l->st = store_open(name, name, 0);
 	return l;
 }

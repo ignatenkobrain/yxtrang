@@ -21,14 +21,14 @@ typedef struct _handle* handle;
 extern store store_open(const char* path1, const char* path2, int compact);
 
 extern int store_get(const store st, const uuid* u, void** buf, int* len);
-extern int store_add(store st, const uuid* u, void* buf, int len);
+extern int store_add(store st, const uuid* u, const void* buf, int len);
 extern int store_rem(store st, const uuid* u);
 extern unsigned long store_count(const store st);
 
 // Transactions...
 
 extern handle store_begin(store st, int dbsync);
-extern int store_hadd(handle h, const uuid* u, void* buf, int len);
+extern int store_hadd(handle h, const uuid* u, const void* buf, int len);
 extern int store_hrem(handle h, const uuid* u);
 extern int store_cancel(handle h);					// Rollback
 extern int store_end(handle h);						// Commit

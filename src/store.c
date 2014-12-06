@@ -249,7 +249,7 @@ static int store_apply(store st, int n, uint64_t pos)
 	return cnt;
 }
 
-int store_add(store st, const uuid* u, void* buf, int len)
+int store_add(store st, const uuid* u, const void* buf, int len)
 {
 	if (!st || !u || !buf || !len)
 		return 0;
@@ -382,7 +382,7 @@ handle store_begin(store st, int dbsync)
 	return h;
 }
 
-int store_hadd(handle h, const uuid* u, void* buf, int len)
+int store_hadd(handle h, const uuid* u, const void* buf, int len)
 {
 	if (!h || !u || !buf || !len)
 		return 0;
