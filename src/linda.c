@@ -120,7 +120,7 @@ int linda_inp(linda l, const char* s, char** dst)
 	return linda_read(l, s, dst, 1, 1);
 }
 
-linda linda_open(const char* path, const char* name)
+linda linda_open(const char* path1, const char* path2)
 {
 	static int first_time = 1;
 
@@ -132,11 +132,7 @@ linda linda_open(const char* path, const char* name)
 
 	linda l = (linda)calloc(1, sizeof(struct _linda));
 	if (!l) return NULL;
-	char filename[1024];
-	strcpy(filename, path);
-	strcat(filename, SEP);
-	strcat(filename, name);
-	l->st = store_open(filename, filename, 0);
+	l->st = store_open(path1, path2, 0);
 	return l;
 }
 
