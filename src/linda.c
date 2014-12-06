@@ -10,6 +10,12 @@
 #include "uuid.h"
 #include "linda.h"
 
+#ifdef _WIN32
+#define SEP "\\"
+#else
+#define SEP "/"
+#endif
+
 struct _linda
 {
 	store st;
@@ -114,7 +120,7 @@ int linda_inp(linda l, const char* s, char** dst)
 	return linda_read(l, s, dst, 1, 1);
 }
 
-linda linda_open(const char* name)
+linda linda_open(const char* path, const char* name)
 {
 	static int first_time = 1;
 
@@ -126,10 +132,13 @@ linda linda_open(const char* name)
 
 	linda l = (linda)calloc(1, sizeof(struct _linda));
 	if (!l) return NULL;
-	l->st = store_open(name, name, 0);
+	char filename[1024];
+	strcpy(filename, path);
+	strcat(filename, SEP);
+	strcat(filename, name);
+	l->st = store_open(filename, filename, 0);
 	return l;
 }
-
 
 int linda_close(linda l)
 {
