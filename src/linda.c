@@ -84,7 +84,7 @@ int linda_out(linda l, const char* s)
 	return 0;
 }
 
-uuid* linda_get_last_uuid(linda l)
+const uuid* linda_get_last_uuid(linda l)
 {
 	if (!l)
 		return NULL;

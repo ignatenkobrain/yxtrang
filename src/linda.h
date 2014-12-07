@@ -11,7 +11,7 @@ extern int linda_rdp(linda l, const char* s, char** dst);
 extern int linda_in(linda l, const char* s, char** dst);
 extern int linda_inp(linda l, const char* s, char** dst);
 
-extern uuid* linda_get_last_uuid(linda l);
+extern const uuid* linda_get_last_uuid(linda l);
 
 extern int linda_close(linda l);
 
