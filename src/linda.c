@@ -29,8 +29,8 @@ int linda_out(linda l, const char* s)
 		return 0;
 
 	json j = json_open(s);
-	json jid = json_find(j, "$id");
-	json juuid = json_find(j, "$u");
+	json jid = json_find(j, "id");
+	json juuid = json_find(j, "$oid");
 	uuid u;
 
 	if (juuid)

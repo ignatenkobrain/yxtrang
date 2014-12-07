@@ -171,7 +171,7 @@ static void do_linda_out(long cnt)
 	linda l = linda_open("./db", NULL);
 	long i;
 
-	for (i = 1; i <= cnt; i++)
+	for (i = 0; i < cnt; i++)
 	{
 		int id = rand() % 1000;
 		char tmpbuf[1024];
@@ -187,11 +187,16 @@ static void do_linda_in()
 	linda l = linda_open("./db", NULL);
 	long i;
 
-	for (i = 0; i < 1000; i++)
+	for (i = 0; i < 100; i++)
 	{
 		char* buf;
-		linda_rdp(l, NULL, &buf);
-		printf("GOT: %s", buf);
+		char tmpbuf[1024];
+		sprintf(tmpbuf, "{\"nbr\":%d}\n", i);
+
+		if (!linda_rdp(l, tmpbuf, &buf))
+			continue;
+
+		printf("GOT: '%s' => %s", tmpbuf, buf);
 	}
 
 	linda_close(l);
