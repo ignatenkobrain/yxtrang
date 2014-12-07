@@ -27,6 +27,7 @@
 static int g_debug = 0;
 static unsigned short g_uncle = UNCLE_PORT;
 static const char* g_service = "TEST";
+static const char* qbf = "the quick brown fox jumped over the lazy dog";
 
 static int on_server_session(session s, void* v)
 {
@@ -165,17 +166,32 @@ static void do_script(long cnt)
 	scriptlet_close(s);
 }
 
-static void do_linda(long cnt)
+static void do_linda_out(long cnt)
 {
 	linda l = linda_open("./db", NULL);
 	long i;
 
 	for (i = 1; i <= cnt; i++)
 	{
-		long id = rand();
+		int id = rand() % 1000;
 		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"$id\":%lu,\"col1\":1,\"col2\":\"two\"}\n", id);
+		sprintf(tmpbuf, "{\"$id\":%d,\"nbr\":%ld,\"text\":\"%s\"}\n", id, i, qbf);
 		linda_out(l, tmpbuf);
+	}
+
+	linda_close(l);
+}
+
+static void do_linda_in()
+{
+	linda l = linda_open("./db", NULL);
+	long i;
+
+	for (i = 0; i < 1000; i++)
+	{
+		char* buf;
+		linda_rdp(l, NULL, &buf);
+		printf("GOT: %s", buf);
 	}
 
 	linda_close(l);
@@ -435,7 +451,7 @@ void do_tree(long cnt, int rnd)
 
 static void do_base64()
 {
-	const char* s = "the quick brown fox jumped over the lazy dog";
+	const char* s = qbf;
 	printf("%s =>\n", s);
 
 	char dst[1024];
@@ -521,7 +537,7 @@ int main(int ac, char* av[])
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
 	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
-	int discovery = 0, test_linda = 0;
+	int discovery = 0, test_linda_out = 0, test_linda_in = 0;
 	unsigned short port = SERVER_PORT;
 	int i;
 
@@ -575,8 +591,11 @@ int main(int ac, char* av[])
 		if (!strcmp(av[i], "--jsonq"))
 			test_jsonq = 1;
 
-		if (!strcmp(av[i], "--linda"))
-			test_linda = 1;
+		if (!strcmp(av[i], "--linda-out"))
+			test_linda_out = 1;
+
+		if (!strcmp(av[i], "--linda-in"))
+			test_linda_in = 1;
 
 		if (!strcmp(av[i], "--store"))
 			test_store = 1;
@@ -653,9 +672,15 @@ int main(int ac, char* av[])
 		return 0;
 	}
 
-	if (test_linda)
+	if (test_linda_out)
 	{
-		do_linda(loops);
+		do_linda_out(loops);
+		return 0;
+	}
+
+	if (test_linda_in)
+	{
+		do_linda_in();
 		return 0;
 	}
 
