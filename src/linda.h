@@ -3,6 +3,8 @@
 
 typedef struct _linda* linda;
 
+#define LINDA_ID "id"
+
 extern linda linda_open(const char* path1, const char* path2);
 
 extern int linda_out(linda l, const char* s);

@@ -16,6 +16,8 @@
 #define SEP "/"
 #endif
 
+#define LINDA_UUID "$uuid"
+
 struct _linda
 {
 	store st;
@@ -32,8 +34,8 @@ int linda_out(linda l, const char* s)
 		return 0;
 
 	json j = json_open(s);
-	json jid = json_find(j, "id");
-	json juuid = json_find(j, "$uuid");
+	json jid = json_find(j, LINDA_ID);
+	json juuid = json_find(j, LINDA_UUID);
 	uuid u;
 
 	if (juuid)
@@ -120,7 +122,7 @@ static int read_string_handler(void* arg, void* k, void* v)
 static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 {
 	json j = json_open(s);
-	json juuid = json_find(j, "$uuid");
+	json juuid = json_find(j, LINDA_UUID);
 	l->last_uuid.u1 = l->last_uuid.u2 = 0;
 	l->rm = rm;
 	uuid u;
@@ -140,7 +142,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		return 1;
 	}
 
-	json jid = json_find(j, "id");
+	json jid = json_find(j, LINDA_ID);
 
 	if (jid)
 	{
