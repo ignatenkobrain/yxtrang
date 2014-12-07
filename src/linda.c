@@ -20,7 +20,7 @@ struct _linda
 {
 	store st;
 	skiplist sl;
-	int is_int, is_string, last_len;
+	int is_int, is_string, last_len, rm;
 	long long int_id;
 	const char* string_id;
 	uuid last_uuid;
@@ -122,6 +122,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	json j = json_open(s);
 	json juuid = json_find(j, "$uuid");
 	l->last_uuid.u1 = l->last_uuid.u2 = 0;
+	l->rm = rm;
 	uuid u;
 
 	if (juuid)
