@@ -92,7 +92,7 @@ const uuid* linda_get_last_uuid(linda l)
 	return &l->last_uuid;
 }
 
-static int linda_read(linda l, const char* s, char** dst, int rm, int pred)
+static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 {
 	json j = json_open(s);
 	json juuid = json_find(j, "$uuid");
