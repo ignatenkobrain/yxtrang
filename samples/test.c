@@ -191,7 +191,7 @@ static void do_linda_in()
 	{
 		char* buf;
 		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"nbr\":%d}\n", i);
+		sprintf(tmpbuf, "{\"nbr\":%ld}\n", i);
 
 		if (!linda_rdp(l, tmpbuf, &buf))
 			continue;
