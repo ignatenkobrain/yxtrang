@@ -164,9 +164,12 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	}
 
 	json jid = json_find(j, LINDA_ID);
+	printf("HERE: %s", s);
 
 	if (jid)
 	{
+		printf("HERE1: %s", json_to_string(jid));
+
 		if (l->is_int && !json_is_integer(jid))
 		{
 			printf("linda_read: expected integer id\n");
@@ -182,27 +185,35 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 
 		if (l->is_int)
 		{
+			printf("HERE1a\n");
 			l->int_id = json_get_integer(jid);
 			sl_int_find(l->sl, l->int_id, &read_int_handler, l);
 		}
 		else if (l->is_string)
 		{
+			printf("HERE1b\n");
 			l->string_id = json_get_string(jid);
 			sl_string_find(l->sl, l->string_id, &read_string_handler, l);
 		}
 		else
 		{
+			printf("HERE1c\n");
 			json_close(j);
 			return 0;
 		}
 	}
 	else
+	{
+		printf("HERE2\n");
 		sl_iter(l->sl, &read_handler, l);
+	}
 
 	json_close(j);
 
 	if (!l->uuid.u1 && !l->uuid.u2)
 		return 0;
+
+	printf("HERE3\n");
 
 	if (!store_get(l->st, &l->uuid, (void**)dst, &l->len))
 		return 0;

@@ -379,6 +379,28 @@ json json_create(json jptr, const char* name)
 	return ptr;
 }
 
+json json_get_object(json jptr)
+{
+	if (!jptr)
+		return NULL;
+
+	if (jptr->type != type_object)
+		return NULL;
+
+	return jptr->head;
+}
+
+json json_get_array(json jptr)
+{
+	if (!jptr)
+		return NULL;
+
+	if (jptr->type != type_array)
+		return NULL;
+
+	return jptr->head;
+}
+
 json json_find(json jptr, const char* name)
 {
 	while (jptr)

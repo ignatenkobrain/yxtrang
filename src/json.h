@@ -33,6 +33,9 @@ extern int json_is_true(const json ptr);
 extern int json_is_false(const json ptr);
 extern int json_is_null(const json ptr);
 
+extern json json_get_object(const json ptr);
+extern json json_get_array(const json ptr);
+
 extern long long json_get_integer(const json ptr);
 extern double json_get_real(const json ptr);
 extern const char* json_get_string(const json ptr);

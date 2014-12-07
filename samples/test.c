@@ -187,9 +187,9 @@ static void do_linda_in()
 	linda l = linda_open("./db", NULL);
 	long i;
 
-	// Return 100 by id (indexed)...
+	// Return by $id (indexed)...
 
-	for (i = 0; i < 100; i++)
+	for (i = 0; i < 10; i++)
 	{
 		char* buf;
 		char tmpbuf[1024];
@@ -198,8 +198,10 @@ static void do_linda_in()
 		if (!linda_rdp(l, tmpbuf, &buf))
 			continue;
 
-		printf("GOT2: '%s' => %s", tmpbuf, buf);
+		printf("GOT1: '%s' => %s", tmpbuf, buf);
 	}
+
+	return;
 
 	// Return first 100 by param (not indexed)...
 
@@ -212,7 +214,7 @@ static void do_linda_in()
 		if (!linda_rdp(l, tmpbuf, &buf))
 			continue;
 
-		printf("GOT1: '%s' => %s", tmpbuf, buf);
+		printf("GOT2: '%s' => %s", tmpbuf, buf);
 	}
 
 	linda_close(l);
@@ -495,13 +497,13 @@ static void do_json()
 		"'h':{'h1':33,'h2':44}"
 		"}";
 
-	printf("%s\n", s);
+	printf("ORIG: %s\n", s);
 
 	// Parse and reformat...
 
 	json j = json_open(s);
 	char* pdst;
-	printf("%s\n", pdst=json_to_string(j));
+	printf("PARSED: %s\n", pdst=json_to_string(j));
 	free(pdst);
 	json_close(j);
 
@@ -528,8 +530,19 @@ static void do_json()
 	json_set_integer(json_object_add(jptr, "h1"), 33);
 	json_set_integer(json_object_add(jptr, "h2"), 44);
 
-	printf("%s\n", pdst=json_to_string(j));
+	printf("BUILT: %s\n", pdst=json_to_string(j));
 	free(pdst);
+	json_close(j);
+
+	j = json_open(s);
+	json j1 = json_get_object(j);
+	json j2 = json_find(j1, "c");
+
+	if (j2)
+		printf("'c' = '%s'\n", json_get_string(j2));
+	else
+		printf("Cannot find 'c'\n");
+
 	json_close(j);
 }
 
