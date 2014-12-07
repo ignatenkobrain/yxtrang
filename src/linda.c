@@ -16,16 +16,14 @@
 #define SEP "/"
 #endif
 
-#define LINDA_UUID "$uuid"
-
 struct _linda
 {
 	store st;
 	skiplist sl;
-	int is_int, is_string, last_len, rm;
+	int is_int, is_string, len, rm;
 	long long int_id;
 	const char* string_id;
-	uuid last_uuid;
+	uuid uuid, last_uuid;
 };
 
 int linda_out(linda l, const char* s)
@@ -84,16 +82,25 @@ int linda_out(linda l, const char* s)
 	}
 
 	store_add(l->st, &u, s, strlen(s));
+	l->last_uuid = u;
 	json_close(j);
 	return 0;
 }
 
-int linda_get_last_length(linda l)
+int linda_get_length(linda l)
 {
 	if (!l)
 		return 0;
 
-	return l->last_len;
+	return l->len;
+}
+
+const uuid* linda_get_uuid(linda l)
+{
+	if (!l)
+		return NULL;
+
+	return &l->uuid;
 }
 
 const uuid* linda_get_last_uuid(linda l)
@@ -123,7 +130,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 {
 	json j = json_open(s);
 	json juuid = json_find(j, LINDA_UUID);
-	l->last_uuid.u1 = l->last_uuid.u2 = 0;
+	l->uuid.u1 = l->uuid.u2 = 0;
 	l->rm = rm;
 	uuid u;
 
@@ -132,13 +139,13 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		uuid_from_string(json_get_string(juuid), &u);
 		json_close(j);
 
-		if (!store_get(l->st, &u, (void**)dst, &l->last_len))
+		if (!store_get(l->st, &u, (void**)dst, &l->len))
 			return 0;
 
 		if (rm)
 			store_rem(l->st, &u);
 
-		l->last_uuid = u;
+		l->uuid = u;
 		return 1;
 	}
 
@@ -180,14 +187,14 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 
 	json_close(j);
 
-	if (!l->last_uuid.u1 && !l->last_uuid.u2)
+	if (!l->uuid.u1 && !l->uuid.u2)
 		return 0;
 
-	if (!store_get(l->st, &l->last_uuid, (void**)dst, &l->last_len))
+	if (!store_get(l->st, &l->uuid, (void**)dst, &l->len))
 		return 0;
 
 	if (rm)
-		store_rem(l->st, &l->last_uuid);
+		store_rem(l->st, &l->uuid);
 
 	return 1;
 }

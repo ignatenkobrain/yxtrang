@@ -4,6 +4,7 @@
 typedef struct _linda* linda;
 
 #define LINDA_ID "id"
+#define LINDA_UUID "$uuid"
 
 extern linda linda_open(const char* path1, const char* path2);
 
@@ -13,7 +14,9 @@ extern int linda_rdp(linda l, const char* s, char** dst);
 extern int linda_in(linda l, const char* s, char** dst);
 extern int linda_inp(linda l, const char* s, char** dst);
 
-extern int linda_get_last_length(linda l);
+extern int linda_get_length(linda l);			// last read
+extern const uuid* linda_get_uuid(linda l);		// last read
+extern const uuid* linda_last_uuid(linda l);	// last write
 
 extern int linda_close(linda l);
 
