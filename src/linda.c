@@ -96,10 +96,10 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int pred)
 {
 	json j = json_open(s);
 	json juuid = json_find(j, "$uuid");
+	uuid u;
 
 	if (juuid)
 	{
-		uuid u;
 		uuid_from_string(json_get_string(juuid), &u);
 		json_close(j);
 		int len;
@@ -115,8 +115,48 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int pred)
 	}
 
 	json jid = json_find(j, "id");
+
+	if (l->is_int && !json_is_integer(jid))
+	{
+		printf("linda_read: expected integer id\n");
+		json_close(j);
+		return 0;
+	}
+	else if (l->is_string && !json_is_string(jid))
+	{
+		printf("linda_read: expected string id\n");
+		json_close(j);
+		return 0;
+	}
+
+	if (l->is_int)
+	{
+		long long id = json_get_integer(jid);
+
+		if (!sl_int_get(l->sl, id, &u))
+			return 0;
+	}
+	else if (l->is_string)
+	{
+		const char* id = json_get_string(jid);
+
+		if (!sl_string_get(l->sl, id, &u))
+			return 0;
+	}
+	else
+		return 0;
+
+	int len;
+
+	if (!store_get(l->st, &u, (void**)dst, &len))
+		return 0;
+
+	if (rm)
+		store_rem(l->st, &u);
+
+	l->last_uuid = u;
 	json_close(j);
-	return 0;
+	return 1;
 }
 
 int linda_rd(linda l, const char* s, char** dst)
