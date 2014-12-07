@@ -113,16 +113,30 @@ const uuid* linda_get_last_uuid(linda l)
 
 static int read_handler(void* arg, void* k, void* v)
 {
-	return 0;
+	linda l = (linda)arg;
+	l->uuid = *((uuid*)v);
+	return 1;
 }
 
-static int read_int_handler(void* arg, void* k, void* v)
+static int read_int_handler(void* arg, int k, void* v)
 {
-	return 0;
+	linda l = (linda)arg;
+
+	if (k != l->int_id)
+		return 0;
+
+	l->uuid = *((uuid*)v);
+	return 1;
 }
 
-static int read_string_handler(void* arg, void* k, void* v)
+static int read_string_handler(void* arg, const char* k, void* v)
 {
+	linda l = (linda)arg;
+
+	if (strcmp(k, l->string_id))
+		return 0;
+
+	l->uuid = *((uuid*)v);
 	return 0;
 }
 

@@ -187,20 +187,6 @@ static void do_linda_in()
 	linda l = linda_open("./db", NULL);
 	long i;
 
-	// Return first 100 by param (not indexed)...
-
-	for (i = 0; i < 100; i++)
-	{
-		char* buf;
-		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"nbr\":%ld}\n", i);
-
-		if (!linda_rdp(l, tmpbuf, &buf))
-			continue;
-
-		printf("GOT1: '%s' => %s", tmpbuf, buf);
-	}
-
 	// Return 100 by id (indexed)...
 
 	for (i = 0; i < 100; i++)
@@ -213,6 +199,20 @@ static void do_linda_in()
 			continue;
 
 		printf("GOT2: '%s' => %s", tmpbuf, buf);
+	}
+
+	// Return first 100 by param (not indexed)...
+
+	for (i = 0; i < 100; i++)
+	{
+		char* buf;
+		char tmpbuf[1024];
+		sprintf(tmpbuf, "{\"nbr\":%ld}\n", i);
+
+		if (!linda_rdp(l, tmpbuf, &buf))
+			continue;
+
+		printf("GOT1: '%s' => %s", tmpbuf, buf);
 	}
 
 	linda_close(l);

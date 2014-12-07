@@ -3,7 +3,7 @@
 
 typedef struct _linda* linda;
 
-#define LINDA_ID "id"
+#define LINDA_ID "$id"
 #define LINDA_UUID "$uuid"
 
 extern linda linda_open(const char* path1, const char* path2);
