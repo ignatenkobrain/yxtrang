@@ -20,7 +20,9 @@ struct _linda
 {
 	store st;
 	skiplist sl;
-	int is_int, is_string;
+	int is_int, is_string, last_len;
+	long long int_id;
+	const char* string_id;
 	uuid last_uuid;
 };
 
@@ -84,6 +86,14 @@ int linda_out(linda l, const char* s)
 	return 0;
 }
 
+int linda_get_last_length(linda l)
+{
+	if (!l)
+		return 0;
+
+	return l->last_len;
+}
+
 const uuid* linda_get_last_uuid(linda l)
 {
 	if (!l)
@@ -92,19 +102,34 @@ const uuid* linda_get_last_uuid(linda l)
 	return &l->last_uuid;
 }
 
+static int read_handler(void* arg, void* k, void* v)
+{
+	return 0;
+}
+
+static int read_int_handler(void* arg, void* k, void* v)
+{
+	return 0;
+}
+
+static int read_string_handler(void* arg, void* k, void* v)
+{
+	return 0;
+}
+
 static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 {
 	json j = json_open(s);
 	json juuid = json_find(j, "$uuid");
+	l->last_uuid.u1 = l->last_uuid.u2 = 0;
 	uuid u;
 
 	if (juuid)
 	{
 		uuid_from_string(json_get_string(juuid), &u);
 		json_close(j);
-		int len;
 
-		if (!store_get(l->st, &u, (void**)dst, &len))
+		if (!store_get(l->st, &u, (void**)dst, &l->last_len))
 			return 0;
 
 		if (rm)
@@ -116,46 +141,51 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 
 	json jid = json_find(j, "id");
 
-	if (l->is_int && !json_is_integer(jid))
+	if (jid)
 	{
-		printf("linda_read: expected integer id\n");
-		json_close(j);
-		return 0;
-	}
-	else if (l->is_string && !json_is_string(jid))
-	{
-		printf("linda_read: expected string id\n");
-		json_close(j);
-		return 0;
-	}
-
-	if (l->is_int)
-	{
-		long long id = json_get_integer(jid);
-
-		if (!sl_int_get(l->sl, id, &u))
+		if (l->is_int && !json_is_integer(jid))
+		{
+			printf("linda_read: expected integer id\n");
+			json_close(j);
 			return 0;
-	}
-	else if (l->is_string)
-	{
-		const char* id = json_get_string(jid);
-
-		if (!sl_string_get(l->sl, id, &u))
+		}
+		else if (l->is_string && !json_is_string(jid))
+		{
+			printf("linda_read: expected string id\n");
+			json_close(j);
 			return 0;
+		}
+
+		if (l->is_int)
+		{
+			l->int_id = json_get_integer(jid);
+			sl_int_find(l->sl, l->int_id, &read_int_handler, l);
+		}
+		else if (l->is_string)
+		{
+			l->string_id = json_get_string(jid);
+			sl_string_find(l->sl, l->string_id, &read_string_handler, l);
+		}
+		else
+		{
+			json_close(j);
+			return 0;
+		}
 	}
 	else
+		sl_iter(l->sl, &read_handler, l);
+
+	json_close(j);
+
+	if (!l->last_uuid.u1 && !l->last_uuid.u2)
 		return 0;
 
-	int len;
-
-	if (!store_get(l->st, &u, (void**)dst, &len))
+	if (!store_get(l->st, &l->last_uuid, (void**)dst, &l->last_len))
 		return 0;
 
 	if (rm)
-		store_rem(l->st, &u);
+		store_rem(l->st, &l->last_uuid);
 
-	l->last_uuid = u;
-	json_close(j);
 	return 1;
 }
 
