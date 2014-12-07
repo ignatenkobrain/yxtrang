@@ -21,6 +21,7 @@ struct _linda
 	store st;
 	skiplist sl;
 	int is_int, is_string;
+	uuid last_uuid;
 };
 
 int linda_out(linda l, const char* s)
@@ -30,7 +31,7 @@ int linda_out(linda l, const char* s)
 
 	json j = json_open(s);
 	json jid = json_find(j, "id");
-	json juuid = json_find(j, "$oid");
+	json juuid = json_find(j, "$uuid");
 	uuid u;
 
 	if (juuid)
@@ -83,8 +84,38 @@ int linda_out(linda l, const char* s)
 	return 0;
 }
 
+uuid* linda_get_last_uuid(linda l)
+{
+	if (!l)
+		return NULL;
+
+	return &l->last_uuid;
+}
+
 static int linda_read(linda l, const char* s, char** dst, int rm, int pred)
 {
+	json j = json_open(s);
+	json juuid = json_find(j, "$uuid");
+
+	if (juuid)
+	{
+		uuid u;
+		uuid_from_string(json_get_string(juuid), &u);
+
+		int len;
+
+		if (!store_get(l->st, &u, (void**)dst, &len))
+		{
+			json_close(j);
+			return 0;
+		}
+
+		l->last_uuid = u;
+		return 1;
+	}
+
+	json jid = json_find(j, "id");
+	json_close(j);
 	return 0;
 }
 
