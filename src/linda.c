@@ -101,14 +101,14 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int pred)
 	{
 		uuid u;
 		uuid_from_string(json_get_string(juuid), &u);
-
+		json_close(j);
 		int len;
 
 		if (!store_get(l->st, &u, (void**)dst, &len))
-		{
-			json_close(j);
 			return 0;
-		}
+
+		if (rm)
+			store_rem(l->st, &u);
 
 		l->last_uuid = u;
 		return 1;
