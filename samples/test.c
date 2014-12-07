@@ -175,7 +175,7 @@ static void do_linda_out(long cnt)
 	{
 		int id = rand() % 1000;
 		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"$id\":%d,\"nbr\":%ld,\"text\":\"%s\"}\n", id, i, qbf);
+		sprintf(tmpbuf, "{\"%s\":%d,\"nbr\":%ld,\"text\":\"%s\"}\n", LINDA_ID, id, i, qbf);
 		linda_out(l, tmpbuf);
 	}
 
@@ -196,7 +196,19 @@ static void do_linda_in()
 		if (!linda_rdp(l, tmpbuf, &buf))
 			continue;
 
-		printf("GOT: '%s' => %s", tmpbuf, buf);
+		printf("GOT1: '%s' => %s", tmpbuf, buf);
+	}
+
+	for (i = 0; i < 1000; i++)
+	{
+		char* buf;
+		char tmpbuf[1024];
+		sprintf(tmpbuf, "{\"%s\":%ld}\n", LINDA_ID, i);
+
+		if (!linda_rdp(l, tmpbuf, &buf))
+			continue;
+
+		printf("GOT1: '%s' => %s", tmpbuf, buf);
 	}
 
 	linda_close(l);
