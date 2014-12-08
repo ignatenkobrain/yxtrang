@@ -23,7 +23,7 @@ struct _linda
 	int is_int, is_string, len, rm;
 	long long int_id;
 	const char* string_id;
-	uuid uuid, last_uuid;
+	uuid oid, last_oid;
 };
 
 int linda_out(linda l, const char* s)
@@ -86,7 +86,7 @@ int linda_out(linda l, const char* s)
 	}
 
 	store_add(l->st, &u, s, strlen(s));
-	l->last_uuid = u;
+	l->last_oid = u;
 	json_close(j);
 	return 0;
 }
@@ -104,7 +104,7 @@ const uuid* linda_get_uuid(linda l)
 	if (!l)
 		return NULL;
 
-	return &l->uuid;
+	return &l->oid;
 }
 
 const uuid* linda_get_last_uuid(linda l)
@@ -112,13 +112,13 @@ const uuid* linda_get_last_uuid(linda l)
 	if (!l)
 		return NULL;
 
-	return &l->last_uuid;
+	return &l->last_oid;
 }
 
 static int read_handler(void* arg, void* k, void* v)
 {
 	linda l = (linda)arg;
-	l->uuid = *((uuid*)v);
+	l->oid = *((uuid*)v);
 	return 1;
 }
 
@@ -130,7 +130,7 @@ static int read_int_handler(void* arg, void* _k, void* v)
 	if (k != l->int_id)
 		return 0;
 
-	l->uuid = *((uuid*)v);
+	l->oid = *((uuid*)v);
 	return 1;
 }
 
@@ -142,7 +142,7 @@ static int read_string_handler(void* arg, void* _k, void* v)
 	if (strcmp(k, l->string_id))
 		return 0;
 
-	l->uuid = *((uuid*)v);
+	l->oid = *((uuid*)v);
 	return 0;
 }
 
@@ -150,7 +150,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 {
 	json j = json_open(s);
 	json j1 = json_get_object(j);
-	l->uuid.u1 = l->uuid.u2 = 0;
+	l->oid.u1 = l->oid.u2 = 0;
 	l->rm = rm;
 	uuid u;
 	json juuid = json_find(j1, LINDA_UUID);
@@ -166,7 +166,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		if (rm)
 			store_rem(l->st, &u);
 
-		l->uuid = u;
+		l->oid = u;
 		return 1;
 	}
 
@@ -210,20 +210,20 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 
 	json_close(j);
 
-	if (!l->uuid.u1 && !l->uuid.u2)
+	if (!l->oid.u1 && !l->oid.u2)
 		return 0;
 
 	char tmpbuf[256];
-	printf("HERE3: UUID=%s\n", uuid_to_string(&l->uuid, tmpbuf));
+	printf("HERE3: UUID=%s\n", uuid_to_string(&l->oid, tmpbuf));
 
-	if (!store_get(l->st, &l->uuid, (void**)dst, &l->len))
+	if (!store_get(l->st, &l->oid, (void**)dst, &l->len))
 	{
-		printf("linda_read: UUID=%s not found\n", uuid_to_string(&l->uuid, tmpbuf));
+		printf("linda_read: UUID=%s not found\n", uuid_to_string(&l->oid, tmpbuf));
 		return 0;
 	}
 
 	if (rm)
-		store_rem(l->st, &l->uuid);
+		store_rem(l->st, &l->oid);
 
 	return 1;
 }
@@ -262,14 +262,6 @@ int linda_inp(linda l, const char* s, char** dst)
 
 linda linda_open(const char* path1, const char* path2)
 {
-	static int first_time = 1;
-
-	if (first_time)
-	{
-		uuid_seed(time(NULL));
-		first_time = 0;
-	}
-
 	linda l = (linda)calloc(1, sizeof(struct _linda));
 	if (!l) return NULL;
 	l->st = store_open(path1, path2, 0);

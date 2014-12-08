@@ -78,7 +78,7 @@ const uuid* uuid_gen(uuid* u)
 	static uint64_t s_cnt = 0;
 
 	if (!s_seed)
-		s_seed = time(0);	// will do
+		uuid_seed(time(0));
 
 	struct timeval tp;
 	gettimeofday(&tp, 0);
