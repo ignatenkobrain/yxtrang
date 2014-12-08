@@ -117,6 +117,30 @@ static int read_handler(void* arg, void* k, void* v)
 	return 1;
 }
 
+static int read_int_handler(void* arg,  int64_t k, uuid* u)
+{
+	linda l = (linda)arg;
+
+	if (k != l->int_id)
+		return 0;
+
+	l->oid.u1 = u->u1;
+	l->oid.u2 = u->u2;
+	return 0;
+}
+
+static int read_string_handler(void* arg, const char* k, uuid* u)
+{
+	linda l = (linda)arg;
+
+	if (strcmp(k, l->string_id))
+		return 0;
+
+	l->oid.u1 = u->u1;
+	l->oid.u2 = u->u2;
+	return 0;
+}
+
 static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 {
 	json j = json_open(s);
@@ -161,18 +185,12 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		if (json_is_integer(jid))
 		{
 			l->int_id = json_get_integer(jid);
-			uuid* tmp_u = NULL;
-
-			if (sl_int_uuid_get(l->sl, l->int_id, &tmp_u))
-				l->oid = *tmp_u;
+			sl_int_uuid_find(l->sl, l->int_id, &read_int_handler, l);
 		}
 		else if (json_is_string(jid))
 		{
 			l->string_id = json_get_string(jid);
-			uuid* tmp_u = NULL;
-
-			if (sl_string_uuid_get(l->sl, l->string_id, &tmp_u))
-				l->oid = *tmp_u;
+			sl_string_uuid_find(l->sl, l->string_id, &read_string_handler, l);
 		}
 		else
 		{
