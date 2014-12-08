@@ -16,6 +16,7 @@ struct _linda
 	int is_int, is_string, len, rm;
 	long long int_id;
 	const char* string_id;
+	void** dst;
 	uuid oid, last_oid;
 };
 
@@ -124,6 +125,19 @@ static int read_int_handler(void* arg,  int64_t k, uuid* u)
 	if (k != l->int_id)
 		return 0;
 
+	if (!store_get(l->st, u, l->dst, &l->len))
+		return 0;
+
+	// we should match params here
+
+	int match = 1;
+
+	if (!match)
+		return 1;
+
+	if (l->rm)
+		store_rem(l->st, u);
+
 	l->oid.u1 = u->u1;
 	l->oid.u2 = u->u2;
 	return 0;
@@ -136,6 +150,19 @@ static int read_string_handler(void* arg, const char* k, uuid* u)
 	if (strcmp(k, l->string_id))
 		return 0;
 
+	if (!store_get(l->st, u, l->dst, &l->len))
+		return 0;
+
+	// we should match params here
+
+	int match = 1;
+
+	if (!match)
+		return 1;
+
+	if (l->rm)
+		store_rem(l->st, u);
+
 	l->oid.u1 = u->u1;
 	l->oid.u2 = u->u2;
 	return 0;
@@ -147,6 +174,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	json j1 = json_get_object(j);
 	l->oid.u1 = l->oid.u2 = 0;
 	l->rm = rm;
+	l->dst = (void**)dst;
 	uuid u;
 	json juuid = json_find(j1, LINDA_OID);
 
@@ -207,12 +235,6 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 
 	if (!l->oid.u1 && !l->oid.u2)
 		return 0;
-
-	if (!store_get(l->st, &l->oid, (void**)dst, &l->len))
-		return 0;
-
-	if (rm)
-		store_rem(l->st, &l->oid);
 
 	return 1;
 }
