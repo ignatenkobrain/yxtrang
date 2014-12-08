@@ -124,14 +124,10 @@ static int read_int_handler(void* arg, void* _k, void* v)
 	long long k = (long long)_k;
 	linda l = (linda)arg;
 
-	printf("int_handler: k=%lld, id=%lld\n", k, l->int_id);
-
 	if (k != l->int_id)
 		return 0;
 
 	uuid* u = (uuid*)v;
-	char tmpbuf[256];
-	printf("*** FOUND, v=%s\n", uuid_to_string(u, tmpbuf));
 	l->oid.u1 = u->u1;
 	l->oid.u2 = u->u2;
 	return 0;
@@ -224,6 +220,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 
 	if (!store_get(l->st, &l->oid, (void**)dst, &l->len))
 	{
+		char tmpbuf[256];
 		printf("linda_read: UUID=%s not found\n", uuid_to_string(&l->oid, tmpbuf));
 		return 0;
 	}

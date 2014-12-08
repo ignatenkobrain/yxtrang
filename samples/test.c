@@ -183,7 +183,7 @@ static void do_linda_out(long cnt)
 
 	for (i = 0; i < 10; i++)
 	{
-		char* buf;
+		char* buf = NULL;
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%ld}\n", LINDA_ID, i);
 
