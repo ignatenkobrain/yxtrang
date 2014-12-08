@@ -9,25 +9,25 @@
 #include "uuid.h"
 #include "linda.h"
 
-#define sl_int_create() sl_create(NULL, NULL, NULL)
-#define sl_int_create2() sl_create2(NULL, NULL, NULL, (void* (*)(const void*))&uuid_copy, &free)
-#define sl_int_add(s,k,v) sl_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
-#define sl_int_rem(s,k) sl_rem(s, (const void*)(size_t)k)
-#define sl_int_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
-#define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
-#define sl_int_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
-#define sl_int_count sl_count
-#define sl_int_destroy sl_destroy
+#define sl_int_uuid_create() sl_create(NULL, NULL, NULL)
+#define sl_int_uuid_create2() sl_create2(NULL, NULL, NULL, (void* (*)(const void*))&uuid_copy, &free)
+#define sl_int_uuid_add(s,k,v) sl_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
+#define sl_int_uuid_rem(s,k) sl_rem(s, (const void*)(size_t)k)
+#define sl_int_uuid_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
+#define sl_int_uuid_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_int_uuid_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_int_uuid_count sl_count
+#define sl_int_uuid_destroy sl_destroy
 
-#define sl_string_create() sl_create((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free)
-#define sl_string_create2() sl_create2((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free, (void* (*)(const void*))&uuid_copy, &free)
-#define sl_string_add(s,k,v) sl_add(s, (const void*)k, (const void*)v)
-#define sl_string_rem(s,k) sl_rem(s, (const void*)k)
-#define sl_string_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
-#define sl_string_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
-#define sl_string_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
-#define sl_string_count sl_count
-#define sl_string_destroy sl_destroy
+#define sl_string_uuid_create() sl_create((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free)
+#define sl_string_uuid_create2() sl_create2((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free, (void* (*)(const void*))&uuid_copy, &free)
+#define sl_string_uuid_add(s,k,v) sl_add(s, (const void*)k, (const void*)v)
+#define sl_string_uuid_rem(s,k) sl_rem(s, (const void*)k)
+#define sl_string_uuid_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
+#define sl_string_uuid_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_string_uuid_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_string_uuid_count sl_count
+#define sl_string_uuid_destroy sl_destroy
 
 struct _linda
 {
@@ -72,13 +72,13 @@ int linda_out(linda l, const char* s)
 
 			if (!l->sl)
 			{
-				l->sl = sl_int_create2();
+				l->sl = sl_int_uuid_create2();
 				l->is_int = 1;
 			}
 
 			char tmpbuf[256];
 			printf("linda_out: id=%lld, UUID=%s\n", k, uuid_to_string(&u, tmpbuf));
-			sl_int_add(l->sl, k, &u);
+			sl_int_uuid_add(l->sl, k, &u);
 		}
 		else if (json_is_string(jid))
 		{
@@ -92,11 +92,11 @@ int linda_out(linda l, const char* s)
 
 			if (!l->sl)
 			{
-				l->sl = sl_string_create2();
+				l->sl = sl_string_uuid_create2();
 				l->is_string = 1;
 			}
 
-			sl_string_add(l->sl, k, &u);
+			sl_string_uuid_add(l->sl, k, &u);
 		}
 	}
 
@@ -216,12 +216,12 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		{
 			l->int_id = json_get_integer(jid);
 			printf("linda_read: find=%lld\n", l->int_id);
-			sl_int_find(l->sl, l->int_id, &read_int_handler, l);
+			sl_int_uuid_find(l->sl, l->int_id, &read_int_handler, l);
 		}
 		else if (json_is_string(jid))
 		{
 			l->string_id = json_get_string(jid);
-			sl_string_find(l->sl, l->string_id, &read_string_handler, l);
+			sl_string_uuid_find(l->sl, l->string_id, &read_string_handler, l);
 		}
 		else
 		{
