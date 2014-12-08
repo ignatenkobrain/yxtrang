@@ -307,7 +307,7 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 	uint64_t pos = POS(v);
 	char tmpbuf[1024];
 
-	if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
+	if (pread(fd, tmpbuf, sizeof(tmpbuf)-1, pos) <= 0)
 	{
 		printf("store_get pread fd=%d prefix failed, pos=%llu\n", fd, (unsigned long long)pos);
 		return 0;
@@ -316,7 +316,6 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 	unsigned nbr, flags, nbytes;
 	uuid tmp_u;
 	int skip = parse(tmpbuf, &nbr, &tmp_u, &flags, &nbytes);
-	tmpbuf[skip] = 0;
 
 	if (uuid_compare(u, &tmp_u) != 0)	// CHECK uuid match
 	{
@@ -331,7 +330,7 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 		return 0;
 	}
 
-	if (*buf && (*len < nbytes))		// CHECK buffer big enough
+	if (*buf && (*len < (nbytes-1)))	// CHECK buffer big enough
 	{
 		free(*buf);
 		*buf = 0;
@@ -340,28 +339,33 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 
 	if (!*buf)							// If not, allocate new one
 	{
-		*buf = (char*)malloc(*len=nbytes);
-		if (!*buf) return 0;
+		*buf = (char*)malloc(*len=(nbytes+1));
+
+		if (!*buf)
+		{
+			printf("store_get malloc failed: %d bytes\n", nbytes);
+			return 0;
+		}
 	}
 
-	if (!*buf)
-		return 0;
+	char* bufptr = *buf;
 
 	// If wholely within tmpbuf then
 	// we already have it all!
 
 	if ((skip+nbytes) <= sizeof(tmpbuf))
 	{
-		memcpy(*buf, tmpbuf+skip, nbytes);
+		memcpy(bufptr, tmpbuf+skip, nbytes);
 		return nbytes;
 	}
 
-	if (pread(fd, *buf, nbytes, pos+skip) != nbytes)
+	if (pread(fd, bufptr, nbytes, pos+skip) != nbytes)
 	{
 		printf("store_get pread fd=%d data failed, pos=%llu\n", fd, (unsigned long long)pos+skip);
 		return 0;
 	}
 
+	bufptr[nbytes] = 0;
 	return nbytes;
 }
 
