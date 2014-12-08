@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 #ifdef _WIN32
@@ -30,7 +31,7 @@ uint64_t uuid_ts(const uuid* u)
 const char* uuid_to_string(const uuid* u, char* buf)
 {
 	sprintf(buf, "%016llX:%04llX:%012llX",
-		(unsigned long long)u->u1, (unsigned long long)(u->u2 >> 48),
+		(unsigned long long)u->u1, (unsigned long long)(u->u2 >> BITS_48),
 		(unsigned long long)(u->u2 & MASK_48));
 
 	return buf;
@@ -96,5 +97,13 @@ const uuid* uuid_gen(uuid* u)
 	u->u2 = s_cnt++ << BITS_48;
 	u->u2 |= s_seed;
 	return u;
+}
+
+uuid* uuid_copy(const uuid* v1)
+{
+	uuid* v2 = (uuid*)malloc(sizeof(struct _uuid));
+	v2->u1 = v1->u1;
+	v2->u2 = v1->u2;
+	return v2;
 }
 

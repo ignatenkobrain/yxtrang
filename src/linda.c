@@ -3,12 +3,31 @@
 #include <string.h>
 #include <time.h>
 
-#include "skiplist_int.h"
-#include "skiplist_string.h"
+#include "skiplist.h"
 #include "json.h"
 #include "store.h"
 #include "uuid.h"
 #include "linda.h"
+
+#define sl_int_create() sl_create(NULL, NULL, NULL)
+#define sl_int_create2() sl_create2(NULL, NULL, NULL, (void* (*)(const void*))&uuid_copy, &free)
+#define sl_int_add(s,k,v) sl_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
+#define sl_int_rem(s,k) sl_rem(s, (const void*)(size_t)k)
+#define sl_int_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
+#define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_int_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_int_count sl_count
+#define sl_int_destroy sl_destroy
+
+#define sl_string_create() sl_create((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free)
+#define sl_string_create2() sl_create2((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free, (void* (*)(const void*))&uuid_copy, &free)
+#define sl_string_add(s,k,v) sl_add(s, (const void*)k, (const void*)v)
+#define sl_string_rem(s,k) sl_rem(s, (const void*)k)
+#define sl_string_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
+#define sl_string_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_string_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_string_count sl_count
+#define sl_string_destroy sl_destroy
 
 struct _linda
 {
@@ -53,10 +72,12 @@ int linda_out(linda l, const char* s)
 
 			if (!l->sl)
 			{
-				l->sl = sl_int_create();
+				l->sl = sl_int_create2();
 				l->is_int = 1;
 			}
 
+			char tmpbuf[256];
+			printf("linda_out: id=%lld, UUID=%s\n", k, uuid_to_string(&u, tmpbuf));
 			sl_int_add(l->sl, k, &u);
 		}
 		else if (json_is_string(jid))
@@ -71,7 +92,7 @@ int linda_out(linda l, const char* s)
 
 			if (!l->sl)
 			{
-				l->sl = sl_int_create();
+				l->sl = sl_string_create2();
 				l->is_string = 1;
 			}
 
@@ -112,7 +133,9 @@ const uuid* linda_get_last_uuid(linda l)
 static int read_handler(void* arg, void* k, void* v)
 {
 	linda l = (linda)arg;
-	l->oid = *((uuid*)v);
+	uuid* u = (uuid*)v;
+	l->oid.u1 = u->u1;
+	l->oid.u2 = u->u2;
 	return 1;
 }
 
@@ -121,11 +144,17 @@ static int read_int_handler(void* arg, void* _k, void* v)
 	long long k = (long long)_k;
 	linda l = (linda)arg;
 
+	printf("int_handler: k=%lld, id=%lld\n", k, l->int_id);
+
 	if (k != l->int_id)
 		return 0;
 
-	l->oid = *((uuid*)v);
-	return 1;
+	uuid* u = (uuid*)v;
+	char tmpbuf[256];
+	printf("*** FOUND, v=%s\n", uuid_to_string(u, tmpbuf));
+	l->oid.u1 = u->u1;
+	l->oid.u2 = u->u2;
+	return 0;
 }
 
 static int read_string_handler(void* arg, void* _k, void* v)
@@ -136,7 +165,9 @@ static int read_string_handler(void* arg, void* _k, void* v)
 	if (strcmp(k, l->string_id))
 		return 0;
 
-	l->oid = *((uuid*)v);
+	uuid* u = (uuid*)v;
+	l->oid.u1 = u->u1;
+	l->oid.u2 = u->u2;
 	return 0;
 }
 
@@ -184,6 +215,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		if (json_is_integer(jid))
 		{
 			l->int_id = json_get_integer(jid);
+			printf("linda_read: find=%lld\n", l->int_id);
 			sl_int_find(l->sl, l->int_id, &read_int_handler, l);
 		}
 		else if (json_is_string(jid))

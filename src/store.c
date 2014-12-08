@@ -100,7 +100,7 @@ static int parse(const char* buf, unsigned* nbr, uuid* u, unsigned* flags, unsig
 {
 	char tmpbuf[256];
 	tmpbuf[0] = 0;
-	sscanf(buf, "%*c%04X %s %02X %04X ",  nbr, tmpbuf, flags, len);
+	sscanf(buf, "%*c%04X %s %02X %04X ", nbr, tmpbuf, flags, len);
 	tmpbuf[sizeof(tmpbuf)-1] = 0;
 	uuid_from_string(tmpbuf, u);
 	const char* src = buf;

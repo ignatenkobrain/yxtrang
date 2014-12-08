@@ -28,4 +28,6 @@ static inline int uuid_compare(const uuid* v1, const uuid* v2)
 	return 1;
 }
 
+extern uuid* uuid_copy(const uuid* v);
+
 #endif

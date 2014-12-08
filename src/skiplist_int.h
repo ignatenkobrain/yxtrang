@@ -9,7 +9,7 @@
 // sl_int_create2 - int key, string value
 
 #define sl_int_create() sl_create(NULL, NULL, NULL)
-#define sl_int_create2() sl_create2((NULL, NULL, NULL, (void* (*)(const void*))&strdup, &free)
+#define sl_int_create2() sl_create2(NULL, NULL, NULL, (void* (*)(const void*))&strdup, &free)
 #define sl_int_add(s,k,v) sl_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
 #define sl_int_rem(s,k) sl_rem(s, (const void*)(size_t)k)
 #define sl_int_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
