@@ -15,7 +15,7 @@ struct _linda
 	int is_int, is_string, len, rm;
 	long long int_id;
 	const char* string_id;
-	char** dst;
+	char* dst;
 	json jquery;
 	uuid oid, last_oid;
 };
@@ -114,12 +114,12 @@ static int read_handler(void* arg, void* k, void* v)
 	linda l = (linda)arg;
 	uuid* u = (uuid*)v;
 
-	if (!store_get(l->st, u, (void**)l->dst, &l->len))
+	if (!store_get(l->st, u, (void**)&l->dst, &l->len))
 		return 0;
 
 	int match = 1;
 	json j1 = json_get_object(l->jquery);
-	json jdst = json_open(*l->dst);
+	json jdst = json_open(l->dst);
 	json j2 = json_get_object(jdst);
 	size_t i, cnt = json_count(j1);
 
@@ -246,7 +246,6 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	json j1 = json_get_object(j);
 	l->oid.u1 = l->oid.u2 = 0;
 	l->rm = rm;
-	l->dst = dst;
 	uuid u;
 
 	json joid = json_find(j1, LINDA_OID);
@@ -315,6 +314,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	if (!l->oid.u1 && !l->oid.u2)
 		return 0;
 
+	*dst = l->dst;
 	return 1;
 }
 
