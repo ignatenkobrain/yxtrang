@@ -10,12 +10,6 @@
 #include "uuid.h"
 #include "linda.h"
 
-#ifdef _WIN32
-#define SEP "\\"
-#else
-#define SEP "/"
-#endif
-
 struct _linda
 {
 	store st;
@@ -33,7 +27,7 @@ int linda_out(linda l, const char* s)
 
 	json j = json_open(s);
 	json j1 = json_get_object(j);
-	json juuid = json_find(j1, LINDA_UUID);
+	json juuid = json_find(j1, LINDA_OID);
 	uuid u;
 
 	if (juuid)
@@ -99,7 +93,7 @@ int linda_get_length(linda l)
 	return l->len;
 }
 
-const uuid* linda_get_uuid(linda l)
+const uuid* linda_get_oid(linda l)
 {
 	if (!l)
 		return NULL;
@@ -153,7 +147,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	l->oid.u1 = l->oid.u2 = 0;
 	l->rm = rm;
 	uuid u;
-	json juuid = json_find(j1, LINDA_UUID);
+	json juuid = json_find(j1, LINDA_OID);
 
 	if (juuid)
 	{
