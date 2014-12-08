@@ -131,9 +131,9 @@ static int read_int_handler(void* arg,  int64_t k, uuid* u)
 	// we should match params here
 
 	int match = 1;
+	json j1 = json_get_object(l->jquery);
 	json jdst = json_open(*l->dst);
 	json j2 = json_get_object(jdst);
-	json j1 = json_get_object(l->jquery);
 	size_t i, cnt = json_count(j1);
 
 	for (i = 0; i < cnt; i++)
@@ -141,10 +141,7 @@ static int read_int_handler(void* arg,  int64_t k, uuid* u)
 		json j1it = json_index(j1, i);
 		const char* name = json_get_string(j1it);
 
-		if (!strcmp(name, LINDA_ID))
-			continue;
-
-		if (!strcmp(name, LINDA_OID))
+		if (name[0] == '$')
 			continue;
 
 		json j2it = json_find(j2, name);
