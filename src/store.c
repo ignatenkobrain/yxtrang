@@ -340,12 +340,7 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 	if (!*buf)							// If not, allocate new one
 	{
 		*buf = (char*)malloc(*len=(nbytes+1));
-
-		if (!*buf)
-		{
-			printf("store_get malloc failed: %d bytes\n", nbytes);
-			return 0;
-		}
+		if (!*buf) return 0;
 	}
 
 	char* bufptr = (char*)*buf;
@@ -356,6 +351,7 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 	if ((skip+nbytes) <= sizeof(tmpbuf))
 	{
 		memcpy(bufptr, tmpbuf+skip, nbytes);
+		bufptr[nbytes] = 0;
 		return nbytes;
 	}
 
