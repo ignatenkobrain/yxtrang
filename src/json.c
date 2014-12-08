@@ -7,9 +7,9 @@
 
 typedef enum
 {
-	type_null, type_false, type_true,
-	type_integer, type_real, type_string,
-	type_object, type_array
+	type_none=0, type_null=1, type_false=2, type_true=3,
+	type_integer=4, type_real=5, type_string=6,
+	type_object=7, type_array=8
 }
  json_type;
 
@@ -245,15 +245,29 @@ static void _json_open(char** str, json jptr, const int is_array)
 			jptr->type = type_true;
 			s += 4;
 		}
-		else if (strchr(s, '.') || strchr(s, 'E') || strchr(s, 'e'))
-		{
-			jptr->type = type_real;
-			jptr->real = strtod(s, &s);
-		}
 		else
 		{
-			jptr->type = type_integer;
-			jptr->integer = strtoll(s, &s, 10);
+			const char* save_s = s;
+			int any = 0;
+
+			while (isdigit(*s) || (*s == '.') || (*s == 'E') || (*s == 'e'))
+			{
+				if ((*s == '.') || (*s == 'E') || (*s == 'e'))
+					any++;
+
+				s++;
+			}
+
+			if (any)
+			{
+				jptr->type = type_real;
+				jptr->real = strtod(save_s, &s);
+			}
+			else
+			{
+				jptr->type = type_integer;
+				jptr->integer = strtoll(save_s, &s, 10);
+			}
 		}
 
 		while (isspace(*s))
@@ -645,6 +659,14 @@ int json_is_null(const json jptr)
 		return 1;
 
 	return 0;
+}
+
+int json_get_type(const json jptr)
+{
+	if (!jptr)
+		return 0;
+
+	return (int)jptr->type;
 }
 
 void json_close(json jptr)
