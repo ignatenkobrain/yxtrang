@@ -179,7 +179,7 @@ static void do_linda_out(long cnt)
 		linda_out(l, tmpbuf);
 	}
 
-	// Return by $id (indexed)...
+	// Return by id (indexed)...
 
 	for (i = 0; i < 100; i++)
 	{

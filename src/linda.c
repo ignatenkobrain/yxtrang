@@ -6,7 +6,6 @@
 #include "skiplist_uuid.h"
 #include "json.h"
 #include "store.h"
-#include "uuid.h"
 #include "linda.h"
 
 struct _linda
@@ -16,7 +15,8 @@ struct _linda
 	int is_int, is_string, len, rm;
 	long long int_id;
 	const char* string_id;
-	void** dst;
+	char** dst;
+	json jquery;
 	uuid oid, last_oid;
 };
 
@@ -27,12 +27,12 @@ int linda_out(linda l, const char* s)
 
 	json j = json_open(s);
 	json j1 = json_get_object(j);
-	json juuid = json_find(j1, LINDA_OID);
+	json joid = json_find(j1, LINDA_OID);
 	uuid u;
 
-	if (juuid)
+	if (joid)
 	{
-		uuid_from_string(json_get_string(juuid), &u);
+		uuid_from_string(json_get_string(joid), &u);
 	}
 	else
 		uuid_gen(&u);
@@ -101,7 +101,7 @@ const uuid* linda_get_oid(linda l)
 	return &l->oid;
 }
 
-const uuid* linda_get_last_uuid(linda l)
+const uuid* linda_last_oid(linda l)
 {
 	if (!l)
 		return NULL;
@@ -125,12 +125,100 @@ static int read_int_handler(void* arg,  int64_t k, uuid* u)
 	if (k != l->int_id)
 		return 0;
 
-	if (!store_get(l->st, u, l->dst, &l->len))
+	if (!store_get(l->st, u, (void**)l->dst, &l->len))
 		return 0;
 
 	// we should match params here
 
 	int match = 1;
+	json jdst = json_open(*l->dst);
+	json j2 = json_get_object(jdst);
+	json j1 = json_get_object(l->jquery);
+	size_t i, cnt = json_count(j1);
+
+	for (i = 0; i < cnt; i++)
+	{
+		json j1it = json_index(j1, i);
+		const char* name = json_get_string(j1it);
+
+		if (!strcmp(name, LINDA_ID))
+			continue;
+
+		if (!strcmp(name, LINDA_OID))
+			continue;
+
+		json j2it = json_find(j2, name);
+		if (!j2it) continue;
+
+		if (json_is_integer(j1it))
+		{
+			if (!json_is_integer(j2it))
+			{
+				match = 0;
+				break;
+			}
+
+			if (json_get_integer(j1it) != json_get_integer(j2it))
+			{
+				match = 0;
+				break;
+			}
+		}
+		else if (json_is_real(j1it))
+		{
+			if (!json_is_real(j2it))
+			{
+				match = 0;
+				break;
+			}
+
+			if (json_get_real(j1it) != json_get_real(j2it))
+			{
+				match = 0;
+				break;
+			}
+		}
+		else if (json_is_string(j1it))
+		{
+			if (!json_is_string(j2it))
+			{
+				match = 0;
+				break;
+			}
+
+			if (strcmp(json_get_string(j1it), json_get_string(j2it)))
+			{
+				match = 0;
+				break;
+			}
+		}
+		else if (json_is_true(j1it))
+		{
+			if (!json_is_true(j2it))
+			{
+				match = 0;
+				break;
+			}
+		}
+		else if (json_is_false(j1it))
+		{
+			if (!json_is_false(j2it))
+			{
+				match = 0;
+				break;
+			}
+		}
+		else if (json_is_null(j1it))
+		{
+			if (!json_is_null(j2it))
+			{
+				match = 0;
+				break;
+			}
+		}
+	}
+
+	json_close(jdst);
 
 	if (!match)
 		return 1;
@@ -150,7 +238,7 @@ static int read_string_handler(void* arg, const char* k, uuid* u)
 	if (strcmp(k, l->string_id))
 		return 0;
 
-	if (!store_get(l->st, u, l->dst, &l->len))
+	if (!store_get(l->st, u, (void**)l->dst, &l->len))
 		return 0;
 
 	// we should match params here
@@ -174,13 +262,14 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	json j1 = json_get_object(j);
 	l->oid.u1 = l->oid.u2 = 0;
 	l->rm = rm;
-	l->dst = (void**)dst;
+	l->dst = dst;
 	uuid u;
-	json juuid = json_find(j1, LINDA_OID);
 
-	if (juuid)
+	json joid = json_find(j1, LINDA_OID);
+
+	if (joid)
 	{
-		uuid_from_string(json_get_string(juuid), &u);
+		uuid_from_string(json_get_string(joid), &u);
 		json_close(j);
 
 		if (!store_get(l->st, &u, (void**)dst, &l->len))
@@ -213,12 +302,16 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		if (json_is_integer(jid))
 		{
 			l->int_id = json_get_integer(jid);
+			l->jquery = json_open(s);
 			sl_int_uuid_find(l->sl, l->int_id, &read_int_handler, l);
+			json_close(l->jquery);
 		}
 		else if (json_is_string(jid))
 		{
 			l->string_id = json_get_string(jid);
+			l->jquery = json_open(s);
 			sl_string_uuid_find(l->sl, l->string_id, &read_string_handler, l);
+			json_close(l->jquery);
 		}
 		else
 		{
@@ -228,7 +321,9 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	}
 	else
 	{
+		l->jquery = json_open(s);
 		sl_iter(l->sl, &read_handler, l);
+		json_close(l->jquery);
 	}
 
 	json_close(j);
