@@ -145,7 +145,12 @@ static int read_int_handler(void* arg,  int64_t k, uuid* u)
 			continue;
 
 		json j2it = json_find(j2, name);
-		if (!j2it) continue;
+
+		if (!j2it)
+		{
+			match = 0;
+			continue;
+		}
 
 		if (json_is_integer(j1it))
 		{
