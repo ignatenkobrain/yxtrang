@@ -190,7 +190,7 @@ static void do_linda_out(long cnt)
 		if (!linda_rdp(l, tmpbuf, &buf))
 			continue;
 
-		printf("GOT: '%s' => %s", tmpbuf, buf);
+		printf("GOT: id=%ld => '%s'\n", i, buf);
 	}
 
 	linda_close(l);
