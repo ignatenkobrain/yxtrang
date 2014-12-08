@@ -213,10 +213,14 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	if (!l->uuid.u1 && !l->uuid.u2)
 		return 0;
 
-	printf("HERE3: %s", s);
+	char tmpbuf[256];
+	printf("HERE3: UUID=%s\n", uuid_to_string(&l->uuid, tmpbuf));
 
 	if (!store_get(l->st, &l->uuid, (void**)dst, &l->len))
+	{
+		printf("linda_read: UUID=%s not found\n", uuid_to_string(&l->uuid, tmpbuf));
 		return 0;
+	}
 
 	if (rm)
 		store_rem(l->st, &l->uuid);
