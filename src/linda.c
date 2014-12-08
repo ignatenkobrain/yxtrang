@@ -220,24 +220,24 @@ static int read_handler(void* arg, void* k, void* v)
 	return 1;
 }
 
-static int read_int_handler(void* arg,  int64_t k, uuid* u)
+static int read_int_handler(void* arg,  int64_t k, uuid* v)
 {
 	linda l = (linda)arg;
 
 	if (k != l->int_id)
 		return 0;
 
-	return read_handler(arg, (void*)(size_t)k, u);
+	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int read_string_handler(void* arg, const char* k, uuid* u)
+static int read_string_handler(void* arg, const char* k, uuid* v)
 {
 	linda l = (linda)arg;
 
 	if (strcmp(k, l->string_id))
 		return 0;
 
-	return read_handler(arg, (void*)(size_t)k, u);
+	return read_handler(arg, (void*)(size_t)k, v);
 }
 
 static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
