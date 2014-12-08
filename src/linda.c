@@ -56,8 +56,6 @@ int linda_out(linda l, const char* s)
 				l->is_int = 1;
 			}
 
-			char tmpbuf[256];
-			printf("linda_out: id=%lld, UUID=%s\n", k, uuid_to_string(&u, tmpbuf));
 			sl_int_uuid_add(l->sl, k, &u);
 		}
 		else if (json_is_string(jid))
@@ -119,29 +117,25 @@ static int read_handler(void* arg, void* k, void* v)
 	return 1;
 }
 
-static int read_int_handler(void* arg, void* _k, void* v)
+static int read_int_handler(void* arg,  int64_t k, uuid* u)
 {
-	long long k = (long long)_k;
 	linda l = (linda)arg;
 
 	if (k != l->int_id)
 		return 0;
 
-	uuid* u = (uuid*)v;
 	l->oid.u1 = u->u1;
 	l->oid.u2 = u->u2;
 	return 0;
 }
 
-static int read_string_handler(void* arg, void* _k, void* v)
+static int read_string_handler(void* arg, const char* k, uuid* u)
 {
-	const char* k = (const char*)_k;
 	linda l = (linda)arg;
 
 	if (strcmp(k, l->string_id))
 		return 0;
 
-	uuid* u = (uuid*)v;
 	l->oid.u1 = u->u1;
 	l->oid.u2 = u->u2;
 	return 0;
