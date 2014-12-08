@@ -113,22 +113,9 @@ static int read_handler(void* arg, void* k, void* v)
 {
 	linda l = (linda)arg;
 	uuid* u = (uuid*)v;
-	l->oid.u1 = u->u1;
-	l->oid.u2 = u->u2;
-	return 1;
-}
-
-static int read_int_handler(void* arg,  int64_t k, uuid* u)
-{
-	linda l = (linda)arg;
-
-	if (k != l->int_id)
-		return 0;
 
 	if (!store_get(l->st, u, (void**)l->dst, &l->len))
 		return 0;
-
-	// we should match params here
 
 	int match = 1;
 	json j1 = json_get_object(l->jquery);
@@ -230,7 +217,17 @@ static int read_int_handler(void* arg,  int64_t k, uuid* u)
 
 	l->oid.u1 = u->u1;
 	l->oid.u2 = u->u2;
-	return 0;
+	return 1;
+}
+
+static int read_int_handler(void* arg,  int64_t k, uuid* u)
+{
+	linda l = (linda)arg;
+
+	if (k != l->int_id)
+		return 0;
+
+	return read_handler(arg, (void*)(size_t)k, u);
 }
 
 static int read_string_handler(void* arg, const char* k, uuid* u)
@@ -240,22 +237,7 @@ static int read_string_handler(void* arg, const char* k, uuid* u)
 	if (strcmp(k, l->string_id))
 		return 0;
 
-	if (!store_get(l->st, u, (void**)l->dst, &l->len))
-		return 0;
-
-	// we should match params here
-
-	int match = 1;
-
-	if (!match)
-		return 1;
-
-	if (l->rm)
-		store_rem(l->st, u);
-
-	l->oid.u1 = u->u1;
-	l->oid.u2 = u->u2;
-	return 0;
+	return read_handler(arg, (void*)(size_t)k, u);
 }
 
 static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
