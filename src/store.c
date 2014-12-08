@@ -348,7 +348,7 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 		}
 	}
 
-	char* bufptr = *buf;
+	char* bufptr = (char*)*buf;
 
 	// If wholely within tmpbuf then
 	// we already have it all!
