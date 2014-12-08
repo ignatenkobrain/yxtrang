@@ -161,7 +161,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		if (json_is_integer(jid))
 		{
 			l->int_id = json_get_integer(jid);
-			uuid* tmp_u;
+			uuid* tmp_u = NULL;
 
 			if (sl_int_uuid_get(l->sl, l->int_id, &tmp_u))
 				l->oid = *tmp_u;
@@ -169,7 +169,7 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		else if (json_is_string(jid))
 		{
 			l->string_id = json_get_string(jid);
-			uuid* tmp_u;
+			uuid* tmp_u = NULL;
 
 			if (sl_string_uuid_get(l->sl, l->string_id, &tmp_u))
 				l->oid = *tmp_u;
