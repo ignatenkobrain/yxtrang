@@ -185,7 +185,6 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		if (json_is_integer(jid))
 		{
 			l->int_id = json_get_integer(jid);
-			printf("linda_read: find=%lld\n", l->int_id);
 			sl_int_uuid_find(l->sl, l->int_id, &read_int_handler, l);
 		}
 		else if (json_is_string(jid))

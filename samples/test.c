@@ -181,7 +181,7 @@ static void do_linda_out(long cnt)
 
 	// Return by $id (indexed)...
 
-	for (i = 0; i < 10; i++)
+	for (i = 0; i < 100; i++)
 	{
 		char* buf = NULL;
 		char tmpbuf[1024];
@@ -190,7 +190,7 @@ static void do_linda_out(long cnt)
 		if (!linda_rdp(l, tmpbuf, &buf))
 			continue;
 
-		printf("GOT: id=%ld => '%s'\n", i, buf);
+		printf("GOT: id=%ld => %s", i, buf);
 	}
 
 	linda_close(l);
