@@ -32,14 +32,18 @@ int linda_out(linda l, const char* s)
 		return 0;
 
 	json j = json_open(s);
-	json jid = json_find(j, LINDA_ID);
-	json juuid = json_find(j, LINDA_UUID);
+	json j1 = json_get_object(j);
+	json juuid = json_find(j1, LINDA_UUID);
 	uuid u;
 
 	if (juuid)
+	{
 		uuid_from_string(json_get_string(juuid), &u);
+	}
 	else
 		uuid_gen(&u);
+
+	json jid = json_find(j1, LINDA_ID);
 
 	if (jid)
 	{
@@ -59,6 +63,7 @@ int linda_out(linda l, const char* s)
 				l->is_int = 1;
 			}
 
+			printf("*** linda_out add %lld\n", k);
 			sl_int_add(l->sl, k, &u);
 		}
 		else if (json_is_string(jid))
@@ -79,6 +84,8 @@ int linda_out(linda l, const char* s)
 
 			sl_string_add(l->sl, k, &u);
 		}
+		else
+			printf("linda_out: bad id type\n");
 	}
 
 	store_add(l->st, &u, s, strlen(s));
@@ -118,9 +125,15 @@ static int read_handler(void* arg, void* k, void* v)
 	return 1;
 }
 
-static int read_int_handler(void* arg, int k, void* v)
+static int read_int_handler(void* arg, void* _k, void* v)
 {
+	long long k = (long long)_k;
 	linda l = (linda)arg;
+
+	printf("HERE9: %lld\n", k);
+
+	if (k < l->int_id)
+		return 1;
 
 	if (k != l->int_id)
 		return 0;
@@ -129,8 +142,9 @@ static int read_int_handler(void* arg, int k, void* v)
 	return 1;
 }
 
-static int read_string_handler(void* arg, const char* k, void* v)
+static int read_string_handler(void* arg, void* _k, void* v)
 {
+	const char* k = (const char*)_k;
 	linda l = (linda)arg;
 
 	if (strcmp(k, l->string_id))
@@ -147,12 +161,11 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 	l->uuid.u1 = l->uuid.u2 = 0;
 	l->rm = rm;
 	uuid u;
-	json j2 = json_find(j1, LINDA_UUID);
+	json juuid = json_find(j1, LINDA_UUID);
 
-	if (j2)
+	if (juuid)
 	{
 		printf("HERE0: %s", s);
-		json juuid = json_get_object(j2);
 		uuid_from_string(json_get_string(juuid), &u);
 		json_close(j);
 
@@ -166,35 +179,35 @@ static int linda_read(linda l, const char* s, char** dst, int rm, int nowait)
 		return 1;
 	}
 
-	j2 = json_find(j1, LINDA_ID);
+	json jid = json_find(j1, LINDA_ID);
 
-	if (j2)
+	if (jid)
 	{
 		printf("HERE1: %s", s);
 
-		if (l->is_int && !json_is_integer(j2))
+		if (l->is_int && !json_is_integer(jid))
 		{
 			printf("linda_read: expected integer id\n");
 			json_close(j);
 			return 0;
 		}
-		else if (l->is_string && !json_is_string(j2))
+		else if (l->is_string && !json_is_string(jid))
 		{
 			printf("linda_read: expected string id\n");
 			json_close(j);
 			return 0;
 		}
 
-		if (json_is_integer(j2))
+		if (json_is_integer(jid))
 		{
-			printf("HERE1a\n");
-			l->int_id = json_get_integer(j2);
-			sl_int_find(l->sl, l->int_id, &read_int_handler, l);
+			l->int_id = json_get_integer(jid);
+			printf("HERE1a: %lld\n", l->int_id);
+			sl_iter(l->sl, &read_int_handler, l);
 		}
-		else if (json_is_string(j2))
+		else if (json_is_string(jid))
 		{
-			printf("HERE1b\n");
-			l->string_id = json_get_string(j2);
+			l->string_id = json_get_string(jid);
+			printf("HERE1b: '%s'\n", l->string_id);
 			sl_string_find(l->sl, l->string_id, &read_string_handler, l);
 		}
 		else
