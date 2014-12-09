@@ -276,7 +276,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 		if (rm)
 		{
 			store_rem(h->l->st, &u);
-			sl_erase(h->l->sl, &h->oid, &uuid_compare);
+			sl_erase(h->l->sl, &u, (int (*)(const void*,const void*))&uuid_compare);
 		}
 
 		h->oid = u;
@@ -335,7 +335,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 	if (rm)
 	{
 		store_rem(h->l->st, &h->oid);
-		sl_erase(h->l->sl, &h->oid, &uuid_compare);
+		sl_erase(h->l->sl, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
 	}
 
 	*dst = h->dst;
@@ -447,7 +447,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 	}
 	else
 	{
-		// handle delete?
+		//sl_erase(l->sl, u, &uuid_compare);
 	}
 }
 
