@@ -30,6 +30,15 @@ jsonq:
  JSON quick and dirty search for named value.
 
 
+linda:
+
+  An implementation of the Linda coordination language as an
+  idempotent JSON data store. It has limited indexing and ad-hoc
+  querying capabilities. It is built on 'store' and when combined
+  with 'uncle' it may ultimately serve as the basis for a distributed,
+  clustered, peer-to-peer database.
+
+
 network:
 
  Threadpooled socket handling with support for select, poll, epoll
