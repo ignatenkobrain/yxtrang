@@ -235,7 +235,7 @@ static int read_handler(void* arg, void* k, void* v)
 
 	h->oid.u1 = u->u1;
 	h->oid.u2 = u->u2;
-	return h->rm ? -1 : 0;
+	return 0;
 }
 
 static int read_int_handler(void* arg,  int64_t k, uuid* v)
