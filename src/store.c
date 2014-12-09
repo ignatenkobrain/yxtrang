@@ -97,14 +97,14 @@ static long pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 static int prefix(char* buf, unsigned nbr, const uuid* u, unsigned flags, unsigned len)
 {
 	char tmpbuf[256];
-	return sprintf(buf, "%c%04X %s %02X %04X ", SOH, nbr, uuid_to_string(u, tmpbuf), flags, len);
+	return sprintf(buf, "%c%04X %s %01X %04X ", SOH, nbr, uuid_to_string(u, tmpbuf), flags, len);
 }
 
 static int parse(const char* buf, unsigned* nbr, uuid* u, unsigned* flags, unsigned* len)
 {
 	char tmpbuf[256];
 	tmpbuf[0] = 0;
-	sscanf(buf, "%*c%04X %s %02X %04X ", nbr, tmpbuf, flags, len);
+	sscanf(buf, "%*c%X %s %X %X ", nbr, tmpbuf, flags, len);
 	tmpbuf[sizeof(tmpbuf)-1] = 0;
 	uuid_from_string(tmpbuf, u);
 	const char* src = buf;

@@ -337,14 +337,25 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 
 	if (rm)
 	{
-		store_rem(h->l->st, &h->oid);
-
 		if (is_int)
+		{
+			char tmpbuf[1024];
+			int tmplen = sprintf(tmpbuf, "{\"%s\":%lld}\n", LINDA_ID, h->int_id);
+			store_rem2(h->l->st, &h->oid, tmpbuf, tmplen);
 			sl_int_uuid_erase(h->l->sl, h->int_id, &h->oid);
+		}
 		else if (is_string)
+		{
+			char tmpbuf[1024], tmpbuf2[1024*2];
+			int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, json_escape(h->string_id, tmpbuf2));
+			store_rem2(h->l->st, &h->oid, tmpbuf, tmplen);
 			sl_string_uuid_erase(h->l->sl, h->string_id, &h->oid);
+		}
 		else
+		{
+			store_rem(h->l->st, &h->oid);
 			sl_uuid_efface(h->l->sl, &h->oid);
+		}
 	}
 
 	*dst = h->dst;
@@ -402,7 +413,7 @@ extern void linda_end(hlinda h)
 	free(h);
 }
 
-static void store_handler(void* data, const uuid* u, const char* s, int len)
+static void linda_store_handler(void* data, const uuid* u, const char* s, int len)
 {
 	linda l = (linda)data;
 
@@ -421,7 +432,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 
 			if (l->sl && !l->is_int)
 			{
-				printf("linda_out: expected integer id\n");
+				printf("linda_store_handler: expected integer id\n");
 				return;
 			}
 
@@ -439,7 +450,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 
 			if (l->sl && !l->is_string)
 			{
-				printf("linda_out: expected string id\n");
+				printf("linda_store_handler: expected string id\n");
 				return;
 			}
 
@@ -512,7 +523,7 @@ linda linda_open(const char* path1, const char* path2)
 {
 	linda l = (linda)calloc(1, sizeof(struct _linda));
 	if (!l) return NULL;
-	l->st = store_open2(path1, path2, 0, &store_handler, l);
+	l->st = store_open2(path1, path2, 0, &linda_store_handler, l);
 	return l;
 }
 

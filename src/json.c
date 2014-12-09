@@ -46,6 +46,59 @@ static long long strtoll(const char* src, char** end, int base)
 }
 #endif
 
+const char* json_escape(const char* src, char* dst)
+{
+	const char* save_dst = dst;
+
+	while (*src)
+	{
+		if (*src == '"')
+		{
+			*dst++ = '\\';
+			*dst++ = *src++;
+		}
+		else if (*src == '\r')
+		{
+			*dst++ = '\\';
+			*dst++ = 'r';
+			src++;
+		}
+		else if (*src == '\n')
+		{
+			*dst++ = '\\';
+			*dst++ = 'n';
+			src++;
+		}
+		else if (*src == '\t')
+		{
+			*dst++ = '\\';
+			*dst++ = 't';
+			src++;
+		}
+		else if (*src == '\b')
+		{
+			*dst++ = '\\';
+			*dst++ = 'b';
+			src++;
+		}
+		else if (*src == '\f')
+		{
+			*dst++ = '\\';
+			*dst++ = 'f';
+			src++;
+		}
+		else if (*src == '\\')
+		{
+			*dst++ = '\\';
+			*dst++ = '\\';
+			src++;
+		}
+		else
+			*dst++ = *src++;
+	}
+
+	return save_dst;
+}
 
 static char* unicode_to_utf8(char* dst, unsigned c)
 {
