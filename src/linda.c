@@ -340,11 +340,11 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 		store_rem(h->l->st, &h->oid);
 
 		if (is_int)
-			sl_erase(h->l->sl, (void*)h->int_id, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
+			sl_int_uuid_erase(h->l->sl, h->int_id, &h->oid, &uuid_compare);
 		else if (is_string)
-			sl_erase(h->l->sl, (void*)h->string_id, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
+			sl_string_uuid_erase(h->l->sl, h->string_id, &h->oid, &uuid_compare);
 		else
-			sl_efface(h->l->sl, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
+			sl_uuid_efface(h->l->sl, &h->oid, &uuid_compare);
 	}
 
 	*dst = h->dst;
