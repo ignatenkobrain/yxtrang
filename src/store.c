@@ -226,7 +226,7 @@ static int store_apply(store st, int n, uint64_t pos)
 						if ((src+nbytes) >= (tmpbuf+sizeof(tmpbuf)))
 						{
 							big = 1;
-							src = malloc(nbytes+1);
+							src = (char*)malloc(nbytes+1);
 
 							if (pread(fd, src, nbytes, pos+skip) <= 0)
 								return 0;
@@ -588,7 +588,7 @@ static void store_load_file(store st)
 					if ((src+nbytes) >= (tmpbuf+sizeof(tmpbuf)))
 					{
 						big = 1;
-						src = malloc(nbytes+1);
+						src = (char*)malloc(nbytes+1);
 
 						if (pread(fd, src, nbytes, pos+skip) <= 0)
 							return;
