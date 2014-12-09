@@ -16,6 +16,8 @@ extern skiplist sl_create2(int (*compare)(const void*, const void*), void* (*cop
 extern int sl_add(skiplist s, const void* key, const void* value);
 extern int sl_rem(skiplist s, const void* key);
 extern int sl_get(const skiplist s, const void* key, const void** value);
+
+extern int sl_erase(skiplist s, const void* value, int (*compare)(const void*, const void*));
 extern unsigned long sl_count(const skiplist s);
 
 // Iterate over the whole range. f returns zero to halt.

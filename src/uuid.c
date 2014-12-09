@@ -108,3 +108,17 @@ uuid* uuid_copy(const uuid* v1)
 	return v2;
 }
 
+int uuid_compare(const uuid* v1, const uuid* v2)
+{
+	if (v1->u1 < v2->u1)
+		return -1;
+	else if (v1->u1 == v2->u1)
+	{
+		if (v1->u2 < v2->u2)
+			return -1;
+		else if (v1->u2 == v2->u2)
+			return 0;
+	}
+
+	return 1;
+}

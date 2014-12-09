@@ -274,7 +274,10 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 			return 0;
 
 		if (rm)
+		{
 			store_rem(h->l->st, &u);
+			sl_erase(h->l->sl, &h->oid, &uuid_compare);
+		}
 
 		h->oid = u;
 		return 1;
@@ -330,7 +333,10 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 		return 0;
 
 	if (rm)
+	{
 		store_rem(h->l->st, &h->oid);
+		sl_erase(h->l->sl, &h->oid, &uuid_compare);
+	}
 
 	*dst = h->dst;
 	return 1;
