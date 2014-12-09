@@ -448,6 +448,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 	}
 	else
 	{
+		// handle delete?
 	}
 }
 
