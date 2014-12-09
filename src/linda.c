@@ -12,17 +12,22 @@ struct _linda
 {
 	store st;
 	skiplist sl;
-	int is_int, is_string, len, rm;
-	long long int_id;
-	const char* string_id;
+};
+
+struct _hlinda
+{
+	linda l;
 	char* dst;
 	json jquery;
 	uuid oid, last_oid;
+	long long int_id;
+	const char* string_id;
+	int is_int, is_string, len, rm;
 };
 
-int linda_out(linda l, const char* s)
+int linda_out(hlinda h, const char* s)
 {
-	if (!l)
+	if (!h)
 		return 0;
 
 	json j = json_open(s);
@@ -45,93 +50,93 @@ int linda_out(linda l, const char* s)
 		{
 			long long k = json_get_integer(jid);
 
-			if (l->sl && !l->is_int)
+			if (h->l->sl && !h->is_int)
 			{
 				printf("linda_out: expected integer id\n");
 				return 0;
 			}
 
-			if (!l->sl)
+			if (!h->l->sl)
 			{
-				l->sl = sl_int_uuid_create2();
-				l->is_int = 1;
+				h->l->sl = sl_int_uuid_create2();
+				h->is_int = 1;
 			}
 
-			sl_int_uuid_add(l->sl, k, &u);
+			sl_int_uuid_add(h->l->sl, k, &u);
 		}
 		else if (json_is_string(jid))
 		{
 			const char* k = json_get_string(jid);
 
-			if (l->sl && !l->is_string)
+			if (h->l->sl && !h->is_string)
 			{
 				printf("linda_out: expected string id\n");
 				return 0;
 			}
 
-			if (!l->sl)
+			if (!h->l->sl)
 			{
-				l->sl = sl_string_uuid_create2();
-				l->is_string = 1;
+				h->l->sl = sl_string_uuid_create2();
+				h->is_string = 1;
 			}
 
-			sl_string_uuid_add(l->sl, k, &u);
+			sl_string_uuid_add(h->l->sl, k, &u);
 		}
 	}
 
-	store_add(l->st, &u, s, strlen(s));
-	l->last_oid = u;
+	store_add(h->l->st, &u, s, strlen(s));
+	h->last_oid = u;
 	json_close(j);
 	return 0;
 }
 
-int linda_get_length(linda l)
+int linda_get_length(hlinda h)
 {
-	if (!l)
+	if (!h)
 		return 0;
 
-	return l->len;
+	return h->len;
 }
 
-const uuid* linda_get_oid(linda l)
+const uuid* linda_get_oid(hlinda h)
 {
-	if (!l)
+	if (!h)
 		return NULL;
 
-	return &l->oid;
+	return &h->oid;
 }
 
-const uuid* linda_last_oid(linda l)
+const uuid* linda_last_oid(hlinda h)
 {
-	if (!l)
+	if (!h)
 		return NULL;
 
-	return &l->last_oid;
+	return &h->last_oid;
 }
 
-void linda_release(linda l)
+void linda_release(hlinda h)
 {
-	if (!l)
+	if (!h)
 		return;
 
-	if (l->dst)
+	if (h->dst)
 	{
-		free(l->dst);
-		l->dst = NULL;
+		free(h->dst);
+		h->dst = NULL;
 	}
 }
 
 static int read_handler(void* arg, void* k, void* v)
 {
-	linda l = (linda)arg;
+	hlinda h = (hlinda)arg;
 	uuid* u = (uuid*)v;
 
-	if (!store_get(l->st, u, (void**)&l->dst, &l->len))
+	if (!store_get(h->l->st, u, (void**)&h->dst, &h->len))
 		return 0;
 
 	int match = 1;
-	json j1 = json_get_object(l->jquery);
-	json jdst = json_open(l->dst);
+	json j1 = json_get_object(h->jquery);
+	json jdst = json_open(h->dst);
 	json j2 = json_get_object(jdst);
 	size_t i, cnt = json_count(j1);
 
@@ -224,19 +229,19 @@ static int read_handler(void* arg, void* k, void* v)
 	if (!match)
 		return 1;
 
-	if (l->rm)
-		store_rem(l->st, u);
+	if (h->rm)
+		store_rem(h->l->st, u);
 
-	l->oid.u1 = u->u1;
-	l->oid.u2 = u->u2;
+	h->oid.u1 = u->u1;
+	h->oid.u2 = u->u2;
 	return 1;
 }
 
 static int read_int_handler(void* arg,  int64_t k, uuid* v)
 {
-	linda l = (linda)arg;
+	hlinda h = (hlinda)arg;
 
-	if (k != l->int_id)
+	if (k != h->int_id)
 		return 0;
 
 	return read_handler(arg, (void*)(size_t)k, v);
@@ -244,20 +249,20 @@ static int read_int_handler(void* arg,  int64_t k, uuid* v)
 
 static int read_string_handler(void* arg, const char* k, uuid* v)
 {
-	linda l = (linda)arg;
+	hlinda h = (hlinda)arg;
 
-	if (strcmp(k, l->string_id))
+	if (strcmp(k, h->string_id))
 		return 0;
 
 	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int linda_read(linda l, const char* s, const char** dst, int rm, int nowait)
+static int linda_read(hlinda h, const char* s, const char** dst, int rm, int nowait)
 {
 	json j = json_open(s);
 	json j1 = json_get_object(j);
-	l->oid.u1 = l->oid.u2 = 0;
-	l->rm = rm;
+	h->oid.u1 = h->oid.u2 = 0;
+	h->rm = rm;
 	uuid u;
 
 	json joid = json_find(j1, LINDA_OID);
@@ -267,13 +272,13 @@ static int linda_read(linda l, const char* s, const char** dst, int rm, int nowa
 		uuid_from_string(json_get_string(joid), &u);
 		json_close(j);
 
-		if (!store_get(l->st, &u, (void**)dst, &l->len))
+		if (!store_get(h->l->st, &u, (void**)dst, &h->len))
 			return 0;
 
 		if (rm)
-			store_rem(l->st, &u);
+			store_rem(h->l->st, &u);
 
-		l->oid = u;
+		h->oid = u;
 		return 1;
 	}
 
@@ -281,13 +286,13 @@ static int linda_read(linda l, const char* s, const char** dst, int rm, int nowa
 
 	if (jid)
 	{
-		if (l->is_int && !json_is_integer(jid))
+		if (h->is_int && !json_is_integer(jid))
 		{
 			printf("linda_read: expected integer id\n");
 			json_close(j);
 			return 0;
 		}
-		else if (l->is_string && !json_is_string(jid))
+		else if (h->is_string && !json_is_string(jid))
 		{
 			printf("linda_read: expected string id\n");
 			json_close(j);
@@ -296,17 +301,17 @@ static int linda_read(linda l, const char* s, const char** dst, int rm, int nowa
 
 		if (json_is_integer(jid))
 		{
-			l->int_id = json_get_integer(jid);
-			l->jquery = json_open(s);
-			sl_int_uuid_find(l->sl, l->int_id, &read_int_handler, l);
-			json_close(l->jquery);
+			h->int_id = json_get_integer(jid);
+			h->jquery = json_open(s);
+			sl_int_uuid_find(h->l->sl, h->int_id, &read_int_handler, h);
+			json_close(h->jquery);
 		}
 		else if (json_is_string(jid))
 		{
-			l->string_id = json_get_string(jid);
-			l->jquery = json_open(s);
-			sl_string_uuid_find(l->sl, l->string_id, &read_string_handler, l);
-			json_close(l->jquery);
+			h->string_id = json_get_string(jid);
+			h->jquery = json_open(s);
+			sl_string_uuid_find(h->l->sl, h->string_id, &read_string_handler, h);
+			json_close(h->jquery);
 		}
 		else
 		{
@@ -316,50 +321,69 @@ static int linda_read(linda l, const char* s, const char** dst, int rm, int nowa
 	}
 	else
 	{
-		l->jquery = json_open(s);
-		sl_iter(l->sl, &read_handler, l);
-		json_close(l->jquery);
+		h->jquery = json_open(s);
+		sl_iter(h->l->sl, &read_handler, h);
+		json_close(h->jquery);
 	}
 
 	json_close(j);
 
-	if (!l->oid.u1 && !l->oid.u2)
+	if (!h->oid.u1 && !h->oid.u2)
 		return 0;
 
-	*dst = l->dst;
+	*dst = h->dst;
 	return 1;
 }
 
-int linda_rd(linda l, const char* s, const char** dst)
+int linda_rd(hlinda h, const char* s, const char** dst)
 {
-	if (!l)
+	if (!h)
 		return 0;
 
-	return linda_read(l, s, dst, 0, 0);
+	return linda_read(h, s, dst, 0, 0);
 }
 
-int linda_rdp(linda l, const char* s, const char** dst)
+int linda_rdp(hlinda h, const char* s, const char** dst)
 {
-	if (!l)
+	if (!h)
 		return 0;
 
-	return linda_read(l, s, dst, 0, 1);
+	return linda_read(h, s, dst, 0, 1);
 }
 
-int linda_in(linda l, const char* s, const char** dst)
+int linda_in(hlinda h, const char* s, const char** dst)
 {
-	if (!l)
+	if (!h)
 		return 0;
 
-	return linda_read(l, s, dst, 1, 0);
+	return linda_read(h, s, dst, 1, 0);
 }
 
-int linda_inp(linda l, const char* s, const char** dst)
+int linda_inp(hlinda h, const char* s, const char** dst)
 {
-	if (!l)
+	if (!h)
 		return 0;
 
-	return linda_read(l, s, dst, 1, 1);
+	return linda_read(h, s, dst, 1, 1);
+}
+
+extern hlinda linda_begin(linda l)
+{
+	if (!l)
+		return NULL;
+
+	hlinda h = (hlinda)calloc(1, sizeof(struct _hlinda));
+	h->l = l;
+	return h;
+}
+
+extern void linda_end(hlinda h)
+{
+	if (!h)
+		return;
+
+	linda_release(h);
+	free(h);
 }
 
 linda linda_open(const char* path1, const char* path2)
@@ -381,7 +405,6 @@ int linda_close(linda l)
 	if (l->sl)
 		sl_destroy(l->sl);
 
-	linda_release(l);
 	free(l);
 	return 1;
 }

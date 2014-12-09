@@ -169,6 +169,7 @@ static void do_script(long cnt)
 static void do_linda_out(long cnt)
 {
 	linda l = linda_open("./db", NULL);
+	hlinda h = linda_begin(l);
 	long i;
 
 	for (i = 0; i < cnt; i++)
@@ -176,7 +177,7 @@ static void do_linda_out(long cnt)
 		int id = rand() % 1000;
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%d,\"nbr\":%ld,\"text\":\"%s\"}\n", LINDA_ID, id, i, qbf);
-		linda_out(l, tmpbuf);
+		linda_out(h, tmpbuf);
 	}
 
 	// Return by id (indexed)...
@@ -187,18 +188,20 @@ static void do_linda_out(long cnt)
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%ld}\n", LINDA_ID, i);
 
-		if (!linda_rdp(l, tmpbuf, &buf))
+		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;
 
 		printf("GOT: id=%ld => %s", i, buf);
 	}
 
+	linda_end(h);
 	linda_close(l);
 }
 
 static void do_linda_in()
 {
 	linda l = linda_open("./db", NULL);
+	hlinda h = linda_begin(l);
 	long i;
 
 	// Return by $id (indexed)...
@@ -209,7 +212,7 @@ static void do_linda_in()
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%ld}\n", LINDA_ID, i);
 
-		if (!linda_rdp(l, tmpbuf, &buf))
+		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;
 
 		printf("GOT1: '%s' => %s", tmpbuf, buf);
@@ -225,12 +228,13 @@ static void do_linda_in()
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"nbr\":%ld}\n", i);
 
-		if (!linda_rdp(l, tmpbuf, &buf))
+		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;
 
 		printf("GOT2: '%s' => %s", tmpbuf, buf);
 	}
 
+	linda_end(h);
 	linda_close(l);
 }
 
