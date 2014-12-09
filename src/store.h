@@ -16,7 +16,7 @@
 #include "uuid.h"
 
 typedef struct _store* store;
-typedef struct _handle* handle;
+typedef struct _transaction* transaction;
 
 extern store store_open(const char* path1, const char* path2, int compact);
 
@@ -27,11 +27,11 @@ extern unsigned long store_count(const store st);
 
 // Transactions...
 
-extern handle store_begin(store st, int dbsync);
-extern int store_hadd(handle h, const uuid* u, const void* buf, int len);
-extern int store_hrem(handle h, const uuid* u);
-extern int store_cancel(handle h);					// Rollback
-extern int store_end(handle h);						// Commit
+extern transaction store_begin(store st, int dbsync);
+extern int store_hadd(transaction h, const uuid* u, const void* buf, int len);
+extern int store_hrem(transaction h, const uuid* u);
+extern int store_cancel(transaction h);					// Rollback
+extern int store_end(transaction h);						// Commit
 
 extern int store_close(store st);
 

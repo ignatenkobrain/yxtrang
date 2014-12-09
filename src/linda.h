@@ -1,10 +1,10 @@
 #ifndef LINDA_H
 #define LINDA_H
 
-typedef struct _linda* linda;
-
 #define LINDA_ID "$id"
 #define LINDA_OID "$oid"
+
+typedef struct _linda* linda;
 
 extern linda linda_open(const char* path1, const char* path2);
 
