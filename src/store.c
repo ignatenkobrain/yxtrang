@@ -58,7 +58,7 @@ struct _store
 	uint64_t eodpos[MAX_FILES];
 };
 
-struct _transaction
+struct _hstore
 {
 	store st;
 	uint64_t start_pos;
@@ -70,7 +70,7 @@ struct _transaction
 static long pread(int fd, void *buf, size_t nbyte, off_t offset)
 {
 	DWORD len = 0;
-	HANDLE h = (void*) _get_osftransaction(fd);
+	HANDLE h = (void*) _get_osfhandle(fd);
 	OVERLAPPED ov = {0};
 	ov.Offset = offset & 0xFFFFFFFF;
 	ov.OffsetHigh = ((uint64_t)offset >> 32) & 0xFFFFFFFF;
@@ -81,7 +81,7 @@ static long pread(int fd, void *buf, size_t nbyte, off_t offset)
 static long pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 {
 	DWORD len = 0;
-	HANDLE h = (void*) _get_osftransaction(fd);
+	HANDLE h = (void*) _get_osfhandle(fd);
 	OVERLAPPED ov = {0};
 	ov.Offset = offset & 0xFFFFFFFF;
 	ov.OffsetHigh = ((uint64_t)offset >> 32) & 0xFFFFFFFF;
@@ -365,12 +365,12 @@ int store_get(const store st, const uuid* u, void** buf, int* len)
 	return nbytes;
 }
 
-transaction store_begin(store st, int dbsync)
+hstore store_begin(store st, int dbsync)
 {
 	if (!st)
 		return 0;
 
-	transaction h = (transaction)calloc(1, sizeof(struct _transaction));
+	hstore h = (hstore)calloc(1, sizeof(struct _hstore));
 
 	if (!h)
 		return 0;
@@ -382,7 +382,7 @@ transaction store_begin(store st, int dbsync)
 	return h;
 }
 
-int store_hadd(transaction h, const uuid* u, const void* buf, int len)
+int store_hadd(hstore h, const uuid* u, const void* buf, int len)
 {
 	if (!h || !u || !buf || !len)
 		return 0;
@@ -407,7 +407,7 @@ int store_hadd(transaction h, const uuid* u, const void* buf, int len)
 	return 1;
 }
 
-int store_hrem(transaction h, const uuid* u)
+int store_hrem(hstore h, const uuid* u)
 {
 	if (!h || !u)
 		return 0;
@@ -432,7 +432,7 @@ int store_hrem(transaction h, const uuid* u)
 	return 1;
 }
 
-int store_cancel(transaction h)
+int store_cancel(hstore h)
 {
 	if (!h)
 		return 0;
@@ -461,7 +461,7 @@ int store_cancel(transaction h)
 	return ok;
 }
 
-int store_end(transaction h)
+int store_end(hstore h)
 {
 	if (!h)
 		return 0;

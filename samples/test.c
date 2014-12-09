@@ -241,7 +241,7 @@ static void do_store(long cnt, int vfy, int compact)
 
 #if 0
 	printf("Writing...\n");
-	transaction h = store_begin(st, 0);
+	hstore h = store_begin(st, 0);
 	long i;
 
 	for (i = 1; i <= cnt; i++)
