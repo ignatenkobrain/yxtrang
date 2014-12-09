@@ -454,6 +454,54 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 
 		json_close(j);
 	}
+	else if (len < 0)
+	{
+		json j = json_open(s);
+		json j1 = json_get_object(j);
+		json jid = json_find(j1, LINDA_ID);
+
+		if (!jid)
+			return;
+
+		if (json_is_integer(jid))
+		{
+			long long k = json_get_integer(jid);
+
+			if (l->sl && !l->is_int)
+			{
+				printf("linda_out: expected integer id\n");
+				return;
+			}
+
+			if (!l->sl)
+			{
+				l->sl = sl_int_uuid_create2();
+				l->is_int = 1;
+			}
+
+			sl_int_uuid_erase(l->sl, k, u);
+		}
+		else if (json_is_string(jid))
+		{
+			const char* k = json_get_string(jid);
+
+			if (l->sl && !l->is_string)
+			{
+				printf("linda_out: expected string id\n");
+				return;
+			}
+
+			if (!l->sl)
+			{
+				l->sl = sl_string_uuid_create2();
+				l->is_string = 1;
+			}
+
+			sl_string_uuid_erase(l->sl, k, u);
+		}
+
+		json_close(j);
+	}
 	else
 	{
 		sl_uuid_efface(l->sl, u);

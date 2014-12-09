@@ -48,6 +48,8 @@ static const char EM = 25;			// End media (soft end of file)
 #define FILEIDX(fp) (unsigned)((fp) >> 60)
 #define POS(fp) ((fp) & 0x0FFFFFFFFFFFFFFF)
 
+#define FLAG_RM		1
+
 typedef char string[1024];
 
 struct _store
@@ -207,7 +209,7 @@ static int store_apply(store st, int n, uint64_t pos)
 
 			if (nbr == n)
 			{
-				if (nbytes)
+				if (!(flags & FLAG_RM))
 				{
 					int idx = st->idx-1;
 					uint64_t fp = MAKE_FILEPOS(idx,pos);
@@ -234,7 +236,7 @@ static int store_apply(store st, int n, uint64_t pos)
 							src[nbytes] = 0;
 						}
 
-						st->f(st->data, &u, src, nbytes);
+						st->f(st->data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 						if (big) free(src);
 					}
 					else
@@ -296,6 +298,25 @@ int store_add(store st, const uuid* u, const void* buf, int len)
 	return 1;
 }
 
+int store_rem2(store st, const uuid* u, const void* buf, int len)
+{
+	if (!st || !u || !buf || !len)
+		return 0;
+
+	if (!tree_del(st->tptr, u))
+		return 0;
+
+	char tmpbuf[256];
+	char* dst = tmpbuf;
+	unsigned flags = FLAG_RM;
+	int plen = prefix(dst, 0, u, flags, len);
+
+	if (!store_write2(st, tmpbuf, plen, buf, len))
+		return 0;
+
+	return 1;
+}
+
 int store_rem(store st, const uuid* u)
 {
 	if (!st || !u)
@@ -306,7 +327,7 @@ int store_rem(store st, const uuid* u)
 
 	char tmpbuf[256];
 	char* dst = tmpbuf;
-	unsigned flags = 0;
+	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, 0, u, flags, 0);
 
@@ -434,6 +455,31 @@ int store_hadd(hstore h, const uuid* u, const void* buf, int len)
 	return 1;
 }
 
+int store_hrem2(hstore h, const uuid* u, const void* buf, int len)
+{
+	if (!h || !u)
+		return 0;
+
+	char tmpbuf[256];
+	char* dst = tmpbuf;
+
+	if (h->wait_for_write)
+	{
+		h->wait_for_write = 0;
+		dst += sprintf(dst, "%c%04X\n", STX, h->nbr);
+		h->start_pos = h->st->eodpos[h->st->idx-1];
+	}
+
+	unsigned flags = FLAG_RM;
+	int plen = dst - tmpbuf;
+	plen += prefix(dst, h->nbr, u, flags, 0);
+
+	if (!store_write2(h->st, tmpbuf, plen, buf, len))
+		return 0;
+
+	return 1;
+}
+
 int store_hrem(hstore h, const uuid* u)
 {
 	if (!h || !u)
@@ -449,7 +495,7 @@ int store_hrem(hstore h, const uuid* u)
 		h->start_pos = h->st->eodpos[h->st->idx-1];
 	}
 
-	unsigned flags = 0;
+	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, 0);
 
@@ -569,7 +615,7 @@ static void store_load_file(store st)
 			uuid u;
 			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
 
-			if (nbytes)
+			if (!(flags & FLAG_RM))
 			{
 				int idx = st->idx-1;
 				uint64_t fp = MAKE_FILEPOS(idx,pos);
@@ -595,7 +641,7 @@ static void store_load_file(store st)
 					}
 
 					src[nbytes] = 0;
-					st->f(st->data, &u, src, nbytes);
+					st->f(st->data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 					if (big) free(src);
 				}
 				else
