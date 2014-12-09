@@ -23,7 +23,7 @@ struct _hlinda
 	uuid oid, last_oid;
 	long long int_id;
 	const char* string_id;
-	int len, rm;
+	int len;
 };
 
 int linda_out(hlinda h, const char* s)
@@ -260,29 +260,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 	json j = json_open(s);
 	json j1 = json_get_object(j);
 	h->oid.u1 = h->oid.u2 = 0;
-	h->rm = rm;
-	uuid u;
 	int is_int = 0, is_string = 0;
-
-	json joid = json_find(j1, LINDA_OID);
-
-	if (joid)
-	{
-		uuid_from_string(json_get_string(joid), &u);
-		json_close(j);
-
-		if (!store_get(h->l->st, &u, (void**)dst, &h->len))
-			return 0;
-
-		if (rm)
-		{
-			store_rem(h->l->st, &u);
-			sl_efface(h->l->sl, &u, (int (*)(const void*,const void*))&uuid_compare);
-		}
-
-		h->oid = u;
-		return 1;
-	}
 
 	json jid = json_find(j1, LINDA_ID);
 
@@ -392,6 +370,84 @@ int linda_inp(hlinda h, const char* s, const char** dst)
 		return 0;
 
 	return linda_read(h, s, dst, 1, 1);
+}
+
+int linda_rm(hlinda h, const char* s)
+{
+	json j = json_open(s);
+	json j1 = json_get_object(j);
+	int is_int = 0, is_string = 0;
+	const char* string_id = NULL;
+	long long int_id = 0;
+	uuid u;
+
+	json joid = json_find(j1, LINDA_OID);
+
+	if (!joid)
+	{
+		json_close(j);
+		return 0;
+	}
+
+	uuid_from_string(json_get_string(joid), &u);
+	json jid = json_find(j1, LINDA_ID);
+
+	if (jid)
+	{
+		if (h->l->is_int && !json_is_integer(jid))
+		{
+			printf("linda_read: expected integer id\n");
+			json_close(j);
+			return 0;
+		}
+		else if (h->l->is_string && !json_is_string(jid))
+		{
+			printf("linda_read: expected string id\n");
+			json_close(j);
+			return 0;
+		}
+
+		if (json_is_integer(jid))
+		{
+			int_id = json_get_integer(jid);
+			is_int = 1;
+		}
+		else if (json_is_string(jid))
+		{
+			string_id = json_get_string(jid);
+			json_close(h->jquery);
+			is_string = 1;
+		}
+		else
+		{
+			json_close(j);
+			return 0;
+		}
+	}
+
+	json_close(j);
+
+	if (is_int)
+	{
+		char tmpbuf[1024];
+		int tmplen = sprintf(tmpbuf, "{\"%s\":%lld}\n", LINDA_ID, int_id);
+		store_rem2(h->l->st, &u, tmpbuf, tmplen);
+		sl_int_uuid_erase(h->l->sl, int_id, &u);
+	}
+	else if (is_string)
+	{
+		char tmpbuf[1024], tmpbuf2[1024];
+		int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, json_escape(string_id, tmpbuf2, sizeof(tmpbuf2)));
+		store_rem2(h->l->st, &u, tmpbuf, tmplen);
+		sl_string_uuid_erase(h->l->sl, string_id, &u);
+	}
+	else
+	{
+		store_rem(h->l->st, &u);
+		sl_uuid_efface(h->l->sl, &u);
+	}
+
+	return 1;
 }
 
 extern hlinda linda_begin(linda l)

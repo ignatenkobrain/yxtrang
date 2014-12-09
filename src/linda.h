@@ -20,6 +20,10 @@ extern int linda_rdp(hlinda h, const char* s, const char** dst);
 extern int linda_in(hlinda h, const char* s, const char** dst);
 extern int linda_inp(hlinda h, const char* s, const char** dst);
 
+// Non-standard extension.
+
+extern int linda_rm(hlinda h, const char* s);
+
 // Call only if needed to take control of buffer.
 
 extern void linda_release(hlinda h);
