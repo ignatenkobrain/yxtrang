@@ -19,7 +19,7 @@ extern int linda_inp(linda l, const char* s, const char** dst);
 
 // Call only if needed to take control of buffer.
 
-extern void linda_free(linda l);
+extern void linda_release(linda l);
 
 extern int linda_get_length(linda l);			// last read
 extern const uuid* linda_get_oid(linda l);		// last read

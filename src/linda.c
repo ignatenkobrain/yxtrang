@@ -350,7 +350,7 @@ int linda_inp(linda l, const char* s, const char** dst)
 	return linda_read(l, s, dst, 1, 1);
 }
 
-void linda_free(linda l)
+void linda_release(linda l)
 {
 	if (!l)
 		return;
