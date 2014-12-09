@@ -1,7 +1,7 @@
 #ifndef LINDA_H
 #define LINDA_H
 
-#define LINDA_ID "$id"			// a string key has 256B length limit
+#define LINDA_ID "$id"			// string key has 256 byte length limit
 #define LINDA_OID "$oid"
 
 typedef struct _linda* linda;
@@ -20,7 +20,7 @@ extern int linda_rdp(hlinda h, const char* s, const char** dst);
 extern int linda_in(hlinda h, const char* s, const char** dst);
 extern int linda_inp(hlinda h, const char* s, const char** dst);
 
-// Non-standard extension.
+// Non-standard extension. Must specify an OID.
 
 extern int linda_rm(hlinda h, const char* s);
 
