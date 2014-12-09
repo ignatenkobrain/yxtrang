@@ -9,6 +9,8 @@ typedef struct _hlinda* hlinda;
 
 extern linda linda_open(const char* path1, const char* path2);
 
+// Begin a sequence of one or more operations.
+
 extern hlinda linda_begin(linda l);
 
 extern int linda_out(hlinda l, const char* s);
