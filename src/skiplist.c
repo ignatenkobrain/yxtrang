@@ -451,7 +451,97 @@ int sl_rem(skiplist l, const void* key)
 	return 1;
 }
 
-int sl_erase(skiplist l, const void* value, int (*compare)(const void*, const void*))
+int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(const void*, const void*))
+{
+	if (!l)
+		return 0;
+
+	if (!compare)
+		compare = default_compare;
+
+	int k, m, imid = -1;
+	node update[MaxNumberOfLevels];
+	node p, q;
+	p = l->header;
+
+	for (k = l->level-1; k >= 0; k--)
+	{
+		int done = 0;
+
+		while ((q = p->forward[k]) && (l->compare(q->bkt[0].key, key) < 0))
+		{
+			int j;
+
+			for (j = 0; j < q->nbr; j++)
+			{
+				if (!compare(q->bkt[j].val, value))
+					done = 1;
+			}
+
+			if (done)
+			{
+				imid = j;
+				break;
+			}
+
+			p = q;
+		}
+
+		update[k] = p;
+	}
+
+	q = p->forward[0];
+
+	if (q == NULL)
+		return 0;
+
+	//printf("DEL: %llu @ %d\n", (unsigned long long)key, imid);
+	//sl_dump(l); printf("\n");
+
+	if (l->freekey)
+		l->freekey(q->bkt[imid].key);
+
+	if (l->freeval)
+		l->freeval(q->bkt[imid].val);
+
+	while (imid < (q->nbr-1))
+	{
+		q->bkt[imid] = q->bkt[imid+1];
+		imid++;
+	}
+
+	q->nbr--;
+	l->count--;
+	//sl_dump(l); printf("\n");
+
+	if (q->nbr)
+		return 1;
+
+	//printf("DEL empty\n");
+
+	m = l->level - 1;
+
+	for (k = 0; k <= m; k++)
+	{
+		p = update[k];
+
+		if ((p == NULL) || (p->forward[k] != q))
+			break;
+
+		p->forward[k] = q->forward[k];
+	}
+
+	free(q);
+	m = l->level - 1;
+
+	while ((l->header->forward[m] == NULL) && (m > 0))
+		m--;
+
+	l->level = m + 1;
+	return 1;
+}
+
+int sl_efface(skiplist l, const void* value, int (*compare)(const void*, const void*))
 {
 	if (!l)
 		return 0;

@@ -262,6 +262,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 	h->oid.u1 = h->oid.u2 = 0;
 	h->rm = rm;
 	uuid u;
+	int is_int = 0, is_string = 0;
 
 	json joid = json_find(j1, LINDA_OID);
 
@@ -276,7 +277,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 		if (rm)
 		{
 			store_rem(h->l->st, &u);
-			sl_erase(h->l->sl, &u, (int (*)(const void*,const void*))&uuid_compare);
+			sl_efface(h->l->sl, &u, (int (*)(const void*,const void*))&uuid_compare);
 		}
 
 		h->oid = u;
@@ -306,6 +307,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 			h->jquery = json_open(s);
 			sl_int_uuid_find(h->l->sl, h->int_id, &read_int_handler, h);
 			json_close(h->jquery);
+			is_int = 1;
 		}
 		else if (json_is_string(jid))
 		{
@@ -313,6 +315,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 			h->jquery = json_open(s);
 			sl_string_uuid_find(h->l->sl, h->string_id, &read_string_handler, h);
 			json_close(h->jquery);
+			is_string = 1;
 		}
 		else
 		{
@@ -335,7 +338,13 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 	if (rm)
 	{
 		store_rem(h->l->st, &h->oid);
-		sl_erase(h->l->sl, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
+
+		if (is_int)
+			sl_erase(h->l->sl, (void*)h->int_id, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
+		else if (is_string)
+			sl_erase(h->l->sl, (void*)h->string_id, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
+		else
+			sl_efface(h->l->sl, &h->oid, (int (*)(const void*,const void*))&uuid_compare);
 	}
 
 	*dst = h->dst;
@@ -447,7 +456,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 	}
 	else
 	{
-		//sl_erase(l->sl, u, &uuid_compare);
+		//sl_efface(l->sl, u, &uuid_compare);
 	}
 }
 
