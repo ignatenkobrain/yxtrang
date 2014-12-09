@@ -12,6 +12,7 @@ struct _linda
 {
 	store st;
 	skiplist sl;
+	int is_int, is_string;
 };
 
 struct _hlinda
@@ -22,7 +23,7 @@ struct _hlinda
 	uuid oid, last_oid;
 	long long int_id;
 	const char* string_id;
-	int is_int, is_string, len, rm;
+	int len, rm;
 };
 
 int linda_out(hlinda h, const char* s)
@@ -50,7 +51,7 @@ int linda_out(hlinda h, const char* s)
 		{
 			long long k = json_get_integer(jid);
 
-			if (h->l->sl && !h->is_int)
+			if (h->l->sl && !h->l->is_int)
 			{
 				printf("linda_out: expected integer id\n");
 				return 0;
@@ -59,7 +60,7 @@ int linda_out(hlinda h, const char* s)
 			if (!h->l->sl)
 			{
 				h->l->sl = sl_int_uuid_create2();
-				h->is_int = 1;
+				h->l->is_int = 1;
 			}
 
 			sl_int_uuid_add(h->l->sl, k, &u);
@@ -68,7 +69,7 @@ int linda_out(hlinda h, const char* s)
 		{
 			const char* k = json_get_string(jid);
 
-			if (h->l->sl && !h->is_string)
+			if (h->l->sl && !h->l->is_string)
 			{
 				printf("linda_out: expected string id\n");
 				return 0;
@@ -77,7 +78,7 @@ int linda_out(hlinda h, const char* s)
 			if (!h->l->sl)
 			{
 				h->l->sl = sl_string_uuid_create2();
-				h->is_string = 1;
+				h->l->is_string = 1;
 			}
 
 			sl_string_uuid_add(h->l->sl, k, &u);
@@ -286,13 +287,13 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 
 	if (jid)
 	{
-		if (h->is_int && !json_is_integer(jid))
+		if (h->l->is_int && !json_is_integer(jid))
 		{
 			printf("linda_read: expected integer id\n");
 			json_close(j);
 			return 0;
 		}
-		else if (h->is_string && !json_is_string(jid))
+		else if (h->l->is_string && !json_is_string(jid))
 		{
 			printf("linda_read: expected string id\n");
 			json_close(j);
@@ -386,15 +387,75 @@ extern void linda_end(hlinda h)
 	free(h);
 }
 
-static void store_handler(const uuid* u, const char* buf, int len)
+static void store_handler(void* data, const uuid* u, const char* s, int len)
 {
+	linda l = (linda)data;
+
+	if (len > 0)
+	{
+		json j = json_open(s);
+		json j1 = json_get_object(j);
+		json joid = json_find(j1, LINDA_OID);
+		uuid u;
+
+		if (!joid)
+			return;
+
+		uuid_from_string(json_get_string(joid), &u);
+		json jid = json_find(j1, LINDA_ID);
+
+		if (!jid)
+			return;
+
+		if (json_is_integer(jid))
+		{
+			long long k = json_get_integer(jid);
+
+			if (l->sl && !l->is_int)
+			{
+				printf("linda_out: expected integer id\n");
+				return;
+			}
+
+			if (!l->sl)
+			{
+				l->sl = sl_int_uuid_create2();
+				l->is_int = 1;
+			}
+
+			sl_int_uuid_add(l->sl, k, &u);
+		}
+		else if (json_is_string(jid))
+		{
+			const char* k = json_get_string(jid);
+
+			if (l->sl && !l->is_string)
+			{
+				printf("linda_out: expected string id\n");
+				return;
+			}
+
+			if (!l->sl)
+			{
+				l->sl = sl_string_uuid_create2();
+				l->is_string = 1;
+			}
+
+			sl_string_uuid_add(l->sl, k, &u);
+		}
+
+		json_close(j);
+	}
+	else
+	{
+	}
 }
 
 linda linda_open(const char* path1, const char* path2)
 {
 	linda l = (linda)calloc(1, sizeof(struct _linda));
 	if (!l) return NULL;
-	l->st = store_open2(path1, path2, 0, &store_handler);
+	l->st = store_open2(path1, path2, 0, &store_handler, l);
 	return l;
 }
 

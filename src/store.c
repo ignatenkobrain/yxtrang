@@ -54,7 +54,8 @@ struct _store
 {
 	tree tptr;
 	string filename[MAX_FILES], path1, path2;
-	void (*f)(const uuid*,const char*,int);
+	void (*f)(void*,const uuid*,const char*,int);
+	void* data;
 	uint64_t eodpos[MAX_FILES];
 	int fd[MAX_FILES], idx, transactions, current;
 };
@@ -233,11 +234,11 @@ static int store_apply(store st, int n, uint64_t pos)
 							src[nbytes] = 0;
 						}
 
-						st->f(&u, src, nbytes);
+						st->f(st->data, &u, src, nbytes);
 						if (big) free(src);
 					}
 					else
-						st->f(&u, NULL, 0);
+						st->f(st->data, &u, NULL, 0);
 				}
 
 				cnt++;
@@ -594,11 +595,11 @@ static void store_load_file(store st)
 					}
 
 					src[nbytes] = 0;
-					st->f(&u, src, nbytes);
+					st->f(st->data, &u, src, nbytes);
 					if (big) free(src);
 				}
 				else
-					st->f(&u, NULL, 0);
+					st->f(st->data, &u, NULL, 0);
 			}
 
 			cnt++;
@@ -794,11 +795,12 @@ static int store_merge(store st)
 	return 1;
 }
 
-store store_open2(const char* path1, const char* path2, int compact, void (*f)(const uuid*,const char*,int))
+store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid*,const char*,int), void* data)
 {
 	store st = (store)calloc(1, sizeof(struct _store));
 	if (!st) return NULL;
 	st->f = f;
+	st->data = data;
 	st->tptr = tree_create();
 
 	if ((mkdir(path1, 0777) < 0) && (errno != EEXIST))
@@ -862,7 +864,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(c
 
 store store_open(const char* path1, const char* path2, int compact)
 {
-	return store_open2(path1, path2, compact, NULL);
+	return store_open2(path1, path2, compact, NULL, NULL);
 }
 
 int store_close(store st)
