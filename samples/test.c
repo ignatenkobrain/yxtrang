@@ -224,7 +224,7 @@ static void do_linda_in()
 	{
 		const char* buf;
 		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"nbr\":%ld}\n", rand()%1000);
+		sprintf(tmpbuf, "{\"nbr\":%d}\n", rand()%1000);
 
 		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;

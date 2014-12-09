@@ -239,7 +239,6 @@ int sl_add(skiplist l, const void* key, const void* value)
 	node p, q;
 	struct _node stash;
 	stash.nbr = 0;
-
 	p = l->header;
 
 	for (k = l->level-1; k >= 0; k--)
@@ -354,7 +353,6 @@ int sl_get(const skiplist l, const void* key, const void** value)
 
 	int k;
 	node p, q = 0;
-
 	p = l->header;
 
 	for (k = l->level-1; k >= 0; k--)
@@ -470,7 +468,23 @@ void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void* arg)
 
 		for (j = 0; j < p->nbr; j++)
 		{
-			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+			int status = f(arg, p->bkt[j].key, p->bkt[j].val);
+
+			if (status == -1)
+			{
+				int k = j;
+
+				while (k < (p->nbr-1))
+				{
+					p->bkt[k] = p->bkt[k+1];
+					k++;
+				}
+
+				p->nbr--;
+				l->count--;
+			}
+
+			if (status <= 0)
 				return;
 		}
 
@@ -488,7 +502,6 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 
 	int k;
 	node p, q = 0;
-
 	p = l->header;
 
 	for (k = l->level-1; k >= 0; k--)
@@ -510,7 +523,23 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 
 	for (j = imid; j < p->nbr; j++)
 	{
-		if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+		int status = f(arg, p->bkt[j].key, p->bkt[j].val);
+
+		if (status == -1)
+		{
+			int k = j;
+
+			while (k < (p->nbr-1))
+			{
+				p->bkt[k] = p->bkt[k+1];
+				k++;
+			}
+
+			p->nbr--;
+			l->count--;
+		}
+
+		if (status <= 0)
 			return;
 	}
 
@@ -521,7 +550,23 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 
 		for (j = 0; j < p->nbr; j++)
 		{
-			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+			int status = f(arg, p->bkt[j].key, p->bkt[j].val);
+
+			if (status == -1)
+			{
+				int k = j;
+
+				while (k < (p->nbr-1))
+				{
+					p->bkt[k] = p->bkt[k+1];
+					k++;
+				}
+
+				p->nbr--;
+				l->count--;
+			}
+
+			if (status <= 0)
 				return;
 		}
 

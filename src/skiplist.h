@@ -18,13 +18,13 @@ extern int sl_rem(skiplist s, const void* key);
 extern int sl_get(const skiplist s, const void* key, const void** value);
 extern unsigned long sl_count(const skiplist s);
 
-// Iterate over the whole range. f returns zero to halt.
+// Iterate over the whole range. f returns -1, to delete, <= 0 to halt, 1 to continue.
 
-extern void sl_iter(const skiplist s, int (*f)(void*, void*, void*), void* arg);
+extern void sl_iter(skiplist s, int (*f)(void*, void*, void*), void* arg);
 
-// Iterate over >= key. f returns zero to halt.
+// Iterate over >= key. f returns -1 to delete, <= 0 to halt, 1 to continue.
 
-extern void sl_find(const skiplist s, const void* key, int (*f)(void*, void*, void*), void* arg);
+extern void sl_find(skiplist s, const void* key, int (*f)(void*, void*, void*), void* arg);
 
 extern void sl_destroy(skiplist s);
 
