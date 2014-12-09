@@ -346,8 +346,8 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 		}
 		else if (is_string)
 		{
-			char tmpbuf[1024], tmpbuf2[1024*2];
-			int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, json_escape(h->string_id, tmpbuf2));
+			char tmpbuf[1024], tmpbuf2[1024];
+			int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, json_escape(h->string_id, tmpbuf2, sizeof(tmpbuf2)));
 			store_rem2(h->l->st, &h->oid, tmpbuf, tmplen);
 			sl_string_uuid_erase(h->l->sl, h->string_id, &h->oid);
 		}

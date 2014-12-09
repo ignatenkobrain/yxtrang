@@ -46,57 +46,68 @@ static long long strtoll(const char* src, char** end, int base)
 }
 #endif
 
-const char* json_escape(const char* src, char* dst)
+const char* json_escape(const char* src, char* dst, size_t maxlen)
 {
 	const char* save_dst = dst;
 
-	while (*src)
+	while (*src && (maxlen > 3))
 	{
 		if (*src == '"')
 		{
 			*dst++ = '\\';
 			*dst++ = *src++;
+			maxlen -= 2;
 		}
 		else if (*src == '\r')
 		{
 			*dst++ = '\\';
 			*dst++ = 'r';
 			src++;
+			maxlen -= 2;
 		}
 		else if (*src == '\n')
 		{
 			*dst++ = '\\';
 			*dst++ = 'n';
 			src++;
+			maxlen -= 2;
 		}
 		else if (*src == '\t')
 		{
 			*dst++ = '\\';
 			*dst++ = 't';
 			src++;
+			maxlen -= 2;
 		}
 		else if (*src == '\b')
 		{
 			*dst++ = '\\';
 			*dst++ = 'b';
 			src++;
+			maxlen -= 2;
 		}
 		else if (*src == '\f')
 		{
 			*dst++ = '\\';
 			*dst++ = 'f';
 			src++;
+			maxlen -= 2;
 		}
 		else if (*src == '\\')
 		{
 			*dst++ = '\\';
 			*dst++ = '\\';
 			src++;
+			maxlen -= 2;
 		}
 		else
+		{
 			*dst++ = *src++;
+			maxlen -= 1;
+		}
 	}
 
+	*dst = 0;
 	return save_dst;
 }
 

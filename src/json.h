@@ -44,7 +44,7 @@ extern const char* json_get_string(const json ptr);
 
 extern int json_rem(json ptr, json ptr2);
 
-extern const char* json_escape(const char* src, char* dst);
+extern const char* json_escape(const char* src, char* dst, size_t maxlen);
 
 // If user specified '*pdst' buffer, have to trust the length is
 // enough and won't overflow. But this allows for using a static or

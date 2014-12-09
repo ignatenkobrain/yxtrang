@@ -1,7 +1,7 @@
 #ifndef LINDA_H
 #define LINDA_H
 
-#define LINDA_ID "$id"
+#define LINDA_ID "$id"			// a string key has 256B length limit
 #define LINDA_OID "$oid"
 
 typedef struct _linda* linda;
