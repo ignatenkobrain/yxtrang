@@ -230,9 +230,6 @@ static int read_handler(void* arg, void* k, void* v)
 	if (!match)
 		return 1;
 
-	if (h->rm)
-		store_rem(h->l->st, u);
-
 	h->oid.u1 = u->u1;
 	h->oid.u2 = u->u2;
 	return 0;
@@ -331,6 +328,9 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 
 	if (!h->oid.u1 && !h->oid.u2)
 		return 0;
+
+	if (rm)
+		store_rem(h->l->st, &h->oid);
 
 	*dst = h->dst;
 	return 1;
