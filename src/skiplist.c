@@ -459,33 +459,15 @@ int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(cons
 	if (!compare)
 		compare = default_compare;
 
-	int k, m, imid = -1;
+	int k, m;
 	node update[MaxNumberOfLevels];
 	node p, q;
 	p = l->header;
 
 	for (k = l->level-1; k >= 0; k--)
 	{
-		int done = 0;
-
 		while ((q = p->forward[k]) && (l->compare(q->bkt[0].key, key) < 0))
-		{
-			int j;
-
-			for (j = 0; j < q->nbr; j++)
-			{
-				if (!compare(q->bkt[j].val, value))
-					done = 1;
-			}
-
-			if (done)
-			{
-				imid = j;
-				break;
-			}
-
 			p = q;
-		}
 
 		update[k] = p;
 	}
@@ -493,6 +475,20 @@ int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(cons
 	q = p->forward[0];
 
 	if (q == NULL)
+		return 0;
+
+	int imid, done = 0;
+
+	for (imid = 0; imid < q->nbr; imid++)
+	{
+		if (!compare(q->bkt[imid].val, value))
+		{
+			done = 1;
+			break;
+		}
+	}
+
+	if (!done)
 		return 0;
 
 	//printf("DEL: %llu @ %d\n", (unsigned long long)key, imid);
