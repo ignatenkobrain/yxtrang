@@ -37,6 +37,6 @@
 #define sl_string_uuid_count sl_count
 #define sl_string_uuid_destroy sl_destroy
 
-#define sl_uuid_efface(s,v,f) sl_efface(s, (const void*)v, (int (*)(const void*,const void*))f)
+#define sl_uuid_efface(s,v) sl_efface(s, (const void*)v, (int (*)(const void*,const void*))&uuid_compare)
 
 #endif

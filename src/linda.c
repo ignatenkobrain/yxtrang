@@ -344,7 +344,7 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 		else if (is_string)
 			sl_string_uuid_erase(h->l->sl, h->string_id, &h->oid, &uuid_compare);
 		else
-			sl_uuid_efface(h->l->sl, &h->oid, &uuid_compare);
+			sl_uuid_efface(h->l->sl, &h->oid);
 	}
 
 	*dst = h->dst;
@@ -456,7 +456,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 	}
 	else
 	{
-		sl_uuid_efface(l->sl, u, &uuid_compare);
+		sl_uuid_efface(l->sl, u);
 	}
 }
 
