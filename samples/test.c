@@ -191,7 +191,7 @@ static void do_linda_out(long cnt)
 		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;
 
-		printf("GOT: id=%ld => %s", i, buf);
+		printf("GOT: %s=%ld => %s", LINDA_ID, i, buf);
 	}
 
 	linda_end(h);
@@ -215,7 +215,7 @@ static void do_linda_in()
 		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;
 
-		printf("GOT1: id=%ld => %s", i, buf);
+		printf("GOT1: %s=%ld => %s", LINDA_ID, i, buf);
 	}
 
 	// Return first 100 by param (not indexed)...
@@ -224,12 +224,12 @@ static void do_linda_in()
 	{
 		const char* buf;
 		char tmpbuf[1024];
-		sprintf(tmpbuf, "{\"nbr\":%ld}\n", i);
+		sprintf(tmpbuf, "{\"nbr\":%ld}\n", rand()%1000);
 
 		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;
 
-		printf("GOT2: '%s' => %s", tmpbuf, buf);
+		printf("GOT2: %s => %s", tmpbuf, buf);
 	}
 
 	linda_end(h);
