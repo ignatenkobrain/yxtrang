@@ -386,11 +386,15 @@ extern void linda_end(hlinda h)
 	free(h);
 }
 
+static void store_handler(const uuid* u, const char* buf, int len)
+{
+}
+
 linda linda_open(const char* path1, const char* path2)
 {
 	linda l = (linda)calloc(1, sizeof(struct _linda));
 	if (!l) return NULL;
-	l->st = store_open(path1, path2, 0);
+	l->st = store_open2(path1, path2, 0, &store_handler);
 	return l;
 }
 
