@@ -24,7 +24,7 @@
 #include <unistd.h>
 #endif
 
-static int g_debug = 0;
+static int g_debug = 0, g_quiet = 0;
 static unsigned short g_uncle = UNCLE_PORT;
 static const char* g_service = "TEST";
 static const char* qbf = "the quick brown fox jumped over the lazy dog";
@@ -346,10 +346,13 @@ static void do_skip(long cnt)
 	for (i = 1; i <= cnt; i++)
 		sl_int_add(sl, i, i);
 
-	// Add dulicates
+	printf("Duplicates...\n");
 
 	for (i = 1; i <= cnt; i++)
-		sl_int_add(sl, i, i);
+	{
+		int k = (rand()%cnt)+1;
+		sl_int_add(sl, k, k);
+	}
 #elif !SKIP_RANDOM && 1
 	for (i = 1; i <= cnt; i++)
 		sl_int_add(sl, i, i);
@@ -364,9 +367,9 @@ static void do_skip(long cnt)
 	}
 #endif
 
-	sl_dump(sl);
+	if (!g_quiet)
+		sl_dump(sl);
 
-#if 1
 	// Spot check...
 
 	printf("Reading...\n");
@@ -387,10 +390,9 @@ static void do_skip(long cnt)
 		else
 			;//printf("Get k=%llu v=%llu\n", (unsigned long long)(size_t)k, (unsigned long long)(size_t)v);
 	}
-#endif
 
-#if 1
-	sl_dump(sl);
+	if (!g_quiet)
+		sl_dump(sl);
 
 	// Try some deletes...
 
@@ -402,7 +404,13 @@ static void do_skip(long cnt)
 		{
 			int k = (rand()%cnt)+1;
 
+#if 0
 			if (!sl_int_rem(sl, k))
+#elif 0
+			if (!sl_int_erase(sl, k, (size_t)k, NULL))
+#else
+			if (!sl_int_efface(sl, (size_t)k, NULL))
+#endif
 				;//printf("Del failed: %llu\n", (unsigned long long)k);
 			else
 				;//printf("Del k=%llu\n", (unsigned long long)k);
@@ -411,8 +419,6 @@ static void do_skip(long cnt)
 		//sl_dump(sl);
 		printf("Count: %llu\n", (unsigned long long)sl_count(sl));
 	}
-
-#endif
 
 	sl_destroy(sl);
 }
@@ -585,7 +591,7 @@ int main(int ac, char* av[])
 {
 	int loops = 10000, loops2 = 10, test_tree = 0, test_store = 0;
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
-	int quiet = 0, test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
+	int test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
 	int discovery = 0, test_linda_out = 0, test_linda_in = 0;
 	unsigned short port = SERVER_PORT;
@@ -690,7 +696,7 @@ int main(int ac, char* av[])
 			discovery = 1;
 
 		if (!strcmp(av[i], "--quiet"))
-			quiet = 1;
+			g_quiet = 1;
 	}
 
 	if (client && discovery)
