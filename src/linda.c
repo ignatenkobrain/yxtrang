@@ -109,6 +109,18 @@ const uuid* linda_last_oid(linda l)
 	return &l->last_oid;
 }
 
+void linda_release(linda l)
+{
+	if (!l)
+		return;
+
+	if (l->dst)
+	{
+		free(l->dst);
+		l->dst = NULL;
+	}
+}
+
 static int read_handler(void* arg, void* k, void* v)
 {
 	linda l = (linda)arg;
@@ -350,18 +362,6 @@ int linda_inp(linda l, const char* s, const char** dst)
 	return linda_read(l, s, dst, 1, 1);
 }
 
-void linda_release(linda l)
-{
-	if (!l)
-		return;
-
-	if (l->dst)
-	{
-		free(l->dst);
-		l->dst = NULL;
-	}
-}
-
 linda linda_open(const char* path1, const char* path2)
 {
 	linda l = (linda)calloc(1, sizeof(struct _linda));
@@ -381,6 +381,7 @@ int linda_close(linda l)
 	if (l->sl)
 		sl_destroy(l->sl);
 
+	linda_release(l);
 	free(l);
 	return 1;
 }
