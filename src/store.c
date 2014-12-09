@@ -54,8 +54,9 @@ struct _store
 {
 	tree tptr;
 	string filename[MAX_FILES], path1, path2;
-	int fd[MAX_FILES], idx, transactions, current;
+	void (*f)(const uuid*,const char*,int);
 	uint64_t eodpos[MAX_FILES];
+	int fd[MAX_FILES], idx, transactions, current;
 };
 
 struct _hstore
@@ -185,7 +186,7 @@ static int store_apply(store st, int n, uint64_t pos)
 
 	for (;;)
 	{
-		char tmpbuf[256];
+		char tmpbuf[1024];
 
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 			return 0;
@@ -213,6 +214,31 @@ static int store_apply(store st, int n, uint64_t pos)
 				}
 				else
 					tree_del(st->tptr, &u);
+
+				if (st->f)
+				{
+					if (nbytes)
+					{
+						char* src = tmpbuf+skip;
+						int big = 0;
+
+						if ((src+nbytes) >= (tmpbuf+sizeof(tmpbuf)))
+						{
+							big = 1;
+							src = malloc(nbytes+1);
+
+							if (pread(fd, src, nbytes, pos+skip) <= 0)
+								return 0;
+
+							src[nbytes] = 0;
+						}
+
+						st->f(&u, src, nbytes);
+						if (big) free(src);
+					}
+					else
+						st->f(&u, NULL, 0);
+				}
 
 				cnt++;
 			}
@@ -551,6 +577,30 @@ static void store_load_file(store st)
 			else
 				tree_del(st->tptr, &u);
 
+			if (st->f)
+			{
+				if (nbytes)
+				{
+					char* src = tmpbuf+skip;
+					int big = 0;
+
+					if ((src+nbytes) >= (tmpbuf+sizeof(tmpbuf)))
+					{
+						big = 1;
+						src = malloc(nbytes+1);
+
+						if (pread(fd, src, nbytes, pos+skip) <= 0)
+							return;
+					}
+
+					src[nbytes] = 0;
+					st->f(&u, src, nbytes);
+					if (big) free(src);
+				}
+				else
+					st->f(&u, NULL, 0);
+			}
+
 			cnt++;
 			pos += skip;
 			pos += nbytes;
@@ -744,12 +794,11 @@ static int store_merge(store st)
 	return 1;
 }
 
-store store_open(const char* path1, const char* path2, int compact)
+store store_open2(const char* path1, const char* path2, int compact, void (*f)(const uuid*,const char*,int))
 {
 	store st = (store)calloc(1, sizeof(struct _store));
 	if (!st) return NULL;
-	int do_merge = 0;
-
+	st->f = f;
 	st->tptr = tree_create();
 
 	if ((mkdir(path1, 0777) < 0) && (errno != EEXIST))
@@ -764,6 +813,7 @@ store store_open(const char* path1, const char* path2, int compact)
 	sprintf(filename2, "%s/stable.tmp", path1);
 	struct stat s = {0};
 	stat(filename, &s);
+	int do_merge = 0;
 
 	if (compact && (s.st_size >= (MAX_LOGFILE_SIZE*10)))
 	{
@@ -808,6 +858,11 @@ store store_open(const char* path1, const char* path2, int compact)
 		store_merge(st);
 
 	return st;
+}
+
+store store_open(const char* path1, const char* path2, int compact)
+{
+	return store_open2(path1, path2, compact, NULL);
 }
 
 int store_close(store st)
