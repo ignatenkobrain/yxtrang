@@ -395,13 +395,6 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 	{
 		json j = json_open(s);
 		json j1 = json_get_object(j);
-		json joid = json_find(j1, LINDA_OID);
-		uuid u;
-
-		if (!joid)
-			return;
-
-		uuid_from_string(json_get_string(joid), &u);
 		json jid = json_find(j1, LINDA_ID);
 
 		if (!jid)
@@ -423,7 +416,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 				l->is_int = 1;
 			}
 
-			sl_int_uuid_add(l->sl, k, &u);
+			sl_int_uuid_add(l->sl, k, u);
 		}
 		else if (json_is_string(jid))
 		{
@@ -441,7 +434,7 @@ static void store_handler(void* data, const uuid* u, const char* s, int len)
 				l->is_string = 1;
 			}
 
-			sl_string_uuid_add(l->sl, k, &u);
+			sl_string_uuid_add(l->sl, k, u);
 		}
 
 		json_close(j);

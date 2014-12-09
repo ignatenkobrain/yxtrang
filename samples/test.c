@@ -204,25 +204,23 @@ static void do_linda_in()
 	hlinda h = linda_begin(l);
 	long i;
 
-	// Return by $id (indexed)...
+	// Return by id (indexed)...
 
 	for (i = 0; i < 10; i++)
 	{
-		const char* buf;
+		const char* buf = NULL;
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%ld}\n", LINDA_ID, i);
 
 		if (!linda_rdp(h, tmpbuf, &buf))
 			continue;
 
-		printf("GOT1: '%s' => %s", tmpbuf, buf);
+		printf("GOT1: id=%ld => %s", i, buf);
 	}
-
-	return;
 
 	// Return first 100 by param (not indexed)...
 
-	for (i = 0; i < 100; i++)
+	for (i = 0; i < 10; i++)
 	{
 		const char* buf;
 		char tmpbuf[1024];
