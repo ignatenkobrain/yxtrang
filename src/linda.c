@@ -417,7 +417,7 @@ static void linda_store_handler(void* data, const uuid* u, const char* s, int le
 {
 	linda l = (linda)data;
 
-	if (len > 0)
+	if (len > 0)							// add
 	{
 		json j = json_open(s);
 		json j1 = json_get_object(j);
@@ -465,7 +465,7 @@ static void linda_store_handler(void* data, const uuid* u, const char* s, int le
 
 		json_close(j);
 	}
-	else if (len < 0)
+	else if (len < 0)					// remove (with hint)
 	{
 		json j = json_open(s);
 		json j1 = json_get_object(j);
@@ -513,7 +513,7 @@ static void linda_store_handler(void* data, const uuid* u, const char* s, int le
 
 		json_close(j);
 	}
-	else
+	else 								// remove (brute search)
 	{
 		sl_uuid_efface(l->sl, u);
 	}
