@@ -15,13 +15,10 @@
 #include <direct.h>
 #include <windows.h>
 #else
+#include <unistd.h>
 #include <sys/uio.h>
 #include <sys/types.h>
 #include <sys/param.h>
-#include <unistd.h>
-extern ssize_t pread(int fd, void *buf, size_t count, off_t offset);
-extern ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset);
-extern ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset);
 #endif
 
 #ifdef _WIN32
