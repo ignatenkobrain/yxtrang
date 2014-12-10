@@ -32,7 +32,6 @@ extern ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset
 #include "store.h"
 #include "tree.h"
 
-static const char SOH = 1;			// Start of header
 static const char STX = 2;			// Start transaction (begin)
 static const char ETX = 3;			// End transaction (commit)
 static const char CAN = 24;			// Cancel (rollback)
@@ -99,18 +98,17 @@ static long pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 static int prefix(char* buf, unsigned nbr, const uuid* u, unsigned flags, unsigned len)
 {
 	char tmpbuf[256];
-	return sprintf(buf, "%c%04X %s %01X %04X ", SOH, nbr, uuid_to_string(u, tmpbuf), flags, len);
+	return sprintf(buf, "%04X %s %01X %04X ", nbr, uuid_to_string(u, tmpbuf), flags, len);
 }
 
 static int parse(const char* buf, unsigned* nbr, uuid* u, unsigned* flags, unsigned* len)
 {
 	char tmpbuf[256];
 	tmpbuf[0] = 0;
-	sscanf(buf, "%*c%X %s %X %X ", nbr, tmpbuf, flags, len);
+	sscanf(buf, "%X %s %X %X ", nbr, tmpbuf, flags, len);
 	tmpbuf[sizeof(tmpbuf)-1] = 0;
 	uuid_from_string(tmpbuf, u);
 	const char* src = buf;
-	src++;						// skip marker
 
 	while (*src++ != ' ')		// skip nbr
 		;
@@ -202,7 +200,31 @@ static int store_apply(store st, int n, uint64_t pos)
 			sscanf(tmpbuf, "%*c%X", &nbr);
 			pos += 6;
 		}
-		else if (tmpbuf[0] == SOH)
+		else if (tmpbuf[0] == CAN)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*c%X", &nbr);
+
+			if (nbr == n)
+				break;
+
+			pos += 6;
+		}
+		else if (tmpbuf[0] == ETX)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*c%X", &nbr);
+
+			if (nbr == n)
+				break;
+
+			pos += 6;
+		}
+		else if (tmpbuf[0] == EM)
+		{
+			break;
+		}
+		else
 		{
 			unsigned nbr, flags, nbytes;
 			uuid u;
@@ -250,30 +272,6 @@ static int store_apply(store st, int n, uint64_t pos)
 
 			pos += skip;
 			pos += nbytes;
-		}
-		else if (tmpbuf[0] == CAN)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
-
-			if (nbr == n)
-				break;
-
-			pos += 6;
-		}
-		else if (tmpbuf[0] == ETX)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
-
-			if (nbr == n)
-				break;
-
-			pos += 6;
-		}
-		else if (tmpbuf[0] == EM)
-		{
-			break;
 		}
 	}
 
@@ -599,7 +597,46 @@ static void store_load_file(store st)
 
 			pos += 6;
 		}
-		else if ((tmpbuf[0] == SOH) && (save_nbr != 0))
+		else if (tmpbuf[0] == CAN)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*c%X", &nbr);
+			pos += 6;
+
+			if (nbr == save_nbr)		// drop on rollback
+			{
+				save_nbr = 0;
+				pos = next_pos;
+			}
+			else
+				valid = 0;
+		}
+		else if (tmpbuf[0] == ETX)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*c%X", &nbr);
+			pos += 6;
+
+			if (nbr == save_nbr)		// apply on commit
+			{
+				cnt += store_apply(st, nbr, save_pos);
+				save_nbr = 0;
+
+				// If we didn't encounter any embedded or
+				// interleaved transaction elements, then
+				// we don't have to go back and restart...
+
+				if (!valid)
+					pos = next_pos;
+			}
+			else
+				valid = 0;
+		}
+		else if (tmpbuf[0] == EM)
+		{
+			break;
+		}
+		else if (save_nbr != 0)
 		{
 			unsigned nbr, flags, nbytes;
 			uuid u;
@@ -611,7 +648,7 @@ static void store_load_file(store st)
 			pos += skip;
 			pos += nbytes;
 		}
-		else if (tmpbuf[0] == SOH)
+		else
 		{
 			unsigned nbr, flags, nbytes;
 			uuid u;
@@ -653,50 +690,6 @@ static void store_load_file(store st)
 			cnt++;
 			pos += skip;
 			pos += nbytes;
-		}
-		else if (tmpbuf[0] == CAN)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
-			pos += 6;
-
-			if (nbr == save_nbr)		// drop on rollback
-			{
-				save_nbr = 0;
-				pos = next_pos;
-			}
-			else
-				valid = 0;
-		}
-		else if (tmpbuf[0] == ETX)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
-			pos += 6;
-
-			if (nbr == save_nbr)		// apply on commit
-			{
-				cnt += store_apply(st, nbr, save_pos);
-				save_nbr = 0;
-
-				// If we didn't encounter any embedded or
-				// interleaved transaction elements, then
-				// we don't have to go back and restart...
-
-				if (!valid)
-					pos = next_pos;
-			}
-			else
-				valid = 0;
-		}
-		else if (tmpbuf[0] == EM)
-		{
-			break;
-		}
-		else
-		{
-			printf("store_load_file: bad data %u\n", (unsigned)tmpbuf[0]);
-			break;
 		}
 	}
 
