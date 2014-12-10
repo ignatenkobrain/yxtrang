@@ -39,14 +39,15 @@ static const char CAN = 24;			// Cancel (rollback)
 static const char EM = 25;			// End media (soft end of file)
 
 #define MAX_LOGFILE_SIZE (1LL*1024*1024*1024)
-#define MAX_FILES 16
+#define MAX_LOGFILES 256
+#define NBR_BITS 56
 
 // Contruct a file-position value
-#define MAKE_FILEPOS(idx,pos) (((uint64_t)idx << 60) | POS(pos))
+#define MAKE_FILEPOS(idx,pos) (((uint64_t)idx << NBR_BITS) | POS(pos))
 
 // Deconstruct one
-#define FILEIDX(fp) (unsigned)((fp) >> 60)
-#define POS(fp) ((fp) & 0x0FFFFFFFFFFFFFFF)
+#define FILEIDX(fp) (unsigned)((fp) >> NBR_BITS)
+#define POS(fp) ((fp) & ~(0xfULL<<NBR_BITS))
 
 #define FLAG_RM		1
 
@@ -55,11 +56,11 @@ typedef char string[1024];
 struct _store
 {
 	tree tptr;
-	string filename[MAX_FILES], path1, path2;
+	string filename[MAX_LOGFILES], path1, path2;
 	void (*f)(void*,const uuid*,const char*,int);
 	void* data;
-	uint64_t eodpos[MAX_FILES];
-	int fd[MAX_FILES], idx, transactions, current;
+	uint64_t eodpos[MAX_LOGFILES];
+	int fd[MAX_LOGFILES], idx, transactions, current;
 };
 
 struct _hstore
