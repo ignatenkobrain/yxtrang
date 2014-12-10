@@ -39,8 +39,9 @@ static const char CAN = 24;			// Cancel (rollback)
 static const char EM = 25;			// End media (soft end of file)
 
 #define MAX_LOGFILE_SIZE (1LL*1024*1024*1024)
-#define MAX_LOGFILES 256
-#define NBR_BITS 56
+
+#define MAX_LOGFILES 256			// 8 bits +
+#define NBR_BITS 56					// 56 bits = 64 bits
 
 // Contruct a file-position value
 #define MAKE_FILEPOS(idx,pos) (((uint64_t)idx << NBR_BITS) | POS(pos))
