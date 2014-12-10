@@ -3,7 +3,7 @@
 
 #ifndef TREE_KEY_USERDEFINED
 #include "uuid.h"
-#define TREE_KEY uuid
+#define TREE_KEY uuid_t
 #define TREE_KEY_compare uuid_compare
 #endif
 

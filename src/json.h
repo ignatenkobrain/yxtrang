@@ -6,7 +6,7 @@
 
 typedef struct _json* json;
 
-extern json json_open(const char* s);	// create from string, OR
+extern json json_open(const char* s);		// create from string, OR
 extern json json_init(void);				// create top-level object or array
 
 extern int json_set_array(json ptr);

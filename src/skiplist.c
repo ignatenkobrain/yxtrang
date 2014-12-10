@@ -28,7 +28,7 @@
 
 #include "skiplist.h"
 
-typedef struct _keyval keyval;
+typedef struct _keyval keyval_t;
 typedef struct _node* node;
 
 struct _keyval
@@ -41,9 +41,9 @@ struct _keyval
 
 struct _node
 {
-	int		nbr;
-	keyval	bkt[BUCKET_SIZE];
-	node	forward[1];
+	int			nbr;
+	keyval_t	bkt[BUCKET_SIZE];
+	node		forward[1];
 };
 
 struct _skiplist
@@ -179,7 +179,7 @@ void sl_dump(const skiplist l)
 	printf("\n");
 }
 
-static int binary_search(const skiplist l, const keyval n[], const void* key, int imin, int imax)
+static int binary_search(const skiplist l, const keyval_t n[], const void* key, int imin, int imax)
 {
 	int imid = 0;
 
@@ -200,7 +200,7 @@ static int binary_search(const skiplist l, const keyval n[], const void* key, in
 
 // Modified binary search: return position where it is or ought to be
 
-static int binary_search2(const skiplist l, const keyval n[], const void* key, int imin, int imax)
+static int binary_search2(const skiplist l, const keyval_t n[], const void* key, int imin, int imax)
 {
 	int imid = 0;
 

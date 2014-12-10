@@ -2,7 +2,7 @@
 #define SCRIPTLET_H
 
 typedef struct _scriptlet* scriptlet;
-typedef struct _runtime* runtime;
+typedef struct _hscriptlet* hscriptlet;
 
 // Create a new scriptlet
 
@@ -10,19 +10,19 @@ extern scriptlet scriptlet_open(const char* text);
 
 // Create a run-time environment for the scriptlet.
 
-extern runtime scriptlet_prepare(scriptlet s);
+extern hscriptlet scriptlet_prepare(scriptlet s);
 
-extern int scriptlet_set_int(runtime r, const char* k, long long v);
-extern int scriptlet_set_real(runtime r, const char* k, double v);
-extern int scriptlet_set_string(runtime r, const char* k, const char* v);
-extern int scriptlet_get_int(runtime r, const char* k, long long* v);
-extern int scriptlet_get_real(runtime r, const char* k, double* v);
-extern int scriptlet_get_string(runtime r, const char* k, const char** v);
+extern int scriptlet_set_int(hscriptlet r, const char* k, long long v);
+extern int scriptlet_set_real(hscriptlet r, const char* k, double v);
+extern int scriptlet_set_string(hscriptlet r, const char* k, const char* v);
+extern int scriptlet_get_int(hscriptlet r, const char* k, long long* v);
+extern int scriptlet_get_real(hscriptlet r, const char* k, double* v);
+extern int scriptlet_get_string(hscriptlet r, const char* k, const char** v);
 
 // Run and cleanup.
 
-extern int scriptlet_run(runtime r);
-extern int scriptlet_done(runtime r);
+extern int scriptlet_run(hscriptlet r);
+extern int scriptlet_done(hscriptlet r);
 
 // Free-up scriptlet.
 

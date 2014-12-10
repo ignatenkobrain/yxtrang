@@ -3,15 +3,15 @@
 
 #include <stdint.h>
 
-typedef struct _uuid { uint64_t u1, u2; } uuid;
+typedef struct _uuid { uint64_t u1, u2; } uuid_t;
 
-extern const char* uuid_to_string(const uuid* u, char* buf);
-extern const uuid* uuid_from_string(const char*, uuid* u);
-extern uint64_t uuid_ts(const uuid* u);
+extern const char* uuid_to_string(const uuid_t* u, char* buf);
+extern const uuid_t* uuid_from_string(const char*, uuid_t* u);
+extern uint64_t uuid_ts(const uuid_t* u);
 extern void uuid_seed(uint64_t v);		// unique 48-bits eg. MAC-address or rand
-extern const uuid* uuid_gen(uuid* u);
-extern uuid uuid_set(uint64_t, uint64_t);		// used for testing only
-extern int uuid_compare(const uuid* v1, const uuid* v2);
-extern uuid* uuid_copy(const uuid* v);
+extern const uuid_t* uuid_gen(uuid_t* u);
+extern uuid_t uuid_set(uint64_t, uint64_t);		// used for testing only
+extern int uuid_compare(const uuid_t* v1, const uuid_t* v2);
+extern uuid_t* uuid_copy(const uuid_t* v);
 
 #endif

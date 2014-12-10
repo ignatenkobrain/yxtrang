@@ -1,12 +1,13 @@
 #ifndef JSONQ_H
 #define JSONQ_H
 
-// JSON quick and dirty search for named value. Calls can be
-// concatenated to drill down through object layers.
+// JSON quick and dirty search for named value.
 //
 // Accepts single quotes as a convenience.
 //
-// eg. char* s = "{'a':1,'b':2,'c':{'c1':31,'c2':32,'c3':33},'d',4}";
+// Calls can be concatenated, eg:
+//
+// char* s = "{'a':1,'b':2,'c':{'c1':31,'c2':32,'c3':33},'d',4}";
 //
 //   char tmp[256];
 //   long long v = jsonq(s,"c",tmp,sizeof(tmp))->jsonq_int(tmp,"c2");

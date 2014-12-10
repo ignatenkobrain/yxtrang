@@ -175,7 +175,7 @@ struct _compiletime
 
 typedef struct _compiletime* compiletime;
 
-struct _runtime
+struct _hscriptlet
 {
 	scriptlet s;
 	skiplist symtab;
@@ -232,10 +232,10 @@ static void scriptlet_unshare(scriptlet s)
 		free(s);
 }
 
-runtime scriptlet_prepare(scriptlet s)
+hscriptlet scriptlet_prepare(scriptlet s)
 {
 	scriptlet_share(s);
-	runtime r = (runtime)calloc(1, sizeof(struct _runtime));
+	hscriptlet r = (hscriptlet)calloc(1, sizeof(struct _hscriptlet));
 	r->s = s;
 	r->symtab = sl_string_create();
 	scriptlet_set_int(r, "$FIRST", 1);
@@ -243,7 +243,7 @@ runtime scriptlet_prepare(scriptlet s)
 	return r;
 }
 
-int scriptlet_done(runtime r)
+int scriptlet_done(hscriptlet r)
 {
 	scriptlet_unshare(r->s);
 	sl_string_destroy(r->symtab);
@@ -251,7 +251,7 @@ int scriptlet_done(runtime r)
 	return 1;
 }
 
-int scriptlet_set_int(runtime r, const char* k, long long value)
+int scriptlet_set_int(hscriptlet r, const char* k, long long value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = int_tc;
@@ -261,7 +261,7 @@ int scriptlet_set_int(runtime r, const char* k, long long value)
 	return 1;
 }
 
-int scriptlet_set_real(runtime r, const char* k, double value)
+int scriptlet_set_real(hscriptlet r, const char* k, double value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = real_tc;
@@ -271,7 +271,7 @@ int scriptlet_set_real(runtime r, const char* k, double value)
 	return 1;
 }
 
-int scriptlet_set_string(runtime r, const char* k, const char* value)
+int scriptlet_set_string(hscriptlet r, const char* k, const char* value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = string_tc;
@@ -281,7 +281,7 @@ int scriptlet_set_string(runtime r, const char* k, const char* value)
 	return 1;
 }
 
-static bytecode substitute(const runtime r, const bytecode v)
+static bytecode substitute(const hscriptlet r, const bytecode v)
 {
 	bytecode code = v;
 
@@ -291,7 +291,7 @@ static bytecode substitute(const runtime r, const bytecode v)
 	return code;
 }
 
-int scriptlet_get_int(runtime r, const char* k, long long* value)
+int scriptlet_get_int(hscriptlet r, const char* k, long long* value)
 {
 	bytecode code = NULL;
 
@@ -308,7 +308,7 @@ int scriptlet_get_int(runtime r, const char* k, long long* value)
 	return 1;
 }
 
-int scriptlet_get_real(runtime r, const char* k, double* value)
+int scriptlet_get_real(hscriptlet r, const char* k, double* value)
 {
 	bytecode code = NULL;
 
@@ -325,7 +325,7 @@ int scriptlet_get_real(runtime r, const char* k, double* value)
 	return 1;
 }
 
-int scriptlet_get_string(runtime r, const char* k, const char** value)
+int scriptlet_get_string(hscriptlet r, const char* k, const char** value)
 {
 	bytecode code = NULL;
 
@@ -950,7 +950,7 @@ static int compile(scriptlet s, const char* src)
 	return 1;
 }
 
-static int pop_stack(runtime r, bytecode* value)
+static int pop_stack(hscriptlet r, bytecode* value)
 {
 	if (!r->it_stack)
 		return empty_tc;
@@ -967,28 +967,28 @@ static int pop_stack(runtime r, bytecode* value)
 	return code->tc;
 }
 
-static void push_stack_int(runtime r, long long value)
+static void push_stack_int(hscriptlet r, long long value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = int_tc;
 	code->int_val = value;
 }
 
-static void push_stack_real(runtime r, double value)
+static void push_stack_real(hscriptlet r, double value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = real_tc;
 	code->real_val = value;
 }
 
-static void push_stack_string(runtime r, const char* value)
+static void push_stack_string(hscriptlet r, const char* value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = string_tc;
 	strcpy(code->str_val, value);
 }
 
-static int peek_bytecode(runtime r, int* level)
+static int peek_bytecode(hscriptlet r, int* level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -998,7 +998,7 @@ static int peek_bytecode(runtime r, int* level)
 	return code->tc;
 }
 
-static void skip_bytecode(runtime r)
+static void skip_bytecode(hscriptlet r)
 {
 	if (r->it == r->s->it_codes)
 		return;
@@ -1006,7 +1006,7 @@ static void skip_bytecode(runtime r)
 	r->it++;
 }
 
-static int next_bytecode(runtime r, bytecode* value, int* nbr_params, int* level)
+static int next_bytecode(hscriptlet r, bytecode* value, int* nbr_params, int* level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -1028,7 +1028,7 @@ static int next_bytecode(runtime r, bytecode* value, int* nbr_params, int* level
 	return bc;
 }
 
-int scriptlet_run(runtime r)
+int scriptlet_run(hscriptlet r)
 {
 	r->it_stack = 0;
 	r->it_syms = r->it_syms_save;

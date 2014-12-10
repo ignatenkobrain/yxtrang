@@ -146,7 +146,7 @@ static void do_script(long cnt)
 	scriptlet s = scriptlet_open(text);
 
 	printf("Scriptlet run\n");
-	runtime r = scriptlet_prepare(s);
+	hscriptlet r = scriptlet_prepare(s);
 	scriptlet_run(r);
 	double v = 0.0;
 
@@ -250,7 +250,7 @@ static void do_store(long cnt, int vfy, int compact)
 	{
 		char tmpbuf[1024];
 		int len = sprintf(tmpbuf, "{'name':'test','i':%ld}\n", i);
-		uuid u = {i, t};
+		uuid_t u = {i, t};
 
 		if (!store_hadd(h, &u, tmpbuf, len))
 			printf("ADD failed: %ld\n", i);
@@ -271,7 +271,7 @@ static void do_store(long cnt, int vfy, int compact)
 	{
 		char tmpbuf[1024];
 		int len = sprintf(tmpbuf, "{'name':'test','i':%ld}\n", i);
-		uuid u = {i, t};
+		uuid_t u = {i, t};
 
 		if (!store_add(st, &u, tmpbuf, len))
 			printf("ADD failed: %ld\n", i);
@@ -290,7 +290,7 @@ static void do_store(long cnt, int vfy, int compact)
 			void* buf = &tmpbuf;
 			int len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
-			uuid u = {k, t};
+			uuid_t u = {k, t};
 
 			if (!store_get(st, &u, &buf, &len))
 				printf("GET failed: %ld\n", k);
@@ -307,7 +307,7 @@ static void do_store(long cnt, int vfy, int compact)
 			void* buf = &tmpbuf;
 			int len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
-			uuid u = {k, t};
+			uuid_t u = {k, t};
 			store_rem(st, &u);
 		}
 
@@ -324,7 +324,7 @@ static void do_store(long cnt, int vfy, int compact)
 			void* buf = &tmpbuf;
 			int len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
-			uuid u = {k, t};
+			uuid_t u = {k, t};
 			store_get(st, &u, &buf, &len);
 		}
 	}
@@ -342,7 +342,7 @@ static void do_skip(long cnt)
 
 	printf("Writing...\n");
 
-#if !SKIP_RANDOM && 0
+#if !SKIP_RANDOM && 1
 	for (i = 1; i <= cnt; i++)
 		sl_int_add(sl, i, i);
 
@@ -404,7 +404,7 @@ static void do_skip(long cnt)
 		{
 			int k = (rand()%cnt)+1;
 
-#if 0
+#if 1
 			if (!sl_int_rem(sl, k))
 #elif 0
 			if (!sl_int_erase(sl, k, (size_t)k, NULL))
@@ -434,7 +434,7 @@ void do_tree(long cnt, int rnd)
 	{
 		for (i = 1; i <= cnt; i++)
 		{
-			uuid u = uuid_set(i, 1);
+			uuid_t u = uuid_set(i, 1);
 			tree_add(tptr, &u, u.u1);
 		}
 	}
@@ -443,7 +443,7 @@ void do_tree(long cnt, int rnd)
 		for (i = 1; i <= cnt; i++)
 		{
 			uint64_t k = rand()%10;
-			uuid u = uuid_set(((i+k)%cnt)+1, 1);
+			uuid_t u = uuid_set(((i+k)%cnt)+1, 1);
 			tree_add(tptr, &u, u.u1);
 		}
 	}
@@ -452,7 +452,7 @@ void do_tree(long cnt, int rnd)
 
 	for (i = 1; i <= cnt; i++)
 	{
-		uuid u = uuid_set((rand()%cnt)+1,1);
+		uuid_t u = uuid_set((rand()%cnt)+1,1);
 		unsigned long long v = 0;
 
 		if (!tree_get(tptr, &u, &v))
@@ -476,7 +476,7 @@ void do_tree(long cnt, int rnd)
 	{
 		for (i = 1; i <= cnt; i++)
 		{
-			uuid u = uuid_set((rand()%cnt)+1, 1);
+			uuid_t u = uuid_set((rand()%cnt)+1, 1);
 
 			if (!tree_del(tptr, &u))
 			{

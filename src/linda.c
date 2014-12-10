@@ -20,7 +20,7 @@ struct _hlinda
 	linda l;
 	char* dst;
 	json jquery;
-	uuid oid, last_oid;
+	uuid_t oid, last_oid;
 	long long int_id;
 	const char* string_id;
 	int len;
@@ -34,7 +34,7 @@ int linda_out(hlinda h, const char* s)
 	json j = json_open(s);
 	json j1 = json_get_object(j);
 	json joid = json_find(j1, LINDA_OID);
-	uuid u;
+	uuid_t u;
 
 	if (joid)
 	{
@@ -99,7 +99,7 @@ int linda_get_length(hlinda h)
 	return h->len;
 }
 
-const uuid* linda_get_oid(hlinda h)
+const uuid_t* linda_get_oid(hlinda h)
 {
 	if (!h)
 		return NULL;
@@ -107,7 +107,7 @@ const uuid* linda_get_oid(hlinda h)
 	return &h->oid;
 }
 
-const uuid* linda_last_oid(hlinda h)
+const uuid_t* linda_last_oid(hlinda h)
 {
 	if (!h)
 		return NULL;
@@ -130,7 +130,7 @@ void linda_release(hlinda h)
 static int read_handler(void* arg, void* k, void* v)
 {
 	hlinda h = (hlinda)arg;
-	uuid* u = (uuid*)v;
+	uuid_t* u = (uuid_t*)v;
 
 	if (!store_get(h->l->st, u, (void**)&h->dst, &h->len))
 		return 0;
@@ -235,7 +235,7 @@ static int read_handler(void* arg, void* k, void* v)
 	return 0;
 }
 
-static int read_int_handler(void* arg,  int64_t k, uuid* v)
+static int read_int_handler(void* arg,  int64_t k, uuid_t* v)
 {
 	hlinda h = (hlinda)arg;
 
@@ -245,7 +245,7 @@ static int read_int_handler(void* arg,  int64_t k, uuid* v)
 	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int read_string_handler(void* arg, const char* k, uuid* v)
+static int read_string_handler(void* arg, const char* k, uuid_t* v)
 {
 	hlinda h = (hlinda)arg;
 
@@ -379,7 +379,7 @@ int linda_rm(hlinda h, const char* s)
 	int is_int = 0, is_string = 0;
 	const char* string_id = NULL;
 	long long int_id = 0;
-	uuid u;
+	uuid_t u;
 
 	json joid = json_find(j1, LINDA_OID);
 
@@ -469,7 +469,7 @@ extern void linda_end(hlinda h)
 	free(h);
 }
 
-static void linda_store_handler(void* data, const uuid* u, const char* s, int len)
+static void linda_store_handler(void* data, const uuid_t* u, const char* s, int len)
 {
 	linda l = (linda)data;
 

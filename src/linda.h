@@ -31,8 +31,8 @@ extern int linda_rm(hlinda h, const char* s);
 extern void linda_release(hlinda h);
 
 extern int linda_get_length(hlinda h);			// of last read
-extern const uuid* linda_get_oid(hlinda h);		// of last read
-extern const uuid* linda_last_oid(hlinda h);	// of last write
+extern const uuid_t* linda_get_oid(hlinda h);		// of last read
+extern const uuid_t* linda_last_oid(hlinda h);	// of last write
 
 extern void linda_end(hlinda h);
 
