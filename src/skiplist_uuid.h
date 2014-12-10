@@ -16,7 +16,7 @@
 #define sl_int_uuid_erase(s,k,v) sl_erase(s, (const void*)(size_t)k, (const void*)v, (int (*)(const void*,const void*))&uuid_compare)
 #define sl_int_uuid_efface(s,v) sl_efface(s, (const void*)v, (int (*)(const void*,const void*))&uuid_compare)
 #define sl_int_uuid_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
-#define sl_int_uuid_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_int_uuid_find(s,k,f,a) sl_find(s, (const void*)(size_t)k, (int (*)(void*, void*, void*))f, (void*)a)
 #define sl_int_uuid_count sl_count
 #define sl_int_uuid_destroy sl_destroy
 

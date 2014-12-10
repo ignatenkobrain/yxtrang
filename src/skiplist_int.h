@@ -16,7 +16,7 @@
 #define sl_int_erase(s,k,v,f) sl_erase(s, (const void*)(size_t)k, (const void*)v, (int (*)(const void*,const void*))f)
 #define sl_int_efface(s,v,f) sl_efface(s, (const void*)v, (int (*)(const void*,const void*))f)
 #define sl_int_iter(s,f,a) sl_iter(s, (int (*)(void*, void*, void*))f, (void*)a)
-#define sl_int_find(s,k,f,a) sl_find(s, (const void*)k, (int (*)(void*, void*, void*))f, (void*)a)
+#define sl_int_find(s,k,f,a) sl_find(s, (const void*)(size_t)k, (int (*)(void*, void*, void*))f, (void*)a)
 #define sl_int_count sl_count
 #define sl_int_destroy sl_destroy
 
