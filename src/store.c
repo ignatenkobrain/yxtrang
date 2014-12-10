@@ -1,4 +1,4 @@
-#define _LARGEFILE64_SOURCE
+#define _LARGEFILE64_SOURCE		// for 32-bit builds
 
 #include <stdlib.h>
 #include <stdio.h>
