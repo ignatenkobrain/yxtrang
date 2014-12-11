@@ -39,10 +39,7 @@ static const char CAN = '!';		// Cancel (rollback)
 #define MAX_LOGFILES 256			// 8 bits +
 #define POS_BITS 56					// 56 bits = 64 bits
 
-// Contruct a file-position value
 #define MAKE_FILEPOS(idx,pos) (((uint64_t)idx << POS_BITS) | POS(pos))
-
-// Deconstruct one
 #define FILEIDX(fp) (unsigned)((fp) >> POS_BITS)
 #define POS(fp) ((fp) & ~(0xfULL<<POS_BITS))
 
