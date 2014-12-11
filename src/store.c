@@ -51,6 +51,8 @@ static const char EM = 25;			// End media (soft end of file)
 
 typedef char string[1024];
 
+#define ZEROTH_LOG "0.log"
+
 struct _store
 {
 	tree tptr;
@@ -869,25 +871,22 @@ static int store_merge(store st)
 
 	st->idx = 0;
 	string filename;
-	sprintf(filename, "%s/0.log", st->path1);
+	sprintf(filename, "%s/%s", st->path1, ZEROTH_LOG);
 	store_open_file(st, filename, 1, 1);
-	sprintf(filename, "%s/%lld.log", st->path2, (long long)time(NULL));
-	store_open_file(st, filename, 0, 1);
 	return 1;
 }
 
 
 static int store_open_handler(const char* name, void* data)
 {
-	if (!strcmp(name, "0.log"))
+	if (!strcmp(name, ZEROTH_LOG))
 		return 1;
 
 	store st = (store)data;
-	char filename[1024];
-
+	string filename;
 	sprintf(filename, "%s/%s", name, st->path2);
 
-	if (!store_open_file(st, filename, 0, 0))
+	if (!store_open_file(st, filename, 1, 0))
 	{
 		store_close(st);
 		return 1;
@@ -917,7 +916,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	}
 
 	string filename, filename2;
-	sprintf(filename, "%s/0.log", path1);
+	sprintf(filename, "%s/%s", path1, ZEROTH_LOG);
 	sprintf(filename2, "%s/0.tmp", path1);
 	struct stat s = {0};
 	stat(filename, &s);
@@ -953,18 +952,17 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 
 	dirlist(path2, ".log", &store_open_handler, st);
 
-	// Now the active.
-
-	sprintf(filename, "%s/%lld.log", st->path2, (long long)time(NULL));
-	store_open_file(st, filename, 0, 1);
-	printf("store_open_file: '%s'\n", filename);
-
 	if (st->idx > 32)
 		do_merge++;
 
 	if (do_merge)
 		store_merge(st);
 
+	// Now the active.
+
+	sprintf(filename, "%s/%lld.log", st->path2, (long long)time(NULL));
+	store_open_file(st, filename, 0, 1);
+	printf("store_open_file: '%s'\n", filename);
 	return st;
 }
 
