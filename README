@@ -89,7 +89,7 @@ uncle:
  services via mutual discovery.
 
 
-uuid_t:
+uuid:
 
  Universal unique identifiers.
 
