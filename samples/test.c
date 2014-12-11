@@ -561,7 +561,7 @@ static void do_json()
 	json j2 = json_find(j1, "c");
 
 	if (j2)
-		printf("'c' = '%s'\n", json_get_string(j2));
+		printf("QUERY: 'c' = '%s'\n", json_get_string(j2));
 	else
 		printf("Cannot find 'c'\n");
 
