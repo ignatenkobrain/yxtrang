@@ -19,6 +19,7 @@
 #include <sys/uio.h>
 #include <sys/types.h>
 #include <sys/param.h>
+#include <dirent.h>
 #endif
 
 #ifdef _WIN32
@@ -91,6 +92,47 @@ static long pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 	return (long)len;
 }
 #endif
+
+static void dirlist(const char* path, const char* ext, int (*f)(const char*, void*), void* data)
+{
+#ifdef _WIN32
+	HANDLE hFind;
+	WIN32_FIND_DATA FindFileData;
+	char filespec[1024];
+
+	sprintf(filespec, "%s\\*%s", path, ext);
+
+	if ((hFind = FindFirstFile(filespec, &FindFileData)) != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			if (!f(FindFileData.cFileName, data))
+				break;
+		}
+		 while(FindNextFile(hFind, &FindFileData));
+
+		FindClose(hFind);
+	}
+#else
+	DIR* dirp = opendir(path);
+	if (!dirp) return;
+	struct dirent* entry = NULL;
+
+	while (!readdir_r(dirp, entry, &entry))
+	{
+		const char* tmpext = strrchr(entry->d_name, '.');
+		if (!tmpext) continue;
+
+		if (strcmp(tmpext, ext))
+			continue;
+
+		if (!f(entry->d_name, data))
+			break;
+	}
+
+	closedir(dirp);
+#endif
+}
 
 static int prefix(char* buf, unsigned nbr, const uuid_t* u, unsigned flags, unsigned len)
 {
@@ -826,17 +868,36 @@ static int store_merge(store st)
 
 	st->idx = 0;
 	string filename;
-	sprintf(filename, "%s/stable.log", st->path1);
+	sprintf(filename, "%s/0.log", st->path1);
 	store_open_file(st, filename, 1, 1);
-	sprintf(filename, "%s/active.log", st->path2);
+	sprintf(filename, "%s/%lld.log", st->path2, (long long)time(NULL));
 	store_open_file(st, filename, 0, 1);
+	return 1;
+}
+
+
+static int store_open_handler(const char* filename, void* data)
+{
+	store st = (store)data;
+
+	if (!store_open_file(st, filename, 0, 0))
+	{
+		store_close(st);
+		return 1;
+	}
+
+	printf("store_open_file: '%s'\n", filename);
+	store_load_file(st);
 	return 1;
 }
 
 store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid_t*,const char*,int), void* data)
 {
 	store st = (store)calloc(1, sizeof(struct _store));
-	if (!st) return NULL;
+	if (!st || !path1) return NULL;
+	if (!path2) path2 = path1;
+	strcpy(st->path1, path1);
+	strcpy(st->path2, path2);
 	st->f = f;
 	st->data = data;
 	st->tptr = tree_create();
@@ -849,8 +910,8 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	}
 
 	string filename, filename2;
-	sprintf(filename, "%s/stable.log", path1);
-	sprintf(filename2, "%s/stable.tmp", path1);
+	sprintf(filename, "%s/0.log", path1);
+	sprintf(filename2, "%s/0.tmp", path1);
 	struct stat s = {0};
 	stat(filename, &s);
 	int do_merge = 0;
@@ -863,35 +924,27 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	}
 
 	if (store_open_file(st, filename, 1, 1))
+	{
+		printf("store_open_file: '%s'\n", filename);
 		store_load_file(st);
+	}
 
 	if (store_open_file(st, filename2, 1, 0))
 		store_load_file(st);
 
-	if (!path2)
-		path2 = path1;
-
-	if ((mkdir(path2, 0777) < 0) && (errno != EEXIST))
+	if (strcmp(path1, path2))
 	{
-		printf("store_open: mkdir '%s' error: %s\n", path2, strerror(errno));
-		store_close(st);
-		return NULL;
+		if ((mkdir(path2, 0777) < 0) && (errno != EEXIST))
+		{
+			printf("store_open: mkdir '%s' error: %s\n", path2, strerror(errno));
+			store_close(st);
+			return NULL;
+		}
 	}
 
-	sprintf(filename, "%s/active.log", path2);
+	dirlist(path2, ".log", &store_open_handler, st);
 
-	if (!store_open_file(st, filename, 0, 1))
-	{
-		store_close(st);
-		return NULL;
-	}
-
-	store_load_file(st);
-
-	strcpy(st->path1, path1);
-	strcpy(st->path2, path2);
-
-	if (st->eodpos[st->idx-1] > MAX_LOGFILE_SIZE)
+	if (st->idx > 32)
 		do_merge++;
 
 	if (do_merge)
