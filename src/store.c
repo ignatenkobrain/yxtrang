@@ -52,6 +52,7 @@ static const char EM = 25;			// End media (soft end of file)
 typedef char string[1024];
 
 #define ZEROTH_LOG "0.log"
+#define FIRST_LOG "1.log"
 
 struct _store
 {
@@ -916,7 +917,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 
 	string filename, filename2;
 	sprintf(filename, "%s/%s", path1, ZEROTH_LOG);
-	sprintf(filename2, "%s/0.tmp", path1);
+	sprintf(filename2, "%s/%s", path1, FIRST_LOG);
 	struct stat s = {0};
 	stat(filename, &s);
 	int do_merge = 0;
@@ -947,17 +948,17 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 		}
 	}
 
-	// Open all the timestamped log files.
+	// Open all timestamped log files.
 
 	dirlist(path2, ".log", &store_open_handler, st);
 
-	if (st->idx > 32)
+	if (st->idx == (MAX_LOGFILES-1))
 		do_merge++;
 
 	if (do_merge)
 		store_merge(st);
 
-	// Now the active.
+	// Create an active log.
 
 	sprintf(filename, "%s/%lld.log", st->path2, (long long)time(NULL));
 	store_open_file(st, filename, 0, 1);
