@@ -42,9 +42,8 @@ linda:
 network:
 
  Threadpooled socket handling with support for select, poll, epoll
- and kqueue.
-
- Supports TCP (with TLS) and UDP (unicast, multicast and broadcast).
+ and kqueue. Supports TCP (with TLS) and UDP (unicast, multicast and
+ broadcast).
 
 
 scriptlet:
@@ -81,12 +80,12 @@ tree:
 
 uncle:
 
- Resource discovery and notifcation. Uses UDP broadcast (for now,
- will move to multicast). Uncle is scope based, meaning it can
- organize resources by group: those within the same scope can find
- each other, but not those outside. Uncle is not a centralized
- server. It's job is to facilitate decentralized/distributed
- services via mutual discovery.
+ Umbilical network client liason engine. Resource discovery. Uses UDP
+ (broadcast for now, will move to multicast) datagrams. Uncle is scope
+ based, meaning it can organize resources by group: those within the
+ same scope can find each other, but not those outside. Uncle is not
+ a centralized server. It's job is to facilitate decentralized and
+ distributed services via mutual discovery.
 
 
 uuid:
