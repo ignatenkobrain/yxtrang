@@ -38,14 +38,14 @@ static const char EM = 25;			// End media (soft end of file)
 #define MAX_LOGFILE_SIZE (1LL*1024*1024*1024)
 
 #define MAX_LOGFILES 256			// 8 bits +
-#define NBR_BITS 56					// 56 bits = 64 bits
+#define POS_BITS 56					// 56 bits = 64 bits
 
 // Contruct a file-position value
-#define MAKE_FILEPOS(idx,pos) (((uint64_t)idx << NBR_BITS) | POS(pos))
+#define MAKE_FILEPOS(idx,pos) (((uint64_t)idx << POS_BITS) | POS(pos))
 
 // Deconstruct one
-#define FILEIDX(fp) (unsigned)((fp) >> NBR_BITS)
-#define POS(fp) ((fp) & ~(0xfULL<<NBR_BITS))
+#define FILEIDX(fp) (unsigned)((fp) >> POS_BITS)
+#define POS(fp) ((fp) & ~(0xfULL<<POS_BITS))
 
 #define FLAG_RM		1
 
