@@ -908,16 +908,16 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	st->data = data;
 	st->tptr = tree_create();
 
-	if ((mkdir(path1, 0777) < 0) && (errno != EEXIST))
+	if ((mkdir(st->path1, 0777) < 0) && (errno != EEXIST))
 	{
-		printf("store_open: mkdir '%s' error: %s\n", path1, strerror(errno));
+		printf("store_open: mkdir '%s' error: %s\n", st->path1, strerror(errno));
 		store_close(st);
 		return NULL;
 	}
 
 	string filename, filename2;
-	sprintf(filename, "%s/%s", path1, ZEROTH_LOG);
-	sprintf(filename2, "%s/%s", path1, FIRST_LOG);
+	sprintf(filename, "%s/%s", st->path1, ZEROTH_LOG);
+	sprintf(filename2, "%s/%s", st->path1, FIRST_LOG);
 	struct stat s = {0};
 	stat(filename, &s);
 	int do_merge = 0;
@@ -938,11 +938,11 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	if (store_open_file(st, filename2, 1, 0))
 		store_load_file(st);
 
-	if (strcmp(path1, path2))
+	if (strcmp(st->path1, st->path2))
 	{
-		if ((mkdir(path2, 0777) < 0) && (errno != EEXIST))
+		if ((mkdir(st->path2, 0777) < 0) && (errno != EEXIST))
 		{
-			printf("store_open: mkdir '%s' error: %s\n", path2, strerror(errno));
+			printf("store_open: mkdir '%s' error: %s\n", st->path2, strerror(errno));
 			store_close(st);
 			return NULL;
 		}
@@ -950,7 +950,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 
 	// Open all timestamped log files.
 
-	dirlist(path2, ".log", &store_open_handler, st);
+	dirlist(st->path2, ".log", &store_open_handler, st);
 
 	if (st->idx == (MAX_LOGFILES-1))
 		do_merge++;
