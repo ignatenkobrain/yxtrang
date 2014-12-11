@@ -24,12 +24,12 @@ uuid_t uuid_set(uint64_t v1, uint64_t v2)
 	return tmp;
 }
 
-uint64_t uuid_ts(const uuid_t* u)
+uint64_t uuid_ts(const uuid u)
 {
 	return u->u1;
 }
 
-const char* uuid_to_string(const uuid_t* u, char* buf)
+char* uuid_to_string(const uuid u, char* buf)
 {
 	sprintf(buf, "%016llX:%04llX:%012llX",
 		(unsigned long long)u->u1, (unsigned long long)(u->u2 >> BITS_48),
@@ -38,7 +38,7 @@ const char* uuid_to_string(const uuid_t* u, char* buf)
 	return buf;
 }
 
-const uuid_t* uuid_from_string(const char* s, uuid_t* u)
+uuid uuid_from_string(const char* s, uuid u)
 {
 	if (!s) return u;
 	unsigned long long p1 = 0, p2 = 0, p3 = 0;
@@ -74,7 +74,7 @@ static int gettimeofday(struct timeval* tv, struct timezone*)
 }
 #endif
 
-const uuid_t* uuid_gen(uuid_t* u)
+uuid uuid_gen(uuid u)
 {
 	static uint64_t s_last = 0;
 	static uint64_t s_cnt = 0;
@@ -100,15 +100,15 @@ const uuid_t* uuid_gen(uuid_t* u)
 	return u;
 }
 
-uuid_t* uuid_copy(const uuid_t* v1)
+uuid uuid_copy(const uuid v1)
 {
-	uuid_t* v2 = (uuid_t*)malloc(sizeof(struct _uuid));
+	uuid v2 = (uuid)malloc(sizeof(struct _uuid));
 	v2->u1 = v1->u1;
 	v2->u2 = v1->u2;
 	return v2;
 }
 
-int uuid_compare(const uuid_t* v1, const uuid_t* v2)
+int uuid_compare(const uuid v1, const uuid v2)
 {
 	if (v1->u1 < v2->u1)
 		return -1;

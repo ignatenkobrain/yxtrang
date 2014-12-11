@@ -34,7 +34,7 @@ static const char STX = '+';		// Start transaction (begin)
 static const char ETX = '-';		// End transaction (commit)
 static const char CAN = '!';		// Cancel (rollback)
 
-#define MAX_LOGFILE_SIZE (1LL*1024*1024*1024)
+#define MAX_LOGFILE_SIZE (32L*1024*1024*1024)	// 32 GB
 
 #define MAX_LOGFILES 256			// 8 bits +
 #define POS_BITS 56					// 56 bits = 64 bits
@@ -54,7 +54,7 @@ struct _store
 {
 	tree tptr;
 	string filename[MAX_LOGFILES], path1, path2;
-	void (*f)(void*,const uuid_t*,const void*,int);
+	void (*f)(void*,const uuid,const void*,int);
 	void* data;
 	uint64_t eodpos[MAX_LOGFILES];
 	int fd[MAX_LOGFILES], idx, transactions, current;
@@ -137,13 +137,13 @@ static void dirlist(const char* path, const char* ext, int (*f)(const char*, voi
 #endif
 }
 
-static int prefix(char* buf, unsigned nbr, const uuid_t* u, unsigned flags, unsigned len)
+static int prefix(char* buf, unsigned nbr, const uuid u, unsigned flags, unsigned len)
 {
 	char tmpbuf[256];
 	return sprintf(buf, "* %04X %s %01X %04X ", nbr, uuid_to_string(u, tmpbuf), flags, len);
 }
 
-static int parse(const char* buf, unsigned* nbr, uuid_t* u, unsigned* flags, unsigned* len)
+static int parse(const char* buf, unsigned* nbr, uuid u, unsigned* flags, unsigned* len)
 {
 	char tmpbuf[256];
 	tmpbuf[0] = 0;
@@ -316,9 +316,12 @@ static int store_apply(store st, int n, uint64_t pos)
 	return cnt;
 }
 
-int store_add(store st, const uuid_t* u, const void* buf, int len)
+int store_add(store st, const uuid u, const void* buf, size_t len)
 {
 	if (!st || !u || !buf || !len)
+		return 0;
+
+	if (len > STORE_MAX_WRITELEN)
 		return 0;
 
 	char tmpbuf[256];
@@ -336,7 +339,7 @@ int store_add(store st, const uuid_t* u, const void* buf, int len)
 	return 1;
 }
 
-int store_rem2(store st, const uuid_t* u, const void* buf, int len)
+int store_rem2(store st, const uuid u, const void* buf, size_t len)
 {
 	if (!st || !u || !buf || !len)
 		return 0;
@@ -355,7 +358,7 @@ int store_rem2(store st, const uuid_t* u, const void* buf, int len)
 	return 1;
 }
 
-int store_rem(store st, const uuid_t* u)
+int store_rem(store st, const uuid u)
 {
 	if (!st || !u)
 		return 0;
@@ -375,7 +378,7 @@ int store_rem(store st, const uuid_t* u)
 	return 1;
 }
 
-int store_get(const store st, const uuid_t* u, void** buf, int* len)
+int store_get(const store st, const uuid u, void** buf, size_t* len)
 {
 	if (!st || !u || !buf || !len)
 	{
@@ -468,7 +471,7 @@ hstore store_begin(store st, int dbsync)
 	return h;
 }
 
-int store_hadd(hstore h, const uuid_t* u, const void* buf, int len)
+int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 {
 	if (!h || !u || !buf || !len)
 		return 0;
@@ -493,7 +496,7 @@ int store_hadd(hstore h, const uuid_t* u, const void* buf, int len)
 	return 1;
 }
 
-int store_hrem2(hstore h, const uuid_t* u, const void* buf, int len)
+int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 {
 	if (!h || !u)
 		return 0;
@@ -518,7 +521,7 @@ int store_hrem2(hstore h, const uuid_t* u, const void* buf, int len)
 	return 1;
 }
 
-int store_hrem(hstore h, const uuid_t* u)
+int store_hrem(hstore h, const uuid u)
 {
 	if (!h || !u)
 		return 0;
@@ -731,7 +734,7 @@ static void store_load_file(store st)
 	printf("store_load_file: '%s' applied=%u, size=%llu MiB\n", st->filename[st->idx-1], cnt, (unsigned long long)pos/1024/1024);
 }
 
-static int store_merge_item(void* h, const uuid_t* u, unsigned long long* v)
+static int store_merge_item(void* h, const uuid u, unsigned long long* v)
 {
 	store st = (store)h;
 	int idx = FILEIDX(*v);
@@ -885,7 +888,7 @@ static int store_open_handler(const char* name, void* data)
 	return 1;
 }
 
-store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid_t*,const void*,int), void* data)
+store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid,const void*,int), void* data)
 {
 	store st = (store)calloc(1, sizeof(struct _store));
 	if (!st || !path1) return NULL;

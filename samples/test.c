@@ -273,7 +273,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 		{
 			char tmpbuf[1024];
 			void* buf = &tmpbuf;
-			int len = sizeof(tmpbuf);
+			size_t len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
 			uuid_t u = {k, t};
 
@@ -307,7 +307,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 		{
 			char tmpbuf[1024];
 			void* buf = &tmpbuf;
-			int len = sizeof(tmpbuf);
+			size_t len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
 			uuid_t u = {k, t};
 			store_get(st, &u, &buf, &len);
