@@ -892,7 +892,6 @@ static int store_open_handler(const char* name, void* data)
 	if (!store_open_file(st, filename, 1, 0))
 		return 1;
 
-	printf("store_open_file: '%s'\n", filename);
 	store_load_file(st);
 	return 1;
 }
