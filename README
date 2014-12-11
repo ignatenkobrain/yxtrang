@@ -3,8 +3,10 @@ Yxtrang
 
 The 'trang is not a framework, it's a library. A toolkit. A loose
 collection of small modules that do interesting things and which can
-be used together if need be or not. It is all written in C and it is
-absolutely free. From little things big things grow!
+be used together if need be or not. It has no dependencies on any
+external libraries. It is written in C and is absolutely free.
+
+From little things big things grow!
 
 
 Current modules
