@@ -24,7 +24,7 @@
 #include <unistd.h>
 #endif
 
-static int g_debug = 0, g_quiet = 0;
+static int g_debug = 0, g_quiet = 1;
 static unsigned short g_uncle = UNCLE_PORT;
 static const char* g_service = "TEST";
 static const char* qbf = "the quick brown fox jumped over the lazy dog";
@@ -697,6 +697,9 @@ int main(int ac, char* av[])
 
 		if (!strcmp(av[i], "--quiet"))
 			g_quiet = 1;
+
+		if (!strcmp(av[i], "--noquiet"))
+			g_quiet = 0;
 	}
 
 	if (client && discovery)
