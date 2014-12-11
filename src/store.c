@@ -30,10 +30,9 @@
 #include "store.h"
 #include "tree.h"
 
-static const char STX = 2;			// Start transaction (begin)
-static const char ETX = 3;			// End transaction (commit)
-static const char CAN = 24;			// Cancel (rollback)
-static const char EM = 25;			// End media (soft end of file)
+static const char STX = '+';		// Start transaction (begin)
+static const char ETX = '-';		// End transaction (commit)
+static const char CAN = '!';		// Cancel (rollback)
 
 #define MAX_LOGFILE_SIZE (1LL*1024*1024*1024)
 
@@ -144,14 +143,14 @@ static void dirlist(const char* path, const char* ext, int (*f)(const char*, voi
 static int prefix(char* buf, unsigned nbr, const uuid_t* u, unsigned flags, unsigned len)
 {
 	char tmpbuf[256];
-	return sprintf(buf, "%04X %s %01X %04X ", nbr, uuid_to_string(u, tmpbuf), flags, len);
+	return sprintf(buf, "* %04X %s %01X %04X ", nbr, uuid_to_string(u, tmpbuf), flags, len);
 }
 
 static int parse(const char* buf, unsigned* nbr, uuid_t* u, unsigned* flags, unsigned* len)
 {
 	char tmpbuf[256];
 	tmpbuf[0] = 0;
-	sscanf(buf, "%X %s %X %X ", nbr, tmpbuf, flags, len);
+	sscanf(buf, "%*s %X %s %X %X ", nbr, tmpbuf, flags, len);
 	tmpbuf[sizeof(tmpbuf)-1] = 0;
 	uuid_from_string(tmpbuf, u);
 	const char* src = buf;
@@ -243,13 +242,13 @@ static int store_apply(store st, int n, uint64_t pos)
 		if (tmpbuf[0] == STX)
 		{
 			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
+			sscanf(tmpbuf, "%*s %X", &nbr);
 			pos += 6;
 		}
 		else if (tmpbuf[0] == CAN)
 		{
 			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
+			sscanf(tmpbuf, "%*s %X", &nbr);
 
 			if (nbr == n)
 				break;
@@ -259,16 +258,12 @@ static int store_apply(store st, int n, uint64_t pos)
 		else if (tmpbuf[0] == ETX)
 		{
 			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
+			sscanf(tmpbuf, "%*s %X", &nbr);
 
 			if (nbr == n)
 				break;
 
 			pos += 6;
-		}
-		else if (tmpbuf[0] == EM)
-		{
-			break;
 		}
 		else
 		{
@@ -487,7 +482,7 @@ int store_hadd(hstore h, const uuid_t* u, const void* buf, int len)
 	if (h->wait_for_write)
 	{
 		h->wait_for_write = 0;
-		dst += sprintf(dst, "%c%04X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %04X\n", STX, h->nbr);
 		h->start_pos = h->st->eodpos[h->st->idx-1];
 	}
 
@@ -512,7 +507,7 @@ int store_hrem2(hstore h, const uuid_t* u, const void* buf, int len)
 	if (h->wait_for_write)
 	{
 		h->wait_for_write = 0;
-		dst += sprintf(dst, "%c%04X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %04X\n", STX, h->nbr);
 		h->start_pos = h->st->eodpos[h->st->idx-1];
 	}
 
@@ -537,7 +532,7 @@ int store_hrem(hstore h, const uuid_t* u)
 	if (h->wait_for_write)
 	{
 		h->wait_for_write = 0;
-		dst += sprintf(dst, "%c%04X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %04X\n", STX, h->nbr);
 		h->start_pos = h->st->eodpos[h->st->idx-1];
 	}
 
@@ -561,7 +556,7 @@ int store_cancel(hstore h)
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
-		int len = sprintf(tmpbuf, "%c%04X\n", CAN, h->nbr);
+		int len = sprintf(tmpbuf, "%c %04X\n", CAN, h->nbr);
 
 		if (!store_write(h->st, tmpbuf, len))
 		{
@@ -592,7 +587,7 @@ int store_end(hstore h)
 		char tmpbuf[256];
 		int len;
 
-		len = sprintf(tmpbuf, "%c%04X\n", ETX, h->nbr);
+		len = sprintf(tmpbuf, "%c %04X\n", ETX, h->nbr);
 
 		if (!store_write(h->st, tmpbuf, len))
 		{
@@ -630,7 +625,7 @@ static void store_load_file(store st)
 		if (tmpbuf[0] == STX)
 		{
 			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
+			sscanf(tmpbuf, "%*s %X", &nbr);
 
 			if (!save_nbr)
 			{
@@ -646,7 +641,7 @@ static void store_load_file(store st)
 		else if (tmpbuf[0] == CAN)
 		{
 			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
+			sscanf(tmpbuf, "%*s %X", &nbr);
 			pos += 6;
 
 			if (nbr == save_nbr)		// drop on rollback
@@ -660,7 +655,7 @@ static void store_load_file(store st)
 		else if (tmpbuf[0] == ETX)
 		{
 			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*c%X", &nbr);
+			sscanf(tmpbuf, "%*s %X", &nbr);
 			pos += 6;
 
 			if (nbr == save_nbr)		// apply on commit
@@ -677,10 +672,6 @@ static void store_load_file(store st)
 			}
 			else
 				valid = 0;
-		}
-		else if (tmpbuf[0] == EM)
-		{
-			break;
 		}
 		else if (save_nbr != 0)
 		{

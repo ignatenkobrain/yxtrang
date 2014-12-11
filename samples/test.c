@@ -236,12 +236,11 @@ static void do_linda_in()
 	linda_close(l);
 }
 
-static void do_store(long cnt, int vfy, int compact)
+static void do_store(long cnt, int vfy, int compact, int tran)
 {
 	store st = store_open("./db", 0, compact);
 	time_t t = time(NULL);
 
-#if 0
 	printf("Writing...\n");
 	hstore h = store_begin(st, 0);
 	long i;
@@ -255,7 +254,7 @@ static void do_store(long cnt, int vfy, int compact)
 		if (!store_hadd(h, &u, tmpbuf, len))
 			printf("ADD failed: %ld\n", i);
 
-		if (!(i%10))
+		if (tran && !(i%10))
 		{
 			store_end(h);
 			h = store_begin(st, 0);
@@ -263,20 +262,6 @@ static void do_store(long cnt, int vfy, int compact)
 	}
 
 	store_end(h);
-#else
-	printf("Writing...\n");
-	long i;
-
-	for (i = 1; i <= cnt; i++)
-	{
-		char tmpbuf[1024];
-		int len = sprintf(tmpbuf, "{'name':'test','i':%ld}\n", i);
-		uuid_t u = {i, t};
-
-		if (!store_add(st, &u, tmpbuf, len))
-			printf("ADD failed: %ld\n", i);
-	}
-#endif
 
 	printf("Store: %ld items\n", (long)store_count(st));
 
@@ -594,6 +579,7 @@ int main(int ac, char* av[])
 	int test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
 	int discovery = 0, test_linda_out = 0, test_linda_in = 0;
+	int tran = 0;
 	unsigned short port = SERVER_PORT;
 	int i;
 
@@ -674,6 +660,9 @@ int main(int ac, char* av[])
 		if (!strcmp(av[i], "--compact"))
 			compact = 1;
 
+		if (!strcmp(av[i], "--tran"))
+			tran = 1;
+
 		if (!strcmp(av[i], "--srvr"))
 			srvr = 1;
 
@@ -745,7 +734,7 @@ int main(int ac, char* av[])
 
 	if (test_store)
 	{
-		do_store(loops, vfy, compact);
+		do_store(loops, vfy, compact, tran);
 		return 0;
 	}
 
