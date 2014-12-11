@@ -116,17 +116,18 @@ static void dirlist(const char* path, const char* ext, int (*f)(const char*, voi
 #else
 	DIR* dirp = opendir(path);
 	if (!dirp) return;
-	struct dirent* entry = NULL;
+	struct dirent entry;
+	struct dirent* result;
 
-	while (!readdir_r(dirp, entry, &entry))
+	while (!readdir_r(dirp, &entry, &result))
 	{
-		const char* tmpext = strrchr(entry->d_name, '.');
+		const char* tmpext = strrchr(entry.d_name, '.');
 		if (!tmpext) continue;
 
 		if (strcmp(tmpext, ext))
 			continue;
 
-		if (!f(entry->d_name, data))
+		if (!f(entry.d_name, data))
 			break;
 	}
 
@@ -876,9 +877,15 @@ static int store_merge(store st)
 }
 
 
-static int store_open_handler(const char* filename, void* data)
+static int store_open_handler(const char* name, void* data)
 {
+	if (!strcmp(name, "0.log"))
+		return 1;
+
 	store st = (store)data;
+	char filename[1024];
+
+	sprintf(filename, "%s/%s", name, st->path2);
 
 	if (!store_open_file(st, filename, 0, 0))
 	{
@@ -942,7 +949,15 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 		}
 	}
 
+	// Open all the timestamped log files.
+
 	dirlist(path2, ".log", &store_open_handler, st);
+
+	// Now the active.
+
+	sprintf(filename, "%s/%lld.log", st->path2, (long long)time(NULL));
+	store_open_file(st, filename, 0, 1);
+	printf("store_open_file: '%s'\n", filename);
 
 	if (st->idx > 32)
 		do_merge++;
