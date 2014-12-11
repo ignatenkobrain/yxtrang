@@ -123,6 +123,9 @@ static void dirlist(const char* path, const char* ext, int (*f)(const char*, voi
 
 	while (!readdir_r(dirp, &entry, &result))
 	{
+		if (!result)
+			break;
+
 		const char* tmpext = strrchr(entry.d_name, '.');
 		if (!tmpext) continue;
 
@@ -884,13 +887,10 @@ static int store_open_handler(const char* name, void* data)
 
 	store st = (store)data;
 	string filename;
-	sprintf(filename, "%s/%s", name, st->path2);
+	sprintf(filename, "%s/%s", st->path2, name);
 
 	if (!store_open_file(st, filename, 1, 0))
-	{
-		store_close(st);
 		return 1;
-	}
 
 	printf("store_open_file: '%s'\n", filename);
 	store_load_file(st);
@@ -922,7 +922,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	stat(filename, &s);
 	int do_merge = 0;
 
-	if (compact && (s.st_size >= (MAX_LOGFILE_SIZE*10)))
+	if (compact && (s.st_size >= (MAX_LOGFILE_SIZE*32)))
 	{
 		printf("store_open: compaction scheduled\n");
 		rename(filename, filename2);
