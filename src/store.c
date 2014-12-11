@@ -54,7 +54,7 @@ struct _store
 {
 	tree tptr;
 	string filename[MAX_LOGFILES], path1, path2;
-	void (*f)(void*,const uuid_t*,const char*,int);
+	void (*f)(void*,const uuid_t*,const void*,int);
 	void* data;
 	uint64_t eodpos[MAX_LOGFILES];
 	int fd[MAX_LOGFILES], idx, transactions, current;
@@ -885,7 +885,7 @@ static int store_open_handler(const char* name, void* data)
 	return 1;
 }
 
-store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid_t*,const char*,int), void* data)
+store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid_t*,const void*,int), void* data)
 {
 	store st = (store)calloc(1, sizeof(struct _store));
 	if (!st || !path1) return NULL;

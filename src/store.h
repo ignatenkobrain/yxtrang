@@ -10,7 +10,7 @@ typedef struct _store* store;
 typedef struct _hstore* hstore;
 
 extern store store_open(const char* path1, const char* path2, int compact);
-extern store store_open2(const char* path1, const char* path2, int compact, void (*)(void*,const uuid_t*,const char*,int), void* data);
+extern store store_open2(const char* path1, const char* path2, int compact, void (*)(void*,const uuid_t*,const void*,int), void* data);
 
 extern int store_get(const store st, const uuid_t* u, void** buf, int* len);
 extern int store_add(store st, const uuid_t* u, const void* buf, int len);

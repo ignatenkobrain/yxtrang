@@ -469,13 +469,13 @@ extern void linda_end(hlinda h)
 	free(h);
 }
 
-static void linda_store_handler(void* data, const uuid_t* u, const char* s, int len)
+static void linda_store_handler(void* data, const uuid_t* u, const void* s, int len)
 {
 	linda l = (linda)data;
 
 	if (len > 0)							// add
 	{
-		json j = json_open(s);
+		json j = json_open((const char*)s);
 		json j1 = json_get_object(j);
 		json jid = json_find(j1, LINDA_ID);
 
