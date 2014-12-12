@@ -450,7 +450,7 @@ int tree_set(const tree tptr, const uuid k, unsigned long long v)
 	return branch_set(tptr, tptr->last->active, k, v);
 }
 
-static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, int (*f)(void* h, const uuid u, unsigned long long* v))
+static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, int (*f)(void*,const uuid,unsigned long long*))
 {
 	int i;
 
@@ -477,7 +477,7 @@ static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, in
 	return 1;
 }
 
-size_t tree_iter(const tree tptr, void* h, int (*f)(void* h, const uuid u, unsigned long long* v))
+size_t tree_iter(const tree tptr, void* h, int (*f)(void*,const uuid,unsigned long long*))
 {
 	if (!tptr)
 		return 0;

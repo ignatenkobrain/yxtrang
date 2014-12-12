@@ -451,7 +451,7 @@ int sl_rem(skiplist l, const void* key)
 	return 1;
 }
 
-int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(const void*, const void*))
+int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(const void*,const void*))
 {
 	if (!l)
 		return 0;
@@ -537,7 +537,7 @@ int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(cons
 	return 1;
 }
 
-int sl_efface(skiplist l, const void* value, int (*compare)(const void*, const void*))
+int sl_efface(skiplist l, const void* value, int (*compare)(const void*,const void*))
 {
 	if (!l)
 		return 0;
@@ -627,7 +627,7 @@ int sl_efface(skiplist l, const void* value, int (*compare)(const void*, const v
 	return 1;
 }
 
-void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void* arg)
+void sl_iter(const skiplist l, int (*f)(void*,void*,void*), void* p1)
 {
 	if (!l)
 		return;
@@ -646,7 +646,7 @@ void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void* arg)
 
 		for (j = 0; j < p->nbr; j++)
 		{
-			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+			if (!f(p1, p->bkt[j].key, p->bkt[j].val))
 				return;
 		}
 
@@ -654,7 +654,7 @@ void sl_iter(const skiplist l, int (*f)(void*, void*, void*), void* arg)
 	}
 }
 
-void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), void* arg)
+void sl_find(const skiplist l, const void* key, int (*f)(void*,void*,void*), void* p1)
 {
 	if (!l)
 		return;
@@ -686,7 +686,7 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 
 	for (j = imid; j < p->nbr; j++)
 	{
-		if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+		if (!f(p1, p->bkt[j].key, p->bkt[j].val))
 			return;
 	}
 
@@ -697,7 +697,7 @@ void sl_find(const skiplist l, const void* key, int (*f)(void*, void*, void*), v
 
 		for (j = 0; j < p->nbr; j++)
 		{
-			if (!f(arg, p->bkt[j].key, p->bkt[j].val))
+			if (!f(p1, p->bkt[j].key, p->bkt[j].val))
 				return;
 		}
 

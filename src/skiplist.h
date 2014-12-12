@@ -19,19 +19,19 @@ extern int sl_rem(skiplist s, const void* key);
 
 // Remove by value (using key as a hint).
 
-extern int sl_erase(skiplist s, const void* key, const void* value, int (*compare)(const void*, const void*));
+extern int sl_erase(skiplist s, const void* key, const void* value, int (*compare)(const void*,const void*));
 
 // Remove by value (slow: devolves to a linear search).
 
-extern int sl_efface(skiplist s, const void* value, int (*compare)(const void*, const void*));
+extern int sl_efface(skiplist s, const void* value, int (*compare)(const void*,const void*));
 
 // Iterate over the whole range. f returns zero to halt.
 
-extern void sl_iter(const skiplist s, int (*f)(void*, void*, void*), void* arg);
+extern void sl_iter(const skiplist s, int (*)(void*,void*,void*), void* p1);
 
 // Iterate over >= key. f returns zero to halt.
 
-extern void sl_find(const skiplist s, const void* key, int (*f)(void*, void*, void*), void* arg);
+extern void sl_find(const skiplist s, const void* key, int (*)(void*,void*,void*), void* p1);
 
 extern unsigned long sl_count(const skiplist s);
 

@@ -55,7 +55,7 @@ struct _store
 	tree tptr;
 	string filename[MAX_LOGFILES], path1, path2;
 	void (*f)(void*,const uuid,const void*,int);
-	void* data;
+	void* p1;
 	uint64_t eodpos[MAX_LOGFILES];
 	int fd[MAX_LOGFILES], idx, transactions, current;
 };
@@ -92,7 +92,7 @@ static long pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 }
 #endif
 
-static void dirlist(const char* path, const char* ext, int (*f)(const char*, void*), void* data)
+static void dirlist(const char* path, const char* ext, int (*f)(void*,const char*), void* p1)
 {
 #ifdef _WIN32
 	HANDLE hFind;
@@ -105,7 +105,7 @@ static void dirlist(const char* path, const char* ext, int (*f)(const char*, voi
 	{
 		do
 		{
-			if (!f(FindFileData.cFileName, data))
+			if (!f(p1, FindFileData.cFileName))
 				break;
 		}
 		 while(FindNextFile(hFind, &FindFileData));
@@ -129,7 +129,7 @@ static void dirlist(const char* path, const char* ext, int (*f)(const char*, voi
 		if (strcmp(tmpext, ext))
 			continue;
 
-		if (!f(entry.d_name, data))
+		if (!f(p1, entry.d_name))
 			break;
 	}
 
@@ -310,11 +310,11 @@ static int store_apply(store st, int n, uint64_t pos)
 							src[nbytes] = 0;
 						}
 
-						st->f(st->data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+						st->f(st->p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 						if (big) free(src);
 					}
 					else
-						st->f(st->data, &u, NULL, 0);
+						st->f(st->p1, &u, NULL, 0);
 				}
 
 				cnt++;
@@ -737,11 +737,11 @@ static void store_load_file(store st)
 					}
 
 					src[nbytes] = 0;
-					st->f(st->data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+					st->f(st->p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 					if (big) free(src);
 				}
 				else
-					st->f(st->data, &u, NULL, 0);
+					st->f(st->p1, &u, NULL, 0);
 			}
 
 			cnt++;
@@ -892,12 +892,12 @@ static int store_merge(store st)
 }
 
 
-static int store_open_handler(const char* name, void* data)
+static int store_open_handler(void* p1, const char* name)
 {
 	if (!strcmp(name, ZEROTH_LOG))
 		return 1;
 
-	store st = (store)data;
+	store st = (store)p1;
 	string filename;
 	sprintf(filename, "%s/%s", st->path2, name);
 
@@ -908,7 +908,7 @@ static int store_open_handler(const char* name, void* data)
 	return 1;
 }
 
-store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid,const void*,int), void* data)
+store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid,const void*,int), void* p1)
 {
 	store st = (store)calloc(1, sizeof(struct _store));
 	if (!st || !path1) return NULL;
@@ -916,7 +916,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	strcpy(st->path1, path1);
 	strcpy(st->path2, path2);
 	st->f = f;
-	st->data = data;
+	st->p1 = p1;
 	st->tptr = tree_create();
 
 	if ((mkdir(st->path1, 0777) < 0) && (errno != EEXIST))
@@ -1003,7 +1003,7 @@ int store_close(store st)
 	return 1;
 }
 
-static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,const uuid,const void*,int), void* data)
+static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,const uuid,const void*,int), void* p1)
 {
 	int idx = FILEIDX(pos);
 	int fd = st->fd[idx];
@@ -1076,11 +1076,11 @@ static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,
 						src[nbytes] = 0;
 					}
 
-					f(data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+					f(p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 					if (big) free(src);
 				}
 				else
-					f(data, &u, NULL, 0);
+					f(p1, &u, NULL, 0);
 
 				cnt++;
 			}
@@ -1093,7 +1093,7 @@ static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,
 	return cnt;
 }
 
-int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const void*,int), void* data)
+int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const void*,int), void* p1)
 {
 	if (!st || !u)
 		return 0;
@@ -1174,7 +1174,7 @@ int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const vo
 
 			if (nbr == save_nbr)		// apply on commit
 			{
-				cnt += store_logreader_apply(st, nbr, save_pos, f, data);
+				cnt += store_logreader_apply(st, nbr, save_pos, f, p1);
 				save_nbr = 0;
 
 				// If we didn't encounter any embedded or
@@ -1220,11 +1220,11 @@ int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const vo
 				}
 
 				src[nbytes] = 0;
-				f(data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+				f(p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 				if (big) free(src);
 			}
 			else
-				st->f(data, &u, NULL, 0);
+				st->f(p1, &u, NULL, 0);
 
 			cnt++;
 			pos += skip;

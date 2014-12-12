@@ -3,10 +3,10 @@
 #include <string.h>
 #include <time.h>
 
-#include "skiplist_uuid.h"
 #include "json.h"
 #include "store.h"
 #include "linda.h"
+#include "skiplist_uuid.h"
 
 struct _linda
 {
@@ -469,9 +469,9 @@ extern void linda_end(hlinda h)
 	free(h);
 }
 
-static void linda_store_handler(void* data, const uuid u, const void* _s, int len)
+static void linda_store_handler(void* p1, const uuid u, const void* _s, int len)
 {
-	linda l = (linda)data;
+	linda l = (linda)p1;
 	const char* s = (const char*)_s;
 
 	if (len > 0)							// add
