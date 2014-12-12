@@ -511,13 +511,12 @@ static void do_json()
 		"}";
 
 	printf("ORIG: %s\n", s);
+	char* pdst;
 
 	// Parse and reformat...
 
 	json j = json_open(s);
-	char* pdst;
-	printf("PARSED: %s\n", pdst=json_to_string(j));
-	free(pdst);
+	printf("PARSED: %s\n", pdst=json_to_string(j)); free(pdst);
 	json_close(j);
 
 	// Build it manually...
@@ -532,19 +531,17 @@ static void do_json()
 	json_set_false(json_object_add(j, "e"));
 	json_set_null(json_object_add(j, "f"));
 
-	json jptr;
-	jptr = json_object_add(j, "g");
-	json_set_array(jptr);
-	json_set_integer(json_array_add(jptr), 11);
-	json_set_integer(json_array_add(jptr), 22);
+	json j0 = json_object_add(j, "g");
+	json_set_array(j0);
+	json_set_integer(json_array_add(j0), 11);
+	json_set_integer(json_array_add(j0), 22);
 
-	jptr = json_object_add(j, "h");
-	json_set_object(jptr);
-	json_set_integer(json_object_add(jptr, "h1"), 33);
-	json_set_integer(json_object_add(jptr, "h2"), 44);
+	j0 = json_object_add(j, "h");
+	json_set_object(j0);
+	json_set_integer(json_object_add(j0, "h1"), 33);
+	json_set_integer(json_object_add(j0, "h2"), 44);
 
-	printf("BUILT: %s\n", pdst=json_to_string(j));
-	free(pdst);
+	printf("BUILT: %s\n", pdst=json_to_string(j)); free(pdst);
 	json_close(j);
 
 	j = json_open(s);
