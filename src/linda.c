@@ -24,6 +24,7 @@ struct _hlinda
 	long long int_id;
 	const char* string_id;
 	size_t len;
+	int tran;
 };
 
 int linda_out(hlinda h, const char* s)
@@ -120,11 +121,11 @@ void linda_release(hlinda h)
 	if (!h)
 		return;
 
-	if (h->dst)
-	{
-		free(h->dst);
-		h->dst = NULL;
-	}
+	if (!h->dst)
+		return;
+
+	free(h->dst);
+	h->dst = NULL;
 }
 
 static int read_handler(void* arg, void* k, void* v)
@@ -325,7 +326,8 @@ static int linda_read(hlinda h, const char* s, const char** buf, int rm, int now
 		else if (is_string)
 		{
 			char tmpbuf[1024], tmpbuf2[1024];
-			int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, json_format_string(h->string_id, tmpbuf2, sizeof(tmpbuf2)));
+			json_format_string(h->string_id, tmpbuf2, sizeof(tmpbuf2));
+			int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, tmpbuf2);
 			store_rem2(h->l->st, &h->oid, tmpbuf, tmplen);
 			sl_string_uuid_erase(h->l->sl, h->string_id, &h->oid);
 		}
@@ -437,7 +439,8 @@ int linda_rm(hlinda h, const char* s)
 	else if (is_string)
 	{
 		char tmpbuf[1024], tmpbuf2[1024];
-		int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, json_format_string(string_id, tmpbuf2, sizeof(tmpbuf2)));
+		json_format_string(string_id, tmpbuf2, sizeof(tmpbuf2));
+		int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, tmpbuf2);
 		store_rem2(h->l->st, &u, tmpbuf, tmplen);
 		sl_string_uuid_erase(h->l->sl, string_id, &u);
 	}
@@ -450,13 +453,14 @@ int linda_rm(hlinda h, const char* s)
 	return 1;
 }
 
-extern hlinda linda_begin(linda l)
+extern hlinda linda_begin(linda l, int tran)
 {
 	if (!l)
 		return NULL;
 
 	hlinda h = (hlinda)calloc(1, sizeof(struct _hlinda));
 	h->l = l;
+	h->tran = tran;
 	return h;
 }
 
