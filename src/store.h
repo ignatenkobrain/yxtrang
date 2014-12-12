@@ -17,11 +17,8 @@ extern store store_open2(const char* path1, const char* path2, int compact, void
 extern int store_get(const store st, const uuid u, void** buf, size_t* len);
 extern int store_add(store st, const uuid u, const void* buf, size_t len);
 extern int store_rem(store st, const uuid u);
-extern unsigned long store_count(const store st);
-
-// Optionally store information that caused the delete.
-
 extern int store_rem2(store st, const uuid u, const void* buf, size_t len);
+extern unsigned long store_count(const store st);
 
 // Transactions...
 
