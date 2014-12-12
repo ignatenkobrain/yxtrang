@@ -243,7 +243,10 @@ static int store_apply(store st, int n, uint64_t pos)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
-			pos += 6;
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
 		}
 		else if (tmpbuf[0] == CAN)
 		{
@@ -253,7 +256,10 @@ static int store_apply(store st, int n, uint64_t pos)
 			if (nbr == n)
 				break;
 
-			pos += 6;
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
 		}
 		else if (tmpbuf[0] == ETX)
 		{
@@ -263,7 +269,10 @@ static int store_apply(store st, int n, uint64_t pos)
 			if (nbr == n)
 				break;
 
-			pos += 6;
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
 		}
 		else
 		{
@@ -639,13 +648,19 @@ static void store_load_file(store st)
 			else
 				valid = 0;
 
-			pos += 6;
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
 		}
 		else if (tmpbuf[0] == CAN)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
-			pos += 6;
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
 
 			if (nbr == save_nbr)		// drop on rollback
 			{
@@ -659,7 +674,10 @@ static void store_load_file(store st)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
-			pos += 6;
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
 
 			if (nbr == save_nbr)		// apply on commit
 			{

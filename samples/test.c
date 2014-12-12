@@ -166,7 +166,7 @@ static void do_script(long cnt)
 	scriptlet_close(s);
 }
 
-static void do_linda_out(long cnt)
+static void do_linda_out(long cnt, int tran)
 {
 	linda l = linda_open("./db", NULL);
 	hlinda h = linda_begin(l);
@@ -178,6 +178,12 @@ static void do_linda_out(long cnt)
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%d,\"nbr\":%ld,\"text\":\"%s\"}\n", LINDA_ID, id, i, qbf);
 		linda_out(h, tmpbuf);
+
+		if (tran && !(i%10))
+		{
+			linda_end(h);
+			h = linda_begin(l);
+		}
 	}
 
 	// Return by id (indexed)...
@@ -722,7 +728,7 @@ int main(int ac, char* av[])
 
 	if (test_linda_out)
 	{
-		do_linda_out(loops);
+		do_linda_out(loops, tran);
 		return 0;
 	}
 
