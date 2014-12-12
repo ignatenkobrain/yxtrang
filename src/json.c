@@ -113,11 +113,29 @@ const char* json_format_string(const char* src, char* buf, size_t buflen)
 
 static char* unicode_to_utf8(char* dst, unsigned c)
 {
-	if (c<0x80) *dst++ = c;
-	else if (c<0x800) { *dst++ = (unsigned)(192+c/64); *dst++ = (unsigned)(128+c%64); }
-	else if (c-0xd800u<0x800) return dst;
-	else if (c<0x10000) { *dst++ = (unsigned)(224+c/4096); *dst++ = (unsigned)(128+c/64%64); *dst++ = (unsigned)(128+c%64); }
-	else if (c<0x110000) { *dst++ = (unsigned)(240+c/262144); *dst++ = (unsigned)(128+c/4096%64); *dst++ = (unsigned)(128+c/64%64); *dst++ = (unsigned)(128+c%64); }
+	if (c < 0x80)
+		*dst++ = c;
+	else if (c < 0x800)
+	{
+		*dst++ = (unsigned)(192+c/64);
+		*dst++ = (unsigned)(128+c%64);
+	}
+	else if (c-0xd800u < 0x800)
+		return dst;
+	else if (c < 0x10000)
+	{
+		*dst++ = (unsigned)(224+c/4096);
+		*dst++ = (unsigned)(128+c/64%64);
+		*dst++ = (unsigned)(128+c%64);
+	}
+	else if (c < 0x110000)
+	{
+		*dst++ = (unsigned)(240+c/262144);
+		*dst++ = (unsigned)(128+c/4096%64);
+		*dst++ = (unsigned)(128+c/64%64);
+		*dst++ = (unsigned)(128+c%64);
+	}
+
 	return dst;
 }
 
