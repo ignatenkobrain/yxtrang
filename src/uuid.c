@@ -31,7 +31,7 @@ uint64_t uuid_ts(const uuid u)
 
 char* uuid_to_string(const uuid u, char* buf)
 {
-	sprintf(buf, "%llX:%llX:%llX",
+	sprintf(buf, "%016llX:%04llX:%012llX",
 		(unsigned long long)u->u1, (unsigned long long)(u->u2 >> BITS_48),
 		(unsigned long long)(u->u2 & MASK_48));
 

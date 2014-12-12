@@ -360,9 +360,8 @@ int store_rem2(store st, const uuid u, const void* buf, size_t len)
 		return 0;
 
 	char tmpbuf[256];
-	char* dst = tmpbuf;
 	unsigned flags = FLAG_RM;
-	int plen = prefix(dst, 0, u, flags, len);
+	int plen = prefix(tmpbuf, 0, u, flags, len);
 
 	if (!store_write2(st, tmpbuf, plen, buf, len))
 		return 0;
@@ -379,10 +378,9 @@ int store_rem(store st, const uuid u)
 		return 0;
 
 	char tmpbuf[256];
-	char* dst = tmpbuf;
 	unsigned flags = FLAG_RM;
-	int plen = dst - tmpbuf;
-	plen += prefix(dst, 0, u, flags, 0);
+	int plen = prefix(tmpbuf, 0, u, flags, 0);
+	tmpbuf[plen++] = '\n';
 
 	if (!store_write(st, tmpbuf, plen))
 		return 0;
@@ -551,6 +549,7 @@ int store_hrem(hstore h, const uuid u)
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, 0);
+	tmpbuf[plen++] = '\n';
 
 	if (!store_write(h->st, tmpbuf, plen))
 		return 0;
