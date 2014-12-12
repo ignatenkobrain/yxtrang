@@ -1005,7 +1005,8 @@ int store_close(store st)
 
 static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,const uuid,const void*,int), void* data)
 {
-	int fd = FILEIDX(pos);
+	int idx = FILEIDX(pos);
+	int fd = st->fd[idx];
 	int cnt = 0;
 
 	for (;;)
@@ -1108,14 +1109,21 @@ int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const vo
 	uint64_t pos = v, save_pos = 0, next_pos = 0;
 	unsigned save_nbr = 0, cnt = 0;
 	int valid = 1;
+	int idx = FILEIDX(pos);
 
-	for (;;)
+	while (idx < st->idx)
 	{
+		int fd = st->fd[idx];
 		char tmpbuf[1024];
-		int fd = FILEIDX(pos);
 
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
-			break;
+		{
+			idx++;			// wrap around to
+			pos = 0;		// next log file
+			valid = 1;
+			save_nbr = 0;
+			continue;
+		}
 
 		if (tmpbuf[0] == STX)
 		{
@@ -1222,7 +1230,7 @@ int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const vo
 		}
 	}
 
-	return 1;
+	return cnt;
 }
 
 void store_done(hreader r)
