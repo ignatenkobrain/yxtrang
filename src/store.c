@@ -1100,6 +1100,8 @@ int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const vo
 
 	unsigned long long v = 0;
 
+	// A zero UUID is a request for the begining.
+
 	if (!uuid_is_zero(u))
 	{
 		if (!tree_get(st->tptr, u, &v))
