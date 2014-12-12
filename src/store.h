@@ -10,6 +10,7 @@
 
 typedef struct _store* store;
 typedef struct _hstore* hstore;
+typedef struct _hreader* hreader;
 
 extern store store_open(const char* path1, const char* path2, int compact);
 extern store store_open2(const char* path1, const char* path2, int compact, void (*)(void*,const uuid,const void*,int), void* data);
@@ -28,6 +29,12 @@ extern int store_hrem2(hstore h, const uuid u, const void* buf, size_t len);
 extern int store_hrem(hstore h, const uuid u);
 extern int store_cancel(hstore h);					// Rollback
 extern int store_end(hstore h);						// Commit
+
+// Readers...
+
+extern hreader store_log_reader(store st, const uuid u);
+extern int store_next(hreader r, void** buf, size_t* len);
+extern void store_done(hreader r);
 
 extern int store_close(store st);
 

@@ -642,7 +642,10 @@ static void store_load_file(store st)
 			{
 				save_nbr = nbr;
 				save_pos = pos;
-				next_pos = pos + 6;		// continuation point
+				const char* src = tmpbuf;
+
+				while (*src++ != '\n')
+					pos++;
 			}
 			else
 				valid = 0;
@@ -1002,3 +1005,46 @@ int store_close(store st)
 	free(st);
 	return 1;
 }
+
+struct _hreader
+{
+	store st;
+	uint64_t pos;
+};
+
+hreader store_log_reader(store st, const uuid u)
+{
+	if (!st || !u)
+		return NULL;
+
+	hreader r = (hreader)calloc(1, sizeof(struct _hreader));
+	r->st = st;
+
+	unsigned long long v = 0;
+
+	if (!uuid_is_zero(u))
+	{
+		if (!tree_get(st->tptr, u, &v))
+			return NULL;
+	}
+
+	r->pos = v;
+	return r;
+}
+
+int store_next(hreader r, void** buf, size_t* len)
+{
+	if (!r)
+		return 0;
+
+	return 0;
+}
+
+void store_done(hreader r)
+{
+	if (!r)
+		return;
+
+	free(r);
+}
+

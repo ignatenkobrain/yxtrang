@@ -122,3 +122,8 @@ int uuid_compare(const uuid v1, const uuid v2)
 
 	return 1;
 }
+
+int uuid_is_zero(const uuid u)
+{
+	return !u->u1 && !u->u2;
+}

@@ -14,5 +14,6 @@ extern uuid uuid_gen(uuid u);
 extern uuid_t uuid_set(uint64_t, uint64_t);		// used for testing only
 extern int uuid_compare(const uuid v1, const uuid v2);
 extern uuid uuid_copy(const uuid v);
+extern int uuid_is_zero(const uuid u);
 
 #endif
