@@ -25,8 +25,8 @@ extern unsigned long store_count(const store st);
 
 extern hstore store_begin(store st, int dbsync);
 extern int store_hadd(hstore h, const uuid u, const void* buf, size_t len);
-extern int store_hrem2(hstore h, const uuid u, const void* buf, size_t len);
 extern int store_hrem(hstore h, const uuid u);
+extern int store_hrem2(hstore h, const uuid u, const void* buf, size_t len);
 extern int store_cancel(hstore h);					// Rollback
 extern int store_end(hstore h);						// Commit
 
