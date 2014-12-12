@@ -1003,7 +1003,7 @@ int store_close(store st)
 	return 1;
 }
 
-static int store_reader_apply(store st, int n, uint64_t pos, void (*f)(void*,const uuid,const void*,int), void* data)
+static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,const uuid,const void*,int), void* data)
 {
 	int fd = FILEIDX(pos);
 	int cnt = 0;
@@ -1164,7 +1164,7 @@ int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const vo
 
 			if (nbr == save_nbr)		// apply on commit
 			{
-				cnt += store_reader_apply(st, nbr, save_pos, f, data);
+				cnt += store_logreader_apply(st, nbr, save_pos, f, data);
 				save_nbr = 0;
 
 				// If we didn't encounter any embedded or
