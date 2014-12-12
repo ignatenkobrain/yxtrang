@@ -1006,11 +1006,10 @@ int store_close(store st)
 	return 1;
 }
 
-static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,const uuid,const void*,int), void* p1)
+static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,const uuid,const void*,int), void* p1)
 {
 	int idx = FILEIDX(pos);
 	int fd = st->fd[idx];
-	int cnt = 0;
 
 	for (;;)
 	{
@@ -1079,13 +1078,12 @@ static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,
 						src[nbytes] = 0;
 					}
 
-					f(p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+					int ok = f(p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 					if (big) free(src);
+					if (!ok) return 0;
 				}
 				else
 					f(p1, &u, NULL, 0);
-
-				cnt++;
 			}
 
 			pos += skip;
@@ -1093,10 +1091,10 @@ static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,
 		}
 	}
 
-	return cnt;
+	return 1;
 }
 
-int store_tail(store st, const uuid u, void (*f)(void*,const uuid,const void*,int), void* p1)
+int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int), void* p1)
 {
 	if (!st || !u)
 		return 0;
@@ -1188,7 +1186,9 @@ int store_tail(store st, const uuid u, void (*f)(void*,const uuid,const void*,in
 
 			if (nbr == save_nbr)		// apply on commit
 			{
-				cnt += store_logreader_apply(st, nbr, save_pos, f, p1);
+				if (!store_logreader_apply(st, nbr, save_pos, f, p1))
+					break;
+
 				save_nbr = 0;
 
 				// If we didn't encounter any embedded or
@@ -1234,11 +1234,15 @@ int store_tail(store st, const uuid u, void (*f)(void*,const uuid,const void*,in
 				}
 
 				src[nbytes] = 0;
-				f(p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+				int ok = f(p1, &u, src, flags&FLAG_RM?-nbytes:nbytes);
 				if (big) free(src);
+				if (!ok) break;
 			}
 			else
-				st->f(p1, &u, NULL, 0);
+			{
+				if (!f(p1, &u, NULL, 0))
+					break;
+			}
 
 			cnt++;
 			pos += skip;

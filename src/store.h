@@ -32,7 +32,7 @@ extern int store_end(hstore h);
 
 // Reader...
 
-extern int store_tail(store st, const uuid u, void (*)(void*,const uuid,const void*,int), void* p1);
+extern int store_tail(store st, const uuid u, int (*)(void*,const uuid,const void*,int), void* p1);
 
 extern int store_close(store st);
 
