@@ -140,7 +140,7 @@ static void dirlist(const char* path, const char* ext, int (*f)(const char*, voi
 static int prefix(char* buf, unsigned nbr, const uuid u, unsigned flags, unsigned len)
 {
 	char tmpbuf[256];
-	return sprintf(buf, "* %04X %s %01X %04X ", nbr, uuid_to_string(u, tmpbuf), flags, len);
+	return sprintf(buf, "* %X %s %X %X ", nbr, uuid_to_string(u, tmpbuf), flags, len);
 }
 
 static int parse(const char* buf, unsigned* nbr, uuid u, unsigned* flags, unsigned* len)
@@ -151,6 +151,9 @@ static int parse(const char* buf, unsigned* nbr, uuid u, unsigned* flags, unsign
 	tmpbuf[sizeof(tmpbuf)-1] = 0;
 	uuid_from_string(tmpbuf, u);
 	const char* src = buf;
+
+	while (*src++ != ' ')		// skip control
+		;
 
 	while (*src++ != ' ')		// skip nbr
 		;
@@ -482,7 +485,7 @@ int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 	if (h->wait_for_write)
 	{
 		h->wait_for_write = 0;
-		dst += sprintf(dst, "%c %04X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
 		h->start_pos = h->st->eodpos[h->st->idx-1];
 	}
 
@@ -507,7 +510,7 @@ int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 	if (h->wait_for_write)
 	{
 		h->wait_for_write = 0;
-		dst += sprintf(dst, "%c %04X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
 		h->start_pos = h->st->eodpos[h->st->idx-1];
 	}
 
@@ -532,7 +535,7 @@ int store_hrem(hstore h, const uuid u)
 	if (h->wait_for_write)
 	{
 		h->wait_for_write = 0;
-		dst += sprintf(dst, "%c %04X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
 		h->start_pos = h->st->eodpos[h->st->idx-1];
 	}
 
@@ -556,7 +559,7 @@ int store_cancel(hstore h)
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
-		int len = sprintf(tmpbuf, "%c %04X\n", CAN, h->nbr);
+		int len = sprintf(tmpbuf, "%c %X\n", CAN, h->nbr);
 
 		if (!store_write(h->st, tmpbuf, len))
 		{
@@ -587,7 +590,7 @@ int store_end(hstore h)
 		char tmpbuf[256];
 		int len;
 
-		len = sprintf(tmpbuf, "%c %04X\n", ETX, h->nbr);
+		len = sprintf(tmpbuf, "%c %X\n", ETX, h->nbr);
 
 		if (!store_write(h->st, tmpbuf, len))
 		{
