@@ -46,69 +46,69 @@ static long long strtoll(const char* src, char** end, int base)
 }
 #endif
 
-const char* json_escape(const char* src, char* dst, size_t maxlen)
+const char* json_format_string(const char* src, char* buf, size_t buflen)
 {
-	const char* save_dst = dst;
+	char* dst = buf;
 
-	while (*src && (maxlen > 3))
+	while (*src && (buflen > 3))
 	{
 		if (*src == '"')
 		{
 			*dst++ = '\\';
 			*dst++ = *src++;
-			maxlen -= 2;
+			buflen -= 2;
 		}
 		else if (*src == '\r')
 		{
 			*dst++ = '\\';
 			*dst++ = 'r';
 			src++;
-			maxlen -= 2;
+			buflen -= 2;
 		}
 		else if (*src == '\n')
 		{
 			*dst++ = '\\';
 			*dst++ = 'n';
 			src++;
-			maxlen -= 2;
+			buflen -= 2;
 		}
 		else if (*src == '\t')
 		{
 			*dst++ = '\\';
 			*dst++ = 't';
 			src++;
-			maxlen -= 2;
+			buflen -= 2;
 		}
 		else if (*src == '\b')
 		{
 			*dst++ = '\\';
 			*dst++ = 'b';
 			src++;
-			maxlen -= 2;
+			buflen -= 2;
 		}
 		else if (*src == '\f')
 		{
 			*dst++ = '\\';
 			*dst++ = 'f';
 			src++;
-			maxlen -= 2;
+			buflen -= 2;
 		}
 		else if (*src == '\\')
 		{
 			*dst++ = '\\';
 			*dst++ = '\\';
 			src++;
-			maxlen -= 2;
+			buflen -= 2;
 		}
 		else
 		{
 			*dst++ = *src++;
-			maxlen -= 1;
+			buflen -= 1;
 		}
 	}
 
 	*dst = 0;
-	return save_dst;
+	return buf;
 }
 
 static char* unicode_to_utf8(char* dst, unsigned c)
@@ -121,7 +121,7 @@ static char* unicode_to_utf8(char* dst, unsigned c)
 	return dst;
 }
 
-static void _json_open(char** str, json jptr, const int is_array)
+static void _json_open(char** str, json j, const int is_array)
 {
 	char* s = (char*)*str;
 
@@ -142,9 +142,9 @@ static void _json_open(char** str, json jptr, const int is_array)
 		if (*s == ',')
 		{
 			s++;
-			jptr->next = (json)calloc(1, sizeof(struct _json));
-			if (!jptr->next) return;
-			jptr = jptr->next;
+			j->next = (json)calloc(1, sizeof(struct _json));
+			if (!j->next) return;
+			j = j->next;
 		}
 
 		if (!is_array)
@@ -152,7 +152,7 @@ static void _json_open(char** str, json jptr, const int is_array)
 			if ((*s == '\"') || (*s == '\''))
 			{
 				char quote = *s++;
-				char* dst = jptr->name;
+				char* dst = j->name;
 
 				while (*s && (*s != quote))
 				{
@@ -184,7 +184,7 @@ static void _json_open(char** str, json jptr, const int is_array)
 							sscanf(tmpbuf, "%X", &val);
 							dst = unicode_to_utf8(dst, val);
 
-							if ((dst-jptr->name) > (NAME_SIZE-4))
+							if ((dst-j->name) > (NAME_SIZE-4))
 								break;
 
 							continue;
@@ -193,7 +193,7 @@ static void _json_open(char** str, json jptr, const int is_array)
 
 					*dst++ = ch;
 
-					if ((dst-jptr->name) > (NAME_SIZE-1))
+					if ((dst-j->name) > (NAME_SIZE-1))
 						break;
 				}
 
@@ -213,28 +213,28 @@ static void _json_open(char** str, json jptr, const int is_array)
 
 		if (*s == '{')
 		{
-			jptr->type = type_object;
-			jptr->head = (json)calloc(1, sizeof(struct _json));
-			if (!jptr->head) return;
+			j->type = type_object;
+			j->head = (json)calloc(1, sizeof(struct _json));
+			if (!j->head) return;
 			s++;
-			_json_open(&s, jptr->head, 0);
+			_json_open(&s, j->head, 0);
 		}
 		else if (*s == '[')
 		{
-			jptr->type = type_array;
-			jptr->head = (json)calloc(1, sizeof(struct _json));
-			if (!jptr->head) return;
+			j->type = type_array;
+			j->head = (json)calloc(1, sizeof(struct _json));
+			if (!j->head) return;
 			s++;
-			_json_open(&s, jptr->head, 1);
+			_json_open(&s, j->head, 1);
 		}
 		else if ((*s == '\"') || (*s == '\''))
 		{
 			char quote = *s++;
-			jptr->type = type_string;
+			j->type = type_string;
 			size_t max_bytes = 32;
-			jptr->str = (char*)malloc(max_bytes+4);
-			if (!jptr->str) return;
-			char* dst = jptr->str;
+			j->str = (char*)malloc(max_bytes+4);
+			if (!j->str) return;
+			char* dst = j->str;
 			size_t len = 0;
 
 			while (*s && (*s != quote))
@@ -271,9 +271,9 @@ static void _json_open(char** str, json jptr, const int is_array)
 
 						if (len > max_bytes)
 						{
-							jptr->str = (char*)realloc(jptr->str, (max_bytes*=2, max_bytes+4));
-							if (!jptr->str) return;
-							dst = jptr->str+len;
+							j->str = (char*)realloc(j->str, (max_bytes*=2, max_bytes+4));
+							if (!j->str) return;
+							dst = j->str+len;
 						}
 
 						continue;
@@ -285,9 +285,9 @@ static void _json_open(char** str, json jptr, const int is_array)
 
 				if (len > max_bytes)
 				{
-					jptr->str = (char*)realloc(jptr->str, (max_bytes*=2, max_bytes+4));
-					if (!jptr->str) return;
-					dst = jptr->str+len;
+					j->str = (char*)realloc(j->str, (max_bytes*=2, max_bytes+4));
+					if (!j->str) return;
+					dst = j->str+len;
 				}
 			}
 
@@ -296,17 +296,17 @@ static void _json_open(char** str, json jptr, const int is_array)
 		}
 		else if (!strncmp(s, "null", 4))
 		{
-			jptr->type = type_null;
+			j->type = type_null;
 			s += 4;
 		}
 		else if (!strncmp(s, "false", 5))
 		{
-			jptr->type = type_false;
+			j->type = type_false;
 			s += 5;
 		}
 		else if (!strncmp(s, "true", 4))
 		{
-			jptr->type = type_true;
+			j->type = type_true;
 			s += 4;
 		}
 		else
@@ -324,13 +324,13 @@ static void _json_open(char** str, json jptr, const int is_array)
 
 			if (any)
 			{
-				jptr->type = type_real;
-				jptr->real = strtod(save_s, &s);
+				j->type = type_real;
+				j->real = strtod(save_s, &s);
 			}
 			else
 			{
-				jptr->type = type_integer;
-				jptr->integer = strtoll(save_s, &s, 10);
+				j->type = type_integer;
+				j->integer = strtoll(save_s, &s, 10);
 			}
 		}
 
@@ -346,19 +346,19 @@ json json_open(const char* str)
 	if ((*str != '{') && (*str != '['))
 		return NULL;
 
-	json jptr = (json)calloc(1, sizeof(struct _json));
-	if (!jptr) return NULL;
+	json j = (json)calloc(1, sizeof(struct _json));
+	if (!j) return NULL;
 	int is_array = *str++ == '[';
 
 	if (is_array)
-		json_set_array(jptr);
+		json_set_array(j);
 	else
-		json_set_object(jptr);
+		json_set_object(j);
 
-	jptr->head = (json)calloc(1, sizeof(struct _json));
-	if (!jptr->head) { free (jptr); return NULL; }
-	_json_open((char**)&str, jptr->head, is_array);
-	return jptr;
+	j->head = (json)calloc(1, sizeof(struct _json));
+	if (!j->head) { free (j); return NULL; }
+	_json_open((char**)&str, j->head, is_array);
+	return j;
 }
 
 json json_init()
@@ -366,54 +366,54 @@ json json_init()
 	return (json)calloc(1, sizeof(struct _json));
 }
 
-static json json_add(json jptr)
+static json json_add(json j)
 {
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	json last = jptr;
+	json last = j;
 
-	while (jptr)
+	while (j)
 	{
-		last = jptr;
-		jptr = jptr->next;
+		last = j;
+		j = j->next;
 	}
 
 	last->cnt++;
 	return last->next = (json)calloc(1, sizeof(struct _json));
 }
 
-json json_array_add(json jptr)
+json json_array_add(json j)
 {
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	if (!jptr->head)
+	if (!j->head)
 	{
-		jptr->head = (json)calloc(1, sizeof(struct _json));
-		return jptr->head;
+		j->head = (json)calloc(1, sizeof(struct _json));
+		return j->head;
 	}
 
-	return json_add(jptr->head);
+	return json_add(j->head);
 }
 
-json json_object_add(json jptr, const char* name)
+json json_object_add(json j, const char* name)
 {
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	if (!jptr->head)
+	if (!j->head)
 	{
-		jptr = jptr->head = (json)calloc(1, sizeof(struct _json));
-		strncpy(jptr->name, name, sizeof(jptr->name)-1);
-		jptr->name[sizeof(jptr->name)-1] = 0;
-		return jptr;
+		j = j->head = (json)calloc(1, sizeof(struct _json));
+		strncpy(j->name, name, sizeof(j->name)-1);
+		j->name[sizeof(j->name)-1] = 0;
+		return j;
 	}
 
-	jptr = (json)json_add(jptr->head);
-	strncpy(jptr->name, name, sizeof(jptr->name)-1);
-	jptr->name[sizeof(jptr->name)-1] = 0;
-	return jptr;
+	j = (json)json_add(j->head);
+	strncpy(j->name, name, sizeof(j->name)-1);
+	j->name[sizeof(j->name)-1] = 0;
+	return j;
 }
 
 int json_rem(json ptr, json ptr2)
@@ -422,326 +422,326 @@ int json_rem(json ptr, json ptr2)
 		return 0;
 
 	json* last = &ptr->head;
-	json jptr = ptr->head;
+	json j = ptr->head;
 
-	while (jptr)
+	while (j)
 	{
-		if (jptr == ptr2)
+		if (j == ptr2)
 		{
-			*last = jptr->next;
+			*last = j->next;
 			json_close(ptr2);
 			ptr->cnt--;
 			return 1;
 		}
 
-		last = &jptr;
-		jptr = jptr->next;
+		last = &j;
+		j = j->next;
 	}
 
 	return 0;
 }
 
-json json_create(json jptr, const char* name)
+json json_create(json j, const char* name)
 {
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	json ptr = (json)json_find(jptr, name);
+	json ptr = (json)json_find(j, name);
 
 	if (ptr)
 		return ptr;
 
-	ptr = (json)json_add(jptr);
+	ptr = (json)json_add(j);
 	strncpy(ptr->name, name, sizeof(ptr->name)-1);
 	ptr->name[sizeof(ptr->name)-1] = 0;
 	return ptr;
 }
 
-json json_get_object(json jptr)
+json json_get_object(json j)
 {
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	if (jptr->type != type_object)
+	if (j->type != type_object)
 		return NULL;
 
-	return jptr->head;
+	return j->head;
 }
 
-json json_get_array(json jptr)
+json json_get_array(json j)
 {
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	if (jptr->type != type_array)
+	if (j->type != type_array)
 		return NULL;
 
-	return jptr->head;
+	return j->head;
 }
 
-json json_find(json jptr, const char* name)
+json json_find(json j, const char* name)
 {
-	while (jptr)
+	while (j)
 	{
-		if (!strcmp(name, jptr->name))
-			return jptr;
+		if (!strcmp(name, j->name))
+			return j;
 
-		jptr = jptr->next;
+		j = j->next;
 	}
 
 	return NULL;
 }
 
-size_t json_count(const json jptr)
+size_t json_count(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	return jptr->cnt;
+	return j->cnt;
 }
 
 json json_index(const json ptr, size_t idx)
 {
-	json jptr = (json)ptr;
+	json j = (json)ptr;
 
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	while (jptr)
+	while (j)
 	{
 		if (idx-- == 0)
-			return jptr;
+			return j;
 
-		jptr = jptr->next;
+		j = j->next;
 	}
 
 	return NULL;
 }
 
-int json_set_integer(json jptr, long long value)
+int json_set_integer(json j, long long value)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_integer;
-	jptr->integer = value;
+	j->type = type_integer;
+	j->integer = value;
 	return 1;
 }
 
-int json_set_real(json jptr, double value)
+int json_set_real(json j, double value)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_real;
-	jptr->real = value;
+	j->type = type_real;
+	j->real = value;
 	return 1;
 }
 
-int json_set_string(json jptr, const char* value)
+int json_set_string(json j, const char* value)
 {
-	if (!jptr || !value)
+	if (!j || !value)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_string;
-	jptr->str = strdup(value);
+	j->type = type_string;
+	j->str = strdup(value);
 	return 1;
 }
 
-int json_set_true(json jptr)
+int json_set_true(json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_true;
+	j->type = type_true;
 	return 1;
 }
 
-int json_set_false(json jptr)
+int json_set_false(json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_false;
+	j->type = type_false;
 	return 1;
 }
 
-int json_set_null(json jptr)
+int json_set_null(json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_null;
+	j->type = type_null;
 	return 1;
 }
 
-int json_set_array(json jptr)
+int json_set_array(json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_array;
-	jptr->head = 0;
+	j->type = type_array;
+	j->head = 0;
 	return 1;
 }
 
-int json_set_object(json jptr)
+int json_set_object(json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if ((jptr->type == type_array) || (jptr->type == type_object))
-		json_close(jptr->head);
-	else if ((jptr->type == type_string) && jptr->str)
-		free(jptr->str);
+	if ((j->type == type_array) || (j->type == type_object))
+		json_close(j->head);
+	else if ((j->type == type_string) && j->str)
+		free(j->str);
 
-	jptr->type = type_object;
-	jptr->head = 0;
+	j->type = type_object;
+	j->head = 0;
 	return 1;
 }
 
-long long json_get_integer(const json jptr)
+long long json_get_integer(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if (jptr->type == type_integer)
-		return jptr->integer;
+	if (j->type == type_integer)
+		return j->integer;
 
 	return 0;
 }
 
-double json_get_real(const json jptr)
+double json_get_real(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0.0;
 
-	if (jptr->type == type_real)
-		return jptr->integer;
+	if (j->type == type_real)
+		return j->integer;
 
 	return 0.0;
 }
 
-const char* json_get_string(const json jptr)
+const char* json_get_string(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return NULL;
 
-	if (jptr->type == type_string)
-		return jptr->str;
+	if (j->type == type_string)
+		return j->str;
 
 	return NULL;
 }
 
-int json_is_integer(const json jptr)
+int json_is_integer(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	return jptr->type == type_integer;
+	return j->type == type_integer;
 }
 
-int json_is_real(const json jptr)
+int json_is_real(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	return jptr->type == type_real;
+	return j->type == type_real;
 }
 
-int json_is_string(const json jptr)
+int json_is_string(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	return jptr->type == type_string;
+	return j->type == type_string;
 }
 
-int json_is_true(const json jptr)
+int json_is_true(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if (jptr->type == type_true)
+	if (j->type == type_true)
 		return 1;
 
 	return 0;
 }
 
-int json_is_false(const json jptr)
+int json_is_false(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if (jptr->type == type_false)
+	if (j->type == type_false)
 		return 1;
 
 	return 0;
 }
 
-int json_is_null(const json jptr)
+int json_is_null(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	if (jptr->type == type_null)
+	if (j->type == type_null)
 		return 1;
 
 	return 0;
 }
 
-int json_get_type(const json jptr)
+int json_get_type(const json j)
 {
-	if (!jptr)
+	if (!j)
 		return 0;
 
-	return (int)jptr->type;
+	return (int)j->type;
 }
 
-void json_close(json jptr)
+void json_close(json j)
 {
-	if (!jptr)
+	if (!j)
 		return;
 
-	while (jptr)
+	while (j)
 	{
-		json save = jptr;
-		jptr = jptr->next;
+		json save = j;
+		j = j->next;
 
 		if ((save->type == type_object) || (save->type == type_array))
 			json_close(save->head);
@@ -752,20 +752,20 @@ void json_close(json jptr)
 	}
 }
 
-size_t _json_print(char** pdst, char* dst, json jptr, int structure, size_t* bytes_left, size_t* max_len)
+size_t _json_print(char** pdst, char* dst, json j, int structure, size_t* bytes_left, size_t* max_len)
 {
 	char* save_dst = dst;
 
-	while (jptr)
+	while (j)
 	{
 		size_t i;
 
-		if (jptr->name[0])
+		if (j->name[0])
 		{
-			if (*max_len && (((strlen(jptr->name)*2)+256) > *bytes_left))
+			if (*max_len && (((strlen(j->name)*2)+256) > *bytes_left))
 			{
 				*max_len *= 2;
-				*max_len += strlen(jptr->name)*2;
+				*max_len += strlen(j->name)*2;
 				*pdst = (char*)realloc(*pdst, *max_len);
 				if (!*pdst) return 0;
 				size_t nbytes = dst - save_dst;
@@ -776,10 +776,10 @@ size_t _json_print(char** pdst, char* dst, json jptr, int structure, size_t* byt
 
 			dst += i = sprintf(dst, "\"");
 			*bytes_left -= i;
-			const char* src = jptr->name;
+			const char* src = j->name;
 			int i;
 
-			for (i = 0; i < strlen(jptr->name); i++)
+			for (i = 0; i < strlen(j->name); i++)
 			{
 				if (*src == '"')
 				{
@@ -834,37 +834,37 @@ size_t _json_print(char** pdst, char* dst, json jptr, int structure, size_t* byt
 			*bytes_left -= i;
 		}
 
-		if (jptr->type == type_null)
+		if (j->type == type_null)
 		{
 			dst += i = sprintf(dst, "null");
 			*bytes_left -= i;
 		}
-		else if (jptr->type == type_true)
+		else if (j->type == type_true)
 		{
 			dst += i = sprintf(dst, "true");
 			*bytes_left -= i;
 		}
-		else if (jptr->type == type_false)
+		else if (j->type == type_false)
 		{
 			dst += i = sprintf(dst, "false");
 			*bytes_left -= i;
 		}
-		else if (jptr->type == type_integer)
+		else if (j->type == type_integer)
 		{
-			dst += i = sprintf(dst, "%lld", jptr->integer);
+			dst += i = sprintf(dst, "%lld", j->integer);
 			*bytes_left -= i;
 		}
-		else if (jptr->type == type_real)
+		else if (j->type == type_real)
 		{
-			dst += i = sprintf(dst, "%g", jptr->real);
+			dst += i = sprintf(dst, "%g", j->real);
 			*bytes_left -= i;
 		}
-		else if (jptr->type == type_string)
+		else if (j->type == type_string)
 		{
-			if (*max_len && (((strlen(jptr->str)*2)+256) > *bytes_left))
+			if (*max_len && (((strlen(j->str)*2)+256) > *bytes_left))
 			{
 				*max_len *= 2;
-				*max_len += strlen(jptr->str)*2;
+				*max_len += strlen(j->str)*2;
 				*pdst = (char*)realloc(*pdst, *max_len);
 				if (!*pdst) return 0;
 				size_t nbytes = dst - save_dst;
@@ -875,10 +875,10 @@ size_t _json_print(char** pdst, char* dst, json jptr, int structure, size_t* byt
 
 			dst += i = sprintf(dst, "\"");
 			*bytes_left -= i;
-			const char* src = jptr->str;
+			const char* src = j->str;
 			int i;
 
-			for (i = 0; i < strlen(jptr->str); i++)
+			for (i = 0; i < strlen(j->str); i++)
 			{
 				if (*src == '"')
 				{
@@ -932,32 +932,32 @@ size_t _json_print(char** pdst, char* dst, json jptr, int structure, size_t* byt
 			dst += i = sprintf(dst, "\"");
 			*bytes_left -= i;
 		}
-		else if (jptr->type == type_object)
+		else if (j->type == type_object)
 		{
 			dst += i = sprintf(dst, "{");
 			*bytes_left -= i;
 
-			dst += i = _json_print(pdst, dst, jptr->head, 1, bytes_left, max_len);
+			dst += i = _json_print(pdst, dst, j->head, 1, bytes_left, max_len);
 			*bytes_left -= i;
 
 			dst += i = sprintf(dst, "}");
 			*bytes_left -= i;
 		}
-		else if (jptr->type == type_array)
+		else if (j->type == type_array)
 		{
 			dst += i = sprintf(dst, "[");
 			*bytes_left -= i;
 
-			dst += i = _json_print(pdst, dst, jptr->head, 1, bytes_left, max_len);
+			dst += i = _json_print(pdst, dst, j->head, 1, bytes_left, max_len);
 			*bytes_left -= i;
 
 			dst += i = sprintf(dst, "]");
 			*bytes_left -= i;
 		}
 
-		jptr = jptr->next;
+		j = j->next;
 
-		if (jptr && structure)
+		if (j && structure)
 		{
 			dst += i = sprintf(dst, ",");
 			*bytes_left -= i;
@@ -983,9 +983,9 @@ size_t _json_print(char** pdst, char* dst, json jptr, int structure, size_t* byt
 	return dst - save_dst;
 }
 
-size_t json_print(char** pdst, json jptr)
+size_t json_print(char** pdst, json j)
 {
-	if (!pdst || !jptr) return 0;
+	if (!pdst || !j) return 0;
 
 	size_t bytes_left = 0, max_len = 0;
 
@@ -995,12 +995,12 @@ size_t json_print(char** pdst, json jptr)
 		if (!*pdst) return 0;
 	}
 
-	return _json_print(pdst, *pdst, jptr, (jptr->type==type_object)||(jptr->type==type_array), &bytes_left, &max_len);
+	return _json_print(pdst, *pdst, j, (j->type==type_object)||(j->type==type_array), &bytes_left, &max_len);
 }
 
-char* json_to_string(json jptr)
+char* json_to_string(json j)
 {
 	char* dst = 0;
-	json_print(&dst, jptr);
+	json_print(&dst, j);
 	return dst;
 }
