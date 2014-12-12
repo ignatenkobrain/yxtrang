@@ -255,7 +255,7 @@ static int read_string_handler(void* arg, const char* k, uuid v)
 	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int linda_read(hlinda h, const char* s, const char** dst, int rm, int nowait)
+static int linda_read(hlinda h, const char* s, const char** buf, int rm, int nowait)
 {
 	json j = json_open(s);
 	json j1 = json_get_object(j);
@@ -336,40 +336,40 @@ static int linda_read(hlinda h, const char* s, const char** dst, int rm, int now
 		}
 	}
 
-	*dst = h->dst;
+	*buf = h->dst;
 	return 1;
 }
 
-int linda_rd(hlinda h, const char* s, const char** dst)
+int linda_rd(hlinda h, const char* s, const char** buf)
 {
 	if (!h)
 		return 0;
 
-	return linda_read(h, s, dst, 0, 0);
+	return linda_read(h, s, buf, 0, 0);
 }
 
-int linda_rdp(hlinda h, const char* s, const char** dst)
+int linda_rdp(hlinda h, const char* s, const char** buf)
 {
 	if (!h)
 		return 0;
 
-	return linda_read(h, s, dst, 0, 1);
+	return linda_read(h, s, buf, 0, 1);
 }
 
-int linda_in(hlinda h, const char* s, const char** dst)
+int linda_in(hlinda h, const char* s, const char** buf)
 {
 	if (!h)
 		return 0;
 
-	return linda_read(h, s, dst, 1, 0);
+	return linda_read(h, s, buf, 1, 0);
 }
 
-int linda_inp(hlinda h, const char* s, const char** dst)
+int linda_inp(hlinda h, const char* s, const char** buf)
 {
 	if (!h)
 		return 0;
 
-	return linda_read(h, s, dst, 1, 1);
+	return linda_read(h, s, buf, 1, 1);
 }
 
 int linda_rm(hlinda h, const char* s)
