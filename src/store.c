@@ -25,6 +25,9 @@
 #ifdef _WIN32
 #define fsync _commit
 #define mkdir(p1,p2) _mkdir(p1)
+#define msleep Sleep
+#else
+#define msleep(ms) usleep(ms*1000)
 #endif
 
 #include "store.h"
@@ -1093,7 +1096,7 @@ static int store_logreader_apply(store st, int n, uint64_t pos, void (*f)(void*,
 	return cnt;
 }
 
-int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const void*,int), void* p1)
+int store_tail(store st, const uuid u, void (*f)(void*,const uuid,const void*,int), void* p1)
 {
 	if (!st || !u)
 		return 0;
@@ -1108,22 +1111,33 @@ int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const vo
 			return 0;
 	}
 
-	uint64_t pos = v, save_pos = 0, next_pos = 0;
-	unsigned save_nbr = 0, cnt = 0;
-	int valid = 1;
+	uint64_t pos = POS(v);
 	int idx = FILEIDX(pos);
 
-	while (idx < st->idx)
+	uint64_t save_pos = 0, next_pos = 0;
+	unsigned save_nbr = 0, cnt = 0;
+	int valid = 1;
+
+	for (;;)
 	{
 		int fd = st->fd[idx];
 		char tmpbuf[1024];
 
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 		{
-			idx++;			// wrap around to
-			pos = 0;		// next log file
-			valid = 1;
-			save_nbr = 0;
+			if (++idx < st->idx)
+			{
+				idx++;			// move on to the
+				pos = 0;		// next log file
+				valid = 1;
+				save_nbr = 0;
+			}
+			else
+			{
+				--idx;			// just tail the active log
+				msleep(1);		// TO-DO: use a wakeup
+			}
+
 			continue;
 		}
 

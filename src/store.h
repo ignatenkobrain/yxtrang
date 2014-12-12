@@ -27,12 +27,12 @@ extern hstore store_begin(store st, int dbsync);
 extern int store_hadd(hstore h, const uuid u, const void* buf, size_t len);
 extern int store_hrem(hstore h, const uuid u);
 extern int store_hrem2(hstore h, const uuid u, const void* buf, size_t len);
-extern int store_cancel(hstore h);					// Rollback
-extern int store_end(hstore h);						// Commit
+extern int store_cancel(hstore h);
+extern int store_end(hstore h);
 
 // Reader...
 
-extern int store_log_reader(store st, const uuid u, void (*)(void*,const uuid,const void*,int), void* p1);
+extern int store_tail(store st, const uuid u, void (*)(void*,const uuid,const void*,int), void* p1);
 
 extern int store_close(store st);
 
