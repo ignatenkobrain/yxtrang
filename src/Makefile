@@ -1,8 +1,9 @@
 CC = cc
 CFLAGS = -O3 $(DBG) -I/usr/local/include -Wall -D_REENTRANT -D_BSD_SOURCE
 
-OBJECTS = base64.o daemon.o json.o jsonq.o linda.o network.o scriptlet.o \
-			skiplist.o store.o thread.o tree.o uncle.o uuid.o
+OBJECTS = base64.o daemon.o json.o jsonq.o linda.o \
+			network.o scriptlet.o skiplist.o store.o \
+			thread.o tree.o uncle.o uuid.o
 
 all: $(OBJECTS) yxtrang.a
 
@@ -11,7 +12,7 @@ yxtrang.a: $(OBJECTS)
 	ranlib yxtrang.a
 
 clean:
-	rm -f *.o *.a
+	rm -f *.o *.a db
 
 # DO NOT DELETE
 
