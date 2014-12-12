@@ -30,11 +30,9 @@ extern int store_hrem(hstore h, const uuid u);
 extern int store_cancel(hstore h);					// Rollback
 extern int store_end(hstore h);						// Commit
 
-// Readers...
+// Reader...
 
-extern hreader store_log_reader(store st, const uuid u);
-extern int store_next(hreader r, void** buf, size_t* len);
-extern void store_done(hreader r);
+extern int store_log_reader(store st, const uuid u, void (*)(void*,const uuid,const void*,int), void* data);
 
 extern int store_close(store st);
 

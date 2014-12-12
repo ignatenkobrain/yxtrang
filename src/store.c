@@ -642,10 +642,7 @@ static void store_load_file(store st)
 			{
 				save_nbr = nbr;
 				save_pos = pos;
-				const char* src = tmpbuf;
-
-				while (*src++ != '\n')
-					pos++;
+				next_pos = pos;
 			}
 			else
 				valid = 0;
@@ -1006,38 +1003,226 @@ int store_close(store st)
 	return 1;
 }
 
-struct _hreader
+static int store_reader_apply(store st, int n, uint64_t pos, void (*f)(void*,const uuid,const void*,int), void* data)
 {
-	store st;
-	uint64_t pos;
-};
+	int fd = FILEIDX(pos);
+	int cnt = 0;
 
-hreader store_log_reader(store st, const uuid u)
+	for (;;)
+	{
+		char tmpbuf[1024];
+
+		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
+			return 0;
+
+		if (tmpbuf[0] == STX)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*s %X", &nbr);
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
+		}
+		else if (tmpbuf[0] == CAN)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*s %X", &nbr);
+
+			if (nbr == n)
+				break;
+
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
+		}
+		else if (tmpbuf[0] == ETX)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*s %X", &nbr);
+
+			if (nbr == n)
+				break;
+
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
+		}
+		else
+		{
+			unsigned nbr, flags, nbytes;
+			uuid_t u;
+
+			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
+
+			if (nbr == n)
+			{
+				if (nbytes)
+				{
+					char* src = tmpbuf+skip;
+					int big = 0;
+
+					if ((src+nbytes) >= (tmpbuf+sizeof(tmpbuf)))
+					{
+						big = 1;
+						src = (char*)malloc(nbytes+1);
+
+						if (pread(fd, src, nbytes, pos+skip) <= 0)
+							return 0;
+
+						src[nbytes] = 0;
+					}
+
+					f(data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+					if (big) free(src);
+				}
+				else
+					f(data, &u, NULL, 0);
+
+				cnt++;
+			}
+
+			pos += skip;
+			pos += nbytes;
+		}
+	}
+
+	return cnt;
+}
+
+int store_log_reader(store st, const uuid u, void (*f)(void*,const uuid,const void*,int), void* data)
 {
 	if (!st || !u)
-		return NULL;
-
-	hreader r = (hreader)calloc(1, sizeof(struct _hreader));
-	r->st = st;
+		return 0;
 
 	unsigned long long v = 0;
 
 	if (!uuid_is_zero(u))
 	{
 		if (!tree_get(st->tptr, u, &v))
-			return NULL;
+			return 0;
 	}
 
-	r->pos = v;
-	return r;
-}
+	uint64_t pos = v, save_pos = 0, next_pos = 0;
+	unsigned save_nbr = 0, cnt = 0;
+	int valid = 1;
 
-int store_next(hreader r, void** buf, size_t* len)
-{
-	if (!r)
-		return 0;
+	for (;;)
+	{
+		char tmpbuf[1024];
+		int fd = FILEIDX(pos);
 
-	return 0;
+		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
+			break;
+
+		if (tmpbuf[0] == STX)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*s %X", &nbr);
+
+			if (!save_nbr)
+			{
+				save_nbr = nbr;
+				save_pos = pos;
+				next_pos = pos;
+			}
+			else
+				valid = 0;
+
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
+		}
+		else if (tmpbuf[0] == CAN)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*s %X", &nbr);
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
+
+			if (nbr == save_nbr)		// drop on rollback
+			{
+				save_nbr = 0;
+				pos = next_pos;
+			}
+			else
+				valid = 0;
+		}
+		else if (tmpbuf[0] == ETX)
+		{
+			unsigned nbr = 0;
+			sscanf(tmpbuf, "%*s %X", &nbr);
+			const char* src = tmpbuf;
+
+			while (*src++ != '\n')
+				pos++;
+
+			if (nbr == save_nbr)		// apply on commit
+			{
+				cnt += store_reader_apply(st, nbr, save_pos, f, data);
+				save_nbr = 0;
+
+				// If we didn't encounter any embedded or
+				// interleaved transaction elements, then
+				// we don't have to go back and restart...
+
+				if (!valid)
+					pos = next_pos;
+			}
+			else
+				valid = 0;
+		}
+		else if (save_nbr != 0)
+		{
+			unsigned nbr, flags, nbytes;
+			uuid_t u;
+			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
+
+			if (nbr != save_nbr)
+				valid = 0;
+
+			pos += skip;
+			pos += nbytes;
+		}
+		else
+		{
+			unsigned nbr, flags, nbytes;
+			uuid_t u;
+			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
+
+			if (nbytes)
+			{
+				char* src = tmpbuf+skip;
+				int big = 0;
+
+				if ((src+nbytes) >= (tmpbuf+sizeof(tmpbuf)))
+				{
+					big = 1;
+					src = (char*)malloc(nbytes+1);
+
+					if (pread(fd, src, nbytes, pos+skip) <= 0)
+						return 0;
+				}
+
+				src[nbytes] = 0;
+				f(data, &u, src, flags&FLAG_RM?-nbytes:nbytes);
+				if (big) free(src);
+			}
+			else
+				st->f(data, &u, NULL, 0);
+
+			cnt++;
+			pos += skip;
+			pos += nbytes;
+		}
+	}
+
+	return 1;
 }
 
 void store_done(hreader r)
