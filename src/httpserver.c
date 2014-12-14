@@ -150,7 +150,7 @@ int httpserver_handler(session s, void* p1)
 		tmpbuf2[0] = tmpbuf3[0] = 0;
 		sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
 		tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
-		strcpy(tmpbuf4, "HTTP_PARAM_");
+		strcpy(tmpbuf4, "_");
 		strcat(tmpbuf4, tmpbuf2);
 		session_set_stash(s, tmpbuf4, tmpbuf3);
 
