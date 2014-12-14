@@ -176,12 +176,12 @@ int httpserver_handler(session s, void* p1)
 	{
 		session_clr_udata_flag(s, HTTP_READY);
 
-		char cmd[20], path[8192], ver[20];
-		cmd[0] = path[0] = ver[0] = 0;
-		sscanf(msg, "%19s /%8191s %*[^/]/%19[^\r\n]", cmd, path, ver);
-		cmd[sizeof(cmd)-1] = path[sizeof(path)-1] = ver[sizeof(ver)-1] = 0;
+		char cmd[20], resource[8192], ver[20];
+		cmd[0] = resource[0] = ver[0] = 0;
+		sscanf(msg, "%19s /%8191s %*[^/]/%19[^\r\n]", cmd, resource, ver);
+		cmd[sizeof(cmd)-1] = resource[sizeof(resource)-1] = ver[sizeof(ver)-1] = 0;
 		session_set_stash(s, HTTP_COMMAND, cmd);
-		session_set_stash(s, HTTP_PATH, path);
+		session_set_stash(s, HTTP_RESOURCE, resource);
 		session_set_stash(s, HTTP_VERSION, ver);
 
 		double v = atof(ver);
@@ -189,10 +189,10 @@ int httpserver_handler(session s, void* p1)
 
 		char filename[1024], query[8192];
 		filename[0] = query[0] = 0;
-		sscanf(path, "%1023[^?]?%8191s", filename, query);
+		sscanf(resource, "%1023[^?]?%8191s", filename, query);
 		filename[sizeof(filename)-1] = query[sizeof(query)-1] = 0;
-		session_set_stash(s, HTTP_FILENAME, url_decode(filename, path));
-		session_set_stash(s, HTTP_QUERY, url_decode(query, path));
+		session_set_stash(s, HTTP_FILENAME, url_decode(filename, resource));
+		session_set_stash(s, HTTP_QUERYSTRING, url_decode(query, resource));
 		const char* src = query;
 		char tmpbuf2[1024], tmpbuf3[1024];
 		char tmpbuf4[1024*2];
