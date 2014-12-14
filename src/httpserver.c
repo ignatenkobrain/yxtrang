@@ -109,7 +109,7 @@ int httpserver_handler(session s, void* p1)
 
 		char cmd[20], path[8192], ver[20];
 		cmd[0] = path[0] = ver[0] = 0;
-		sscanf(msg, "%19s %8191s %*[^/]/%19[^\r\n]", cmd, path, ver);
+		sscanf(msg, "%19s /%8191s %*[^/]/%19[^\r\n]", cmd, path, ver);
 		cmd[sizeof(cmd)-1] = path[sizeof(path)-1] = ver[sizeof(ver)-1] = 0;
 		session_set_stash(s, HTTP_COMMAND, cmd);
 		session_set_stash(s, HTTP_PATH, path);
