@@ -21,7 +21,7 @@ static int request(session s, void* param)
 {
 	char body[1024];
 	char* dst = body;
-	size_t len = sprintf(dst, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
+	size_t len = sprintf(dst, "<html><title>test</title>\n<body><h1>Request for: '%s'</h1></body>\n</html>\n", session_get_stash(s, HTTP_FILENAME));
 
 	httpserver_response(s, 200, "OK", len, "text/html");
 
