@@ -188,6 +188,7 @@ int httpserver_handler(session s, void* p1)
 		char name[1024], value[8192];
 		name[0] = value[0] = 0;
 		sscanf(msg, "%1023[^:]: %8191[^\r\n]", name, value);
+		name[sizeof(name)-1] = value[sizeof(value)-1] = 0;
 		session_set_stash(s, name, value);
 
 		if (!strcasecmp(name, "Connection"))
