@@ -283,7 +283,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 			uuid_t u = {k, t};
 
 			if (!store_get(st, &u, &buf, &len))
-				printf("GET failed: %ld\n", k);
+				printf("HTTP_GET failed: %ld\n", k);
 		}
 	}
 

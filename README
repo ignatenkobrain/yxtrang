@@ -22,6 +22,11 @@ daemon:
  Platform agnostic daemonizer code.
 
 
+httpserver:
+
+ Makes it easy to write a custom HTTP handler.
+
+
 json:
 
  JSON parser/generator.

@@ -42,17 +42,15 @@ static char* strstri(const char* src, const char* s)
 	return 0;
 }
 
-int httpserver_callback(session s, void* p1)
+int httpserver_handler(session s, void* p1)
 {
 	if (!s)
 		return 0;
 
-	enum { CMD=0, HEAD, GET, HTTP10, HTTP11, PERSIST, LAST=63 };
-
 	if (session_on_connect(s))
 	{
 		if (!g_debug) printf("CONNECTED\n");
-		session_set_udata_flag(s, CMD);
+		session_set_udata_flag(s, HTTP_READY);
 		return 1;
 	}
 
@@ -69,13 +67,13 @@ int httpserver_callback(session s, void* p1)
 
 	if (!g_debug) printf("DATA: %s", msg);
 
-	int is_cmd = session_get_udata_flag(s, CMD);
+	int is_cmd = session_get_udata_flag(s, HTTP_READY);
 
 	// Process command...
 
 	if (is_cmd)
 	{
-		session_clr_udata_flag(s, CMD);
+		session_clr_udata_flag(s, HTTP_READY);
 
 		char cmd[20], path[1024], ver[20];
 		cmd[0] = path[0] = ver[0] = 0;
@@ -86,16 +84,16 @@ int httpserver_callback(session s, void* p1)
 
 		if (v == 1.1)
 		{
-			session_set_udata_flag(s, HTTP11);
-			session_set_udata_flag(s, PERSIST);
+			session_set_udata_flag(s, HTTP_v11);
+			session_set_udata_flag(s, HTTP_PERSIST);
 		}
 		else if (v == 1.0)
-			session_set_udata_flag(s, HTTP10);
+			session_set_udata_flag(s, HTTP_v10);
 
-		if (!strcmp(cmd, "HEAD"))
-			session_set_udata_flag(s, HEAD);
-		else if (!strcmp(cmd, "GET"))
-			session_set_udata_flag(s, GET);
+		if (!strcasecmp(cmd, "HEAD"))
+			session_set_udata_flag(s, HTTP_HEAD);
+		else if (!strcasecmp(cmd, "GET"))
+			session_set_udata_flag(s, HTTP_GET);
 
 		return 1;
 	}
@@ -117,9 +115,9 @@ int httpserver_callback(session s, void* p1)
 		if (!strcasecmp(name, "Connection"))
 		{
 			if (strstri(value, "keep-alive"))
-				session_set_udata_flag(s, PERSIST);
+				session_set_udata_flag(s, HTTP_PERSIST);
 			else if (strstri(value, "close"))
-				session_clr_udata_flag(s, PERSIST);
+				session_clr_udata_flag(s, HTTP_PERSIST);
 		}
 
 		return 1;
