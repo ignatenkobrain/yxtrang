@@ -41,6 +41,37 @@ static char* strstri(const char* src, const char* s)
 	return 0;
 }
 
+static const char* url_decode(const char* src, char* dst)
+{
+	const char* save_dst = dst;
+
+	while (*src)
+	{
+		if (*src == '+')
+		{
+			*dst++ = ' ';
+			src++;
+		}
+		else if (*src == '%')
+		{
+			src++;
+			char buf[3];
+			buf[0] = *src++;
+			buf[1] = *src++;
+			buf[2] = 0;
+			int num;
+			sscanf(buf, "%2X", &num);
+			char ch = num;
+			*dst++ = ch;
+		}
+		else
+			*dst++ = *src++;
+	}
+
+	*dst = 0;
+	return save_dst;
+}
+
 int httpserver_handler(session s, void* p1)
 {
 	if (!s)
@@ -74,9 +105,9 @@ int httpserver_handler(session s, void* p1)
 	{
 		session_clr_udata_flag(s, HTTP_READY);
 
-		char cmd[20], path[1024], ver[20];
+		char cmd[20], path[8192], ver[20];
 		cmd[0] = path[0] = ver[0] = 0;
-		sscanf(msg, "%19s %1023s %*[^/]/%19[^\r\n]", cmd, path, ver);
+		sscanf(msg, "%19s %8191s %*[^/]/%19[^\r\n]", cmd, path, ver);
 		cmd[sizeof(cmd)-1] = path[sizeof(path)-1] = ver[sizeof(ver)-1] = 0;
 		session_set_stash(s, "HTTP_COMMAND", cmd);
 		session_set_stash(s, "HTTP_PATH", path);
@@ -85,12 +116,12 @@ int httpserver_handler(session s, void* p1)
 		double v = atof(ver);
 		session_set_udata_real(s, v);
 
-		char filename[1024], query[1024];
+		char filename[1024], query[8192];
 		filename[0] = query[0] = 0;
-		sscanf(path, "%1023[^?]?%1023s", filename, query);
+		sscanf(path, "%1023[^?]?%8191s", filename, query);
 		filename[sizeof(filename)-1] = query[sizeof(query)-1] = 0;
-		session_set_stash(s, "HTTP_FILENAME", filename);
-		session_set_stash(s, "HTTP_QUERY", query);
+		session_set_stash(s, "HTTP_FILENAME", url_decode(filename, path));
+		session_set_stash(s, "HTTP_QUERY", url_decode(query, path));
 
 		if (v == 1.1)
 		{
