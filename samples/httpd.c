@@ -45,6 +45,8 @@ static int on_session(session s, void* param)
 	dst += sprintf(dst, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
 	size_t len = dst - body;
 
+	// Generate custom headers...
+
 	char headers[1024];
 	dst = headers;
 	dst += sprintf(dst, "HTTP/%1.1f 200 OK\n", session_get_udata_real(s));
@@ -60,12 +62,14 @@ static int on_session(session s, void* param)
 
 	dst += sprintf(dst, "\r\n");
 
+	// The response headers...
+
 	if (!session_writemsg(s, headers))
 		return 0;
 
 	if (!g_quiet) printf("%s", headers);
 
-	// The response-body...
+	// The response body...
 
 	if (!session_writemsg(s, body))
 		return 0;
