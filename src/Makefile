@@ -18,7 +18,7 @@ clean:
 
 base64.o: base64.h
 daemon.o: daemon.h
-httpserver.o: httpserver.h network.h skiplist.h skiplist_string.h
+httpserver.o: httpserver.h network.h
 json.o: json.h
 jsonq.o: jsonq.h
 linda.o: linda.h skiplist.h skiplist_uuid.h store.h json.h

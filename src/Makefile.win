@@ -26,7 +26,7 @@ daemon.obj: $*.h $*.c
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-httpserver.obj: $*.h $*.c network.h skiplist.h skiplist_string.h
+httpserver.obj: $*.h $*.c network.h
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
