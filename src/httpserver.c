@@ -106,7 +106,7 @@ static int get_postdata(session s)
 
 	query[len] = 0;
 	const char* src = query;
-	char tmpbuf2[1024], tmpbuf3[1024];
+	char tmpbuf2[1024], tmpbuf3[8192];
 	char tmpbuf4[1024*2];
 	char tmpbuf[1024];
 	char* dst = tmpbuf;
@@ -118,7 +118,7 @@ static int get_postdata(session s)
 			src++;
 			*dst = 0;
 			tmpbuf2[0] = tmpbuf3[0] = 0;
-			sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+			sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
 			tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
 			strcpy(tmpbuf4, PREFIX);
 			strcat(tmpbuf4, tmpbuf2);
@@ -131,7 +131,7 @@ static int get_postdata(session s)
 
 	*dst = 0;
 	tmpbuf2[0] = tmpbuf3[0] = 0;
-	sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+	sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
 	tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
 	strcpy(tmpbuf4, PREFIX);
 	strcat(tmpbuf4, tmpbuf2);
@@ -191,7 +191,7 @@ int httpserver_handler(session s, void* p1)
 		session_set_stash(s, HTTP_FILENAME, url_decode(filename, res));
 		session_set_stash(s, HTTP_QUERY, url_decode(query, res));
 		const char* src = query;
-		char tmpbuf2[1024], tmpbuf3[1024];
+		char tmpbuf2[1024], tmpbuf3[8192];
 		char tmpbuf4[1024*2];
 		char tmpbuf[1024];
 		char* dst = tmpbuf;
@@ -203,7 +203,7 @@ int httpserver_handler(session s, void* p1)
 				src++;
 				*dst = 0;
 				tmpbuf2[0] = tmpbuf3[0] = 0;
-				sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+				sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
 				tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
 				strcpy(tmpbuf4, PREFIX);
 				strcat(tmpbuf4, tmpbuf2);
@@ -216,7 +216,7 @@ int httpserver_handler(session s, void* p1)
 
 		*dst = 0;
 		tmpbuf2[0] = tmpbuf3[0] = 0;
-		sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+		sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
 		tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
 		strcpy(tmpbuf4, PREFIX);
 		strcat(tmpbuf4, tmpbuf2);
@@ -268,9 +268,9 @@ int httpserver_handler(session s, void* p1)
 		}
 		else if (!strcasecmp(name, "host"))
 		{
-			char tmpbuf2[1024], tmpbuf3[1024];
+			char tmpbuf2[256], tmpbuf3[256];
 			tmpbuf2[0] = tmpbuf3[0] = 0;
-			sscanf(value, "%1023[^:]:%1023s", tmpbuf2, tmpbuf3);
+			sscanf(value, "%255[^:]:%255s", tmpbuf2, tmpbuf3);
 			tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
 			session_set_stash(s, HTTP_HOST, tmpbuf2);
 			session_set_stash(s, HTTP_PORT, tmpbuf3);
