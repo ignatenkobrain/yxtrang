@@ -3,11 +3,20 @@
 
 #include "network.h"
 
-// This module will process query-strings and POST-data,
-// parsing name-value pairs. Each name will be preceded
-// by an underscore in the stash. Other content associated
-// with a request is left unread and should be processed
-// by the user.
+// This module will process query-strings and also POST-data for
+// content-type 'application/x-www-form-urlencoded', parsing the
+// name-value pairs. Each name will be preceded by an underscore
+// in the stash, eg:
+//
+//    GET xyz?id=123456&blah
+//
+// is retrieved by:
+//
+//    const char* filename = session_get_stash(s, "HTTP_FILENAME")
+//    long id = session_get_stash(s, "_id")
+//
+// Other content associated with a request is left unread and should
+// be processed by the user.
 
 // Session stash variables:
 
