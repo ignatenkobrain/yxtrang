@@ -14,7 +14,7 @@
 
 #define PREFIX "_"
 
-static int g_debug = 0;
+int g_http_debug = 0;
 
 struct _httpserver
 {
@@ -81,14 +81,14 @@ int httpserver_handler(session s, void* p1)
 
 	if (session_on_connect(s))
 	{
-		if (!g_debug) printf("CONNECTED\n");
+		if (g_http_debug) printf("CONNECTED\n");
 		session_set_udata_flag(s, HTTP_READY);
 		return 1;
 	}
 
 	if (session_on_disconnect(s))
 	{
-		if (!g_debug) printf("DISCONNECTED\n");
+		if (g_http_debug) printf("DISCONNECTED\n");
 		return 0;
 	}
 
@@ -97,7 +97,7 @@ int httpserver_handler(session s, void* p1)
 	if (!session_readmsg(s, &msg))
 		return 0;
 
-	if (!g_debug) printf("DATA: %s", msg);
+	if (g_http_debug) printf("DATA: %s", msg);
 
 	int is_ready = session_get_udata_flag(s, HTTP_READY);
 
@@ -264,7 +264,7 @@ int httpserver_response(session s, unsigned code, const char* msg, size_t len, c
 
 	dst += sprintf(dst, "\r\n");
 
-	if (!g_debug) printf("SEND: %s", headers);
+	if (g_http_debug) printf("SEND: %s", headers);
 
 	if (!session_writemsg(s, headers))
 		return 0;

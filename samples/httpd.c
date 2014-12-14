@@ -14,7 +14,7 @@
 
 #include <httpserver.h>
 
-static int g_quiet = 0;
+extern int g_http_debug;
 static const char* g_www = "/var/www";
 
 static int request(session s, void* param)
@@ -24,7 +24,7 @@ static int request(session s, void* param)
 	size_t len = sprintf(dst, "<html><title>test</title>\n<body><h1>Request for: '%s'</h1></body>\n</html>\n", session_get_stash(s, HTTP_FILENAME));
 
 	httpserver_response(s, 200, "OK", len, "text/html");
-	if (!g_quiet) printf("SEND: %s", body);
+	if (g_http_debug) printf("SEND: %s", body);
 	return session_writemsg(s, body);
 }
 
@@ -34,7 +34,7 @@ int main(int ac, char** av)
 	const char* binding = NULL;
 	unsigned short port = (short)(ac>1?atoi(av[1]):8080);
 	int ssl = (ac>2?atoi(av[2]):0);
-	g_quiet = (ac>3?atoi(av[3]):0);
+	g_http_debug = !(ac>3?atoi(av[3])>0?1:0:0);
 	int threads = (ac>4?atoi(av[4]):0);
 	g_www = (ac>5?av[5]:"/var/www");
 	void* param = (void*)0;
