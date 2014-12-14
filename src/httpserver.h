@@ -22,9 +22,10 @@ enum {	HTTP_READY, HTTP_HEAD, HTTP_GET, HTTP_POST,
 
 typedef struct _httpserver* httpserver;
 
-httpserver httpserver_create(int (*)(session,void*), void* p1);
-int httpserver_handler(session, void*);
-const char* httpserver_value(session s, const char* name);
-void httpserver_destroy(httpserver h);
+extern httpserver httpserver_create(int (*)(session,void*), void* p1);
+extern int httpserver_handler(session, void*);
+extern const char* httpserver_value(session s, const char* name);
+extern int httpserver_response(session s, unsigned code, const char* msg, size_t len, const char* content_type);
+extern void httpserver_destroy(httpserver h);
 
 #endif

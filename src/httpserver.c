@@ -244,6 +244,32 @@ const char* httpserver_value(session s, const char* name)
 	return session_get_stash(s, tmpbuf);
 }
 
+int httpserver_response(session s, unsigned code, const char* msg, size_t len, const char* content_type)
+{
+	if (!s || !msg || !content_type)
+		return 0;
+
+	char headers[1024];
+	char* dst = headers;
+	dst += sprintf(dst, "HTTP/%s %u %s\n", session_get_stash(s, HTTP_VERSION), code, msg);
+	dst += sprintf(dst, "Content-Type: %s\r\n", content_type);
+
+	if (session_get_udata_flag(s, HTTP_PERSIST))
+	{
+		dst += sprintf(dst, "Connection: keep-alive\r\n");
+		dst += sprintf(dst, "Content-Length: %u\r\n", (unsigned)len);
+	}
+	else
+		dst += sprintf(dst, "Connection: close\r\n");
+
+	dst += sprintf(dst, "\r\n");
+
+	if (!session_writemsg(s, headers))
+		return 0;
+
+	return 1;
+}
+
 httpserver httpserver_create(int (*f)(session,void*), void* p1)
 {
 	httpserver h = (httpserver)calloc(1, sizeof(struct _httpserver));

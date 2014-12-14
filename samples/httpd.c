@@ -23,36 +23,13 @@ static int request(session s, void* param)
 	char* dst = body;
 	size_t len = sprintf(dst, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
 
-	// Generate custom headers...
-
-	char headers[1024];
-	dst = headers;
-	dst += sprintf(dst, "HTTP/%s 200 OK\n", session_get_stash(s, HTTP_VERSION));
-	dst += sprintf(dst, "Content-Type: text/html\r\n");
-
-	if (session_get_udata_flag(s, HTTP_PERSIST))
-	{
-		dst += sprintf(dst, "Connection: keep-alive\r\n");
-		dst += sprintf(dst, "Content-Length: %u\r\n", (unsigned)len);
-	}
-	else
-		dst += sprintf(dst, "Connection: close\r\n");
-
-	dst += sprintf(dst, "\r\n");
-
-	// The response headers...
-
-	if (!session_writemsg(s, headers))
-		return 0;
-
-	if (!g_quiet) printf("%s", headers);
+	httpserver_response(s, 200, "OK", len, "text/html");
 
 	// The response body...
 
 	if (!session_writemsg(s, body))
 		return 0;
 
-	if (!g_quiet) printf("%s", body);
 	return 1;
 }
 
