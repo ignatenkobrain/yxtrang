@@ -92,6 +92,11 @@ static int get_postdata(session s)
 	if (!s)
 		return 0;
 
+	const char* ct = session_get_stash(s, "content-type");
+
+	if (strcasecmp(ct, "application/x-www-form-urlencoded"))
+		return 0;
+
 	long len = atol(session_get_stash(s, "content-length"));
 	if (!len) return 1;
 
