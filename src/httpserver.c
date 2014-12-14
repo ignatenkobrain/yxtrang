@@ -87,7 +87,7 @@ static char* lower(char* src)
 	return save_src;
 }
 
-static int httpserver_postdata(session s)
+static int get_postdata(session s)
 {
 	if (!s)
 		return 0;
@@ -280,7 +280,7 @@ int httpserver_handler(session s, void* p1)
 	// Process body...
 
 	if (session_get_udata_flag(s, HTTP_POST))
-		httpserver_postdata(s);
+		get_postdata(s);
 
 	httpserver h = (httpserver)p1;
 	h->f(s, h->data);
