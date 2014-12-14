@@ -264,6 +264,8 @@ int httpserver_response(session s, unsigned code, const char* msg, size_t len, c
 
 	dst += sprintf(dst, "\r\n");
 
+	if (!g_debug) printf("SEND: %s", headers);
+
 	if (!session_writemsg(s, headers))
 		return 0;
 
