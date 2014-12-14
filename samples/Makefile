@@ -31,4 +31,4 @@ test.o: ../src/linda.h ../src/jsonq.h ../src/thread.h
 echo1.o: ../src/network.h
 echo2.o: ../src/network.h
 echod.o: ../src/network.h
-httpd.o: ../src/network.h
+httpd.o: ../src/network.h ../src/httpserver.h

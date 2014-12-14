@@ -54,7 +54,7 @@ echo2.obj: $*.c ..\src\network.h
 echod.obj: $*.c ..\src\network.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
-httpd.obj: $*.c ..\src\network.h
+httpd.obj: $*.c ..\src\network.h ..\src\httpserver.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
 clean:
