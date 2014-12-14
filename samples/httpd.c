@@ -40,48 +40,37 @@ static char* strstri(const char* src, const char* s)
 
 static int on_session(session s, void* param)
 {
-	char tmpbuf[1024*64], tmpbuf2[1024*64];
-	char* dst = tmpbuf;
-	char* dst2 = tmpbuf2;
-	dst2 += sprintf(dst2, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
+	char body[1024*64];
+	char* dst = body;
+	dst += sprintf(dst, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
+	size_t len = dst - body;
 
+	char headers[1024*64];
+	dst = headers;
 	dst += sprintf(dst, "HTTP/%1.1f 200 OK\n", session_get_udata_real(s));
 	dst += sprintf(dst, "Content-Type: text/html\r\n");
 
 	if (session_get_udata_flag(s, HTTP_PERSIST))
 	{
 		dst += sprintf(dst, "Connection: keep-alive\r\n");
-		dst += sprintf(dst, "Content-Length: %llu\r\n", (unsigned long long)(dst2-tmpbuf2));
+		dst += sprintf(dst, "Content-Length: %u\r\n", (unsigned)len);
 	}
 	else
 		dst += sprintf(dst, "Connection: close\r\n");
 
 	dst += sprintf(dst, "\r\n");
 
-	// The response-headers...
-
-	if (!session_writemsg(s, tmpbuf))
+	if (!session_writemsg(s, headers))
 		return 0;
+
+	if (!g_quiet) printf("%s", headers);
 
 	// The response-body...
 
-	if (!session_writemsg(s, tmpbuf2))
+	if (!session_writemsg(s, body))
 		return 0;
 
-	if (!g_quiet) printf("%s", tmpbuf);
-
-	// If persistent, clean-up...
-
-	if (session_get_udata_flag(s, HTTP_PERSIST))
-	{
-		session_clr_udata_flags(s);
-		session_set_udata_flag(s, HTTP_READY);
-		return 1;
-	}
-
-	// Finish-up...
-
-	session_shutdown(s);
+	if (!g_quiet) printf("%s", body);
 	return 1;
 }
 

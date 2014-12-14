@@ -127,6 +127,19 @@ int httpserver_handler(session s, void* p1)
 
 	httpserver h = (httpserver)p1;
 	h->f(s, h->data);
+
+	// If persistent, clean-up...
+
+	if (session_get_udata_flag(s, HTTP_PERSIST))
+	{
+		session_clr_udata_flags(s);
+		session_set_udata_flag(s, HTTP_READY);
+		return 1;
+	}
+
+	// Finish-up...
+
+	session_shutdown(s);
 	return 1;
 }
 
