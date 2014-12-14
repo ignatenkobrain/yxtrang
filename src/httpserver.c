@@ -66,20 +66,31 @@ int httpserver_handler(session s, void* p1)
 
 	if (!g_debug) printf("DATA: %s", msg);
 
-	int is_cmd = session_get_udata_flag(s, HTTP_READY);
+	int is_ready = session_get_udata_flag(s, HTTP_READY);
 
 	// Process command...
 
-	if (is_cmd)
+	if (is_ready)
 	{
 		session_clr_udata_flag(s, HTTP_READY);
 
 		char cmd[20], path[1024], ver[20];
 		cmd[0] = path[0] = ver[0] = 0;
 		sscanf(msg, "%19s %1023s %*[^/]/%19[^\r\n]", cmd, path, ver);
-		cmd[19] = path[1023] = ver[19] = 0;
+		cmd[sizeof(cmd)-1] = path[sizeof(path)-1] = ver[sizeof(ver)-1] = 0;
+		session_set_stash(s, "HTTP_COMMAND", cmd);
+		session_set_stash(s, "HTTP_PATH", path);
+		session_set_stash(s, "HTTP_VERSION", ver);
+
 		double v = atof(ver);
 		session_set_udata_real(s, v);
+
+		char filename[1024], query[1024];
+		filename[0] = query[0] = 0;
+		sscanf(path, "%1023[^?]?%1023s", filename, query);
+		filename[sizeof(filename)-1] = query[sizeof(query)-1] = 0;
+		session_set_stash(s, "HTTP_FILENAME", filename);
+		session_set_stash(s, "HTTP_QUERY", query);
 
 		if (v == 1.1)
 		{
@@ -93,6 +104,12 @@ int httpserver_handler(session s, void* p1)
 			session_set_udata_flag(s, HTTP_HEAD);
 		else if (!strcasecmp(cmd, "GET"))
 			session_set_udata_flag(s, HTTP_GET);
+		else if (!strcasecmp(cmd, "POST"))
+			session_set_udata_flag(s, HTTP_POST);
+		else if (!strcasecmp(cmd, "PUT"))
+			session_set_udata_flag(s, HTTP_PUT);
+		else if (!strcasecmp(cmd, "DELETE"))
+			session_set_udata_flag(s, HTTP_DELETE);
 
 		return 1;
 	}
@@ -127,7 +144,7 @@ int httpserver_handler(session s, void* p1)
 	httpserver h = (httpserver)p1;
 	h->f(s, h->data);
 
-	// If persistent, clean-up...
+	// If persistent then reset...
 
 	if (session_get_udata_flag(s, HTTP_PERSIST))
 	{
@@ -136,7 +153,7 @@ int httpserver_handler(session s, void* p1)
 		return 1;
 	}
 
-	// Finish-up...
+	// Otherwise...
 
 	session_shutdown(s);
 	return 1;
