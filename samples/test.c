@@ -268,7 +268,6 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 	}
 
 	store_end(h);
-
 	printf("Store: %ld items\n", (long)store_count(st));
 
 	if (vfy)

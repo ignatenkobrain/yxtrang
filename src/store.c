@@ -1111,7 +1111,6 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 
 	uint64_t pos = POS(v);
 	int idx = FILEIDX(pos);
-
 	uint64_t save_pos = 0, next_pos = 0;
 	unsigned save_nbr = 0, cnt = 0;
 	int valid = 1;
