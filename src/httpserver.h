@@ -1,6 +1,8 @@
 #ifndef HTTPSERVER_H
 #define HTTPSERVER_H
 
+#include "network.h"
+
 // This module will process query-strings and also POST-data for
 // content-type 'application/x-www-form-urlencoded', parsing the
 // name-value pairs. Each name will be preceded by an underscore
@@ -18,13 +20,11 @@
 
 // Session stash variables:
 
-#include "network.h"
-
 #define HTTP_COMMAND "HTTP_COMMAND"
 #define HTTP_RESOURCE "HTTP_RESOURCE"
 #define HTTP_VERSION "HTTP_VERSION"
 #define HTTP_FILENAME "HTTP_FILENAME"
-#define HTTP_QUERYSTRING "HTTP_QUERYSTRING"
+#define HTTP_QUERY "HTTP_QUERY"
 #define HTTP_HOST "HTTP_HOST"
 #define HTTP_PORT "HTTP_PORT"
 
