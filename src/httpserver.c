@@ -89,9 +89,6 @@ static char* lower(char* src)
 
 static int get_postdata(session s)
 {
-	if (!s)
-		return 0;
-
 	const char* ct = session_get_stash(s, "content-type");
 
 	if (!strstri(ct, "application/x-www-form-urlencoded"))
@@ -99,8 +96,7 @@ static int get_postdata(session s)
 
 	long len = atol(session_get_stash(s, "content-length"));
 	if (!len) return 1;
-
-	char* query = (char*)malloc(len);
+	char* query = (char*)malloc(len+1);
 
 	if (!session_read(s, query, len))
 	{
@@ -108,6 +104,7 @@ static int get_postdata(session s)
 		return 0;
 	}
 
+	query[len] = 0;
 	const char* src = query;
 	char tmpbuf2[1024], tmpbuf3[1024];
 	char tmpbuf4[1024*2];
