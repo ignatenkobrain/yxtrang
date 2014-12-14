@@ -17,39 +17,17 @@
 static int g_quiet = 0;
 static const char* g_www = "/var/www";
 
-static char* strstri(const char* src, const char* s)
-{
-	while (*src)
-	{
-		const char* c1 = src;
-		const char* c2 = s;
-
-		while (tolower(*c1) == tolower(*c2))
-		{
-			c1++; c2++;
-
-			if (!*c2)
-				return (char*)src;
-		}
-
-		src++;
-	}
-
-	return 0;
-}
-
-static int on_session(session s, void* param)
+static int request(session s, void* param)
 {
 	char body[1024];
 	char* dst = body;
-	dst += sprintf(dst, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
-	size_t len = dst - body;
+	size_t len = sprintf(dst, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
 
 	// Generate custom headers...
 
 	char headers[1024];
 	dst = headers;
-	dst += sprintf(dst, "HTTP/%1.1f 200 OK\n", session_get_udata_real(s));
+	dst += sprintf(dst, "HTTP/%s 200 OK\n", session_get_stash(s, HTTP_VERSION));
 	dst += sprintf(dst, "Content-Type: text/html\r\n");
 
 	if (session_get_udata_flag(s, HTTP_PERSIST))
@@ -94,7 +72,7 @@ int main(int ac, char** av)
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
-	httpserver http = httpserver_create(&on_session, NULL);
+	httpserver http = httpserver_create(&request, NULL);
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, NULL))
 		return 1;

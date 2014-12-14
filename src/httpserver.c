@@ -109,9 +109,9 @@ int httpserver_handler(session s, void* p1)
 		cmd[0] = path[0] = ver[0] = 0;
 		sscanf(msg, "%19s %8191s %*[^/]/%19[^\r\n]", cmd, path, ver);
 		cmd[sizeof(cmd)-1] = path[sizeof(path)-1] = ver[sizeof(ver)-1] = 0;
-		session_set_stash(s, "HTTP_COMMAND", cmd);
-		session_set_stash(s, "HTTP_PATH", path);
-		session_set_stash(s, "HTTP_VERSION", ver);
+		session_set_stash(s, HTTP_COMMAND, cmd);
+		session_set_stash(s, HTTP_PATH, path);
+		session_set_stash(s, HTTP_VERSION, ver);
 
 		double v = atof(ver);
 		session_set_udata_real(s, v);
@@ -120,8 +120,8 @@ int httpserver_handler(session s, void* p1)
 		filename[0] = query[0] = 0;
 		sscanf(path, "%1023[^?]?%8191s", filename, query);
 		filename[sizeof(filename)-1] = query[sizeof(query)-1] = 0;
-		session_set_stash(s, "HTTP_FILENAME", url_decode(filename, path));
-		session_set_stash(s, "HTTP_QUERY", url_decode(query, path));
+		session_set_stash(s, HTTP_FILENAME, url_decode(filename, path));
+		session_set_stash(s, HTTP_QUERY, url_decode(query, path));
 		const char* src = query;
 		char tmpbuf2[1024], tmpbuf3[1024];
 		char tmpbuf4[1024*2];
@@ -220,6 +220,17 @@ int httpserver_handler(session s, void* p1)
 
 	session_shutdown(s);
 	return 1;
+}
+
+const char* httpserver_value(session s, const char* name)
+{
+	if (!s)
+		return NULL;
+
+	char tmpbuf[1024];
+	strcpy(tmpbuf, "_");
+	strcat(tmpbuf, name);
+	return session_get_stash(s, tmpbuf);
 }
 
 httpserver httpserver_create(int (*f)(session,void*), void* p1)
