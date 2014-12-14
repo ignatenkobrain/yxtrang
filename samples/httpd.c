@@ -24,11 +24,7 @@ static int request(session s, void* param)
 	size_t len = sprintf(dst, "<html><title>test</title>\n<body><h1>Request for: '%s'</h1></body>\n</html>\n", session_get_stash(s, HTTP_FILENAME));
 
 	httpserver_response(s, 200, "OK", len, "text/html");
-
-	if (!session_writemsg(s, body))
-		return 0;
-
-	return 1;
+	return session_writemsg(s, body);
 }
 
 int main(int ac, char** av)
