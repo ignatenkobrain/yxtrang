@@ -6,7 +6,8 @@
 // This module will process query-strings and POST-data,
 // parsing name-value pairs. Each name will be preceded
 // by an underscore in the stash. Other content associated
-// with a request is left unread and should be processed.
+// with a request is left unread and should be processed
+// by the user.
 
 // Session stash variables:
 

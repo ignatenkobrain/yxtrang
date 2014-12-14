@@ -24,7 +24,8 @@ daemon:
 
 httpserver:
 
- Makes it easy to write a custom HTTP handler.
+ Mechanism to easily write a custom HTTP handler. Should also serve
+ as a template for writing any bespoke protocol server.
 
 
 json:
