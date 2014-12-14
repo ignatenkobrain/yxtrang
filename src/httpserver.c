@@ -14,7 +14,7 @@
 
 #define PREFIX "_"
 
-static int g_debug = 1;
+static int g_debug = 0;
 
 struct _httpserver
 {
