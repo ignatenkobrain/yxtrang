@@ -191,7 +191,7 @@ int httpserver_handler(session s, void* p1)
 		name[sizeof(name)-1] = value[sizeof(value)-1] = 0;
 		session_set_stash(s, name, value);
 
-		if (!strcasecmp(name, "Connection"))
+		if (!strcasecmp(name, "connection"))
 		{
 			if (strstri(value, "keep-alive"))
 				session_set_udata_flag(s, HTTP_PERSIST);
