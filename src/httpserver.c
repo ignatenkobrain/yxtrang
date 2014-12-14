@@ -74,6 +74,70 @@ static const char* url_decode(const char* src, char* dst)
 	return save_dst;
 }
 
+static char* lower(char* src)
+{
+	char* save_src = src;
+
+	while (*src)
+	{
+		*src = _tolower(*src);
+		src++;
+	}
+
+	return save_src;
+}
+
+static int httpserver_postdata(session s)
+{
+	if (!s)
+		return 0;
+
+	long len = atol(session_get_stash(s, "content-length"));
+	if (!len) return 1;
+
+	char* query = (char*)malloc(len);
+
+	if (!session_read(s, query, len))
+	{
+		free(query);
+		return 0;
+	}
+
+	const char* src = query;
+	char tmpbuf2[1024], tmpbuf3[1024];
+	char tmpbuf4[1024*2];
+	char tmpbuf[1024];
+	char* dst = tmpbuf;
+
+	while (*src)
+	{
+		if (*src == '&')
+		{
+			src++;
+			*dst = 0;
+			tmpbuf2[0] = tmpbuf3[0] = 0;
+			sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+			tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
+			strcpy(tmpbuf4, PREFIX);
+			strcat(tmpbuf4, tmpbuf2);
+			session_set_stash(s, tmpbuf4, tmpbuf3);
+			dst = tmpbuf;
+		}
+		else
+			*dst++ = *src++;
+	}
+
+	*dst = 0;
+	tmpbuf2[0] = tmpbuf3[0] = 0;
+	sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+	tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
+	strcpy(tmpbuf4, PREFIX);
+	strcat(tmpbuf4, tmpbuf2);
+	session_set_stash(s, tmpbuf4, tmpbuf3);
+	free(query);
+	return 1;
+}
+
 int httpserver_handler(session s, void* p1)
 {
 	if (!s)
@@ -191,7 +255,7 @@ int httpserver_handler(session s, void* p1)
 		name[0] = value[0] = 0;
 		sscanf(msg, "%1023[^:]: %8191[^\r\n]", name, value);
 		name[sizeof(name)-1] = value[sizeof(value)-1] = 0;
-		session_set_stash(s, name, value);
+		session_set_stash(s, lower(name), value);
 
 		if (!strcasecmp(name, "connection"))
 		{
@@ -214,6 +278,9 @@ int httpserver_handler(session s, void* p1)
 	}
 
 	// Process body...
+
+	if (session_get_udata_flag(s, HTTP_POST))
+		httpserver_postdata(s);
 
 	httpserver h = (httpserver)p1;
 	h->f(s, h->data);

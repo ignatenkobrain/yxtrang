@@ -3,6 +3,11 @@
 
 #include "network.h"
 
+// This module will process query-strings and POST-data,
+// parsing name-value pairs. Each name will be preceded
+// by an underscore in the stash. Other content associated
+// with a request is left unread and should be processed.
+
 // Session stash variables:
 
 #define HTTP_COMMAND "HTTP_COMMAND"
@@ -23,6 +28,7 @@ enum {	HTTP_READY, HTTP_HEAD, HTTP_GET, HTTP_POST,
 typedef struct _httpserver* httpserver;
 
 extern httpserver httpserver_create(int (*)(session,void*), void* p1);
+
 extern const char* httpserver_value(session s, const char* name);
 extern int httpserver_response(session s, unsigned code, const char* msg, size_t len, const char* content_type);
 extern void httpserver_destroy(httpserver h);
