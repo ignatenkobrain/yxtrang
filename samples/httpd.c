@@ -40,12 +40,12 @@ static char* strstri(const char* src, const char* s)
 
 static int on_session(session s, void* param)
 {
-	char body[1024*64];
+	char body[1024];
 	char* dst = body;
 	dst += sprintf(dst, "<html>\n<title>test</title>\n<body><h1>This is a test</h1>\n</body>\n</html>\n");
 	size_t len = dst - body;
 
-	char headers[1024*64];
+	char headers[1024];
 	dst = headers;
 	dst += sprintf(dst, "HTTP/%1.1f 200 OK\n", session_get_udata_real(s));
 	dst += sprintf(dst, "Content-Type: text/html\r\n");
