@@ -25,8 +25,6 @@ static int request(session s, void* param)
 
 	httpserver_response(s, 200, "OK", len, "text/html");
 
-	// The response body...
-
 	if (!session_writemsg(s, body))
 		return 0;
 
