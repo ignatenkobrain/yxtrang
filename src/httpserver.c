@@ -122,6 +122,37 @@ int httpserver_handler(session s, void* p1)
 		filename[sizeof(filename)-1] = query[sizeof(query)-1] = 0;
 		session_set_stash(s, "HTTP_FILENAME", url_decode(filename, path));
 		session_set_stash(s, "HTTP_QUERY", url_decode(query, path));
+		const char* src = query;
+		char tmpbuf2[1024], tmpbuf3[1024];
+		char tmpbuf4[1024*2];
+		char tmpbuf[1024];
+		char* dst = tmpbuf;
+
+		while (*src)
+		{
+			if (*src == '&')
+			{
+				src++;
+				*dst = 0;
+				tmpbuf2[0] = tmpbuf3[0] = 0;
+				sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+				tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
+				strcpy(tmpbuf4, "PARAM_");
+				strcat(tmpbuf4, tmpbuf2);
+				session_set_stash(s, tmpbuf4, tmpbuf3);
+				dst = tmpbuf;
+			}
+			else
+				*dst++ = *src++;
+		}
+
+		*dst = 0;
+		tmpbuf2[0] = tmpbuf3[0] = 0;
+		sscanf(tmpbuf, "%1023[^=]=%1023s", tmpbuf2, tmpbuf3);
+		tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
+		strcpy(tmpbuf4, "HTTP_PARAM_");
+		strcat(tmpbuf4, tmpbuf2);
+		session_set_stash(s, tmpbuf4, tmpbuf3);
 
 		if (v == 1.1)
 		{
