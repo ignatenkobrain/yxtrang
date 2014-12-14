@@ -10,6 +10,8 @@
 #define HTTP_VERSION "HTTP_VERSION"
 #define HTTP_FILENAME "HTTP_FILENAME"
 #define HTTP_QUERY "HTTP_QUERY"
+#define HTTP_HOST "HTTP_HOST"
+#define HTTP_PORT "HTTP_PORT"
 
 // Session flags:
 

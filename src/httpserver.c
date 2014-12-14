@@ -200,6 +200,15 @@ int httpserver_handler(session s, void* p1)
 			else if (strstri(value, "close"))
 				session_clr_udata_flag(s, HTTP_PERSIST);
 		}
+		else if (!strcasecmp(name, "host"))
+		{
+			char tmpbuf2[1024], tmpbuf3[1024];
+			tmpbuf2[0] = tmpbuf3[0] = 0;
+			sscanf(value, "%1023[^:]:%1023s", tmpbuf2, tmpbuf3);
+			tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
+			session_set_stash(s, HTTP_HOST, tmpbuf2);
+			session_set_stash(s, HTTP_PORT, tmpbuf3);
+		}
 
 		return 1;
 	}
