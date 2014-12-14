@@ -72,7 +72,7 @@ store:
 
 thread:
 
- Threads, threadpool, locks etc.
+ Threads, threadpool, locks, atomics etc.
 
 
 tree:

@@ -60,7 +60,8 @@ struct _store
 	void (*f)(void*,const uuid,const void*,int);
 	void* p1;
 	uint64_t eodpos[MAX_LOGFILES];
-	int fd[MAX_LOGFILES], idx, transactions, current;
+	int fd[MAX_LOGFILES], idx;
+	int transactions, current;
 };
 
 struct _hstore
@@ -477,7 +478,8 @@ hstore store_begin(store st, int dbsync)
 	if (!h)
 		return 0;
 
-	h->nbr = ++st->current; st->transactions++;
+	h->nbr = ++st->current;
+	st->transactions++;
 	h->st = st;
 	h->wait_for_write = 1;
 	h->dbsync = dbsync;
