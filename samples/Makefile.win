@@ -5,7 +5,7 @@ CPPFLAGS = $(CPPFLAGS) /MT /O1 /Gy /EHsc /D_CRT_SECURE_NO_DEPRECATE=1 /D_CRT_NON
 
 CPPFLAGS = $(CPPFLAGS) -I..\src /nologo /DWIN32_LEAN_AND_MEAN
 
-all: test.exe echo1.exe echo2.exe echod.exe httpd.exe
+all: test.exe echo1.exe echo2.exe echod.exe httpd.exe lindad.exe
 
 test.exe: $*.obj ..\src\yxtrang.lib
         link @<<

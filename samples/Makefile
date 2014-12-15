@@ -3,7 +3,7 @@ CFLAGS = -O2 $(DBG) -I/usr/local/include -I../src -D_REENTRANT -D_BSD_SOURCE
 
 LDFLAGS = -L/usr/local/lib -lm -lpthread -lssl -lcrypto
 
-all: test echo1 echo2 echod httpd
+all: test echo1 echo2 echod httpd lindad
 
 test: test.o ../src/yxtrang.a
 	$(CC) -o test test.o ../src/yxtrang.a $(LDFLAGS)

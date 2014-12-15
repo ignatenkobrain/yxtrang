@@ -21,16 +21,22 @@ static const char* g_www = "/var/www";
 static int request(session s, void* param)
 {
 	const char* filename = session_get_stash(s, HTTP_FILENAME);
-	char body[1024];
-	const size_t len =
-		sprintf(body,
-		"<html><title>test</title>\n<body><h1>Request for: '%s'</h1></body>\n</html>\n",
-		filename
-		);
 
-	httpserver_response(s, 404, "NOT FOUND", len, "text/html");
-	if (g_http_debug) printf("SEND: %s", body);
-	return session_write(s, body, len);
+	if (strcmp(filename, "linda"))
+	{
+		char body[1024];
+		const size_t len =
+			sprintf(body,
+			"<html><title>test</title>\n<body><h1>Request for: '%s'</h1></body>\n</html>\n",
+			filename
+			);
+
+		httpserver_response(s, 404, "NOT FOUND", len, "text/html");
+		if (g_http_debug) printf("SEND: %s", body);
+		return session_write(s, body, len);
+	}
+
+	return 1;
 }
 
 int main(int ac, char** av)
