@@ -25,7 +25,7 @@ static int request(session s, void* param)
 
 	httpserver_response(s, 200, "OK", len, "text/html");
 	if (g_http_debug) printf("SEND: %s", body);
-	return session_writemsg(s, body);
+	return session_write(s, body, len);
 }
 
 int main(int ac, char** av)
