@@ -13,6 +13,7 @@
 #endif
 
 #include <httpserver.h>
+#include <linda.h>
 
 extern int g_http_debug;
 static const char* g_www = "/var/www";
