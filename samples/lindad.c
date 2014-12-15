@@ -59,6 +59,9 @@ int main(int ac, char** av)
 	httpserver http = httpserver_create(&request, NULL);
 	if (!http) return 1;
 
+	linda l = linda_open(path1, path2);
+	if (!l) return 2;
+
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, NULL))
 		return 1;
 
