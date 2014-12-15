@@ -2,8 +2,9 @@
 #define LINDA_H
 
 // Linda reads and writes JSON tuples.
-
 // String ID has 256 byte length limit
+
+#include "uuid.h"
 
 #define LINDA_ID "$id"
 #define LINDA_OID "$oid"

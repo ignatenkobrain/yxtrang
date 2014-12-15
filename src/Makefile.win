@@ -4,8 +4,9 @@ CPPFLAGS = $(CPPFLAGS) /MT /O2 /Gy /EHsc /D_CRT_SECURE_NO_DEPRECATE=1 /D_CRT_NON
 CPPFLAGS = $(CPPFLAGS) -I\boost -I. /nologo /DWIN32_LEAN_AND_MEAN /DUSE_SSL=0
 
 OBJECTS = base64.obj daemon.obj httpserver.obj json.obj jsonq.obj \
-			linda.obj network.obj scriptlet.obj skiplist.obj \
-			store.obj thread.obj tree.obj uncle.obj uuid.obj
+			linda.obj lindatp.obj network.obj scriptlet.obj \
+			skiplist.obj store.obj thread.obj tree.obj uncle.obj \
+			uuid.obj
 
 all: yxtrang.lib
 
@@ -42,6 +43,11 @@ $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
 linda.obj: $*.h $*.c json.h store.h skiplist.h skiplist_uuid.h
+        cl @<<
+$(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
+<<
+
+lindatp.obj: $*.h $*.c json.h linda.h httpserver.h network.h uuid.h
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
