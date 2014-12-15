@@ -87,6 +87,41 @@ static char* lower(char* src)
 	return save_src;
 }
 
+static void decode_data(session s, const char* str)
+{
+	const char* src = str;
+	char tmpbuf2[1024], tmpbuf3[8192], tmpbuf5[8192];
+	char tmpbuf4[1024*2];
+	char tmpbuf[1024];
+	char* dst = tmpbuf;
+
+	while (*src)
+	{
+		if (*src == '&')
+		{
+			src++;
+			*dst = 0;
+			tmpbuf2[0] = tmpbuf3[0] = 0;
+			sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
+			tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
+			strcpy(tmpbuf4, PREFIX);
+			strcat(tmpbuf4, url_decode(tmpbuf2, tmpbuf5));
+			session_set_stash(s, tmpbuf4, url_decode(tmpbuf3, tmpbuf5));
+			dst = tmpbuf;
+		}
+		else
+			*dst++ = *src++;
+	}
+
+	*dst = 0;
+	tmpbuf2[0] = tmpbuf3[0] = 0;
+	sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
+	tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
+	strcpy(tmpbuf4, PREFIX);
+	strcat(tmpbuf4, url_decode(tmpbuf2, tmpbuf5));
+	session_set_stash(s, tmpbuf4, url_decode(tmpbuf3, tmpbuf5));
+}
+
 static int get_postdata(session s)
 {
 	const char* ct = session_get_stash(s, "content-type");
@@ -105,37 +140,7 @@ static int get_postdata(session s)
 	}
 
 	query[len] = 0;
-	const char* src = query;
-	char tmpbuf2[1024], tmpbuf3[8192];
-	char tmpbuf4[1024*2];
-	char tmpbuf[1024];
-	char* dst = tmpbuf;
-
-	while (*src)
-	{
-		if (*src == '&')
-		{
-			src++;
-			*dst = 0;
-			tmpbuf2[0] = tmpbuf3[0] = 0;
-			sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
-			tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
-			strcpy(tmpbuf4, PREFIX);
-			strcat(tmpbuf4, tmpbuf2);
-			session_set_stash(s, tmpbuf4, tmpbuf3);
-			dst = tmpbuf;
-		}
-		else
-			*dst++ = *src++;
-	}
-
-	*dst = 0;
-	tmpbuf2[0] = tmpbuf3[0] = 0;
-	sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
-	tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
-	strcpy(tmpbuf4, PREFIX);
-	strcat(tmpbuf4, tmpbuf2);
-	session_set_stash(s, tmpbuf4, tmpbuf3);
+	decode_data(s, query);
 	free(query);
 	return 1;
 }
@@ -189,38 +194,8 @@ int httpserver_handler(session s, void* p1)
 		sscanf(res, "%1023[^?]?%8191s", filename, query);
 		filename[sizeof(filename)-1] = query[sizeof(query)-1] = 0;
 		session_set_stash(s, HTTP_FILENAME, url_decode(filename, res));
-		session_set_stash(s, HTTP_QUERY, url_decode(query, res));
-		const char* src = query;
-		char tmpbuf2[1024], tmpbuf3[8192];
-		char tmpbuf4[1024*2];
-		char tmpbuf[1024];
-		char* dst = tmpbuf;
-
-		while (*src)
-		{
-			if (*src == '&')
-			{
-				src++;
-				*dst = 0;
-				tmpbuf2[0] = tmpbuf3[0] = 0;
-				sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
-				tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
-				strcpy(tmpbuf4, PREFIX);
-				strcat(tmpbuf4, tmpbuf2);
-				session_set_stash(s, tmpbuf4, tmpbuf3);
-				dst = tmpbuf;
-			}
-			else
-				*dst++ = *src++;
-		}
-
-		*dst = 0;
-		tmpbuf2[0] = tmpbuf3[0] = 0;
-		sscanf(tmpbuf, "%1023[^=]=%8191s", tmpbuf2, tmpbuf3);
-		tmpbuf2[sizeof(tmpbuf2)-1] = tmpbuf3[sizeof(tmpbuf3)-1] = 0;
-		strcpy(tmpbuf4, PREFIX);
-		strcat(tmpbuf4, tmpbuf2);
-		session_set_stash(s, tmpbuf4, tmpbuf3);
+		session_set_stash(s, HTTP_QUERY, query);
+		decode_data(s, query);
 
 		if (v == 1.1)
 		{
