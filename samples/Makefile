@@ -20,6 +20,9 @@ echod: echod.o ../src/yxtrang.a
 httpd: httpd.o ../src/yxtrang.a
 	$(CC) -o httpd httpd.o ../src/yxtrang.a $(LDFLAGS)
 
+lindad: lindad.o ../src/yxtrang.a
+	$(CC) -o httpd httpd.o ../src/yxtrang.a $(LDFLAGS)
+
 clean:
 	rm -f *.o test echo1 echo2 echod httpd
 
@@ -32,3 +35,4 @@ echo1.o: ../src/network.h
 echo2.o: ../src/network.h
 echod.o: ../src/network.h
 httpd.o: ../src/network.h ../src/httpserver.h
+lindad.o: ../src/network.h ../src/httpserver.h ../src/lindatp.h
