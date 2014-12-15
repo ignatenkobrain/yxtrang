@@ -24,7 +24,7 @@ lindad: lindad.o ../src/yxtrang.a
 	$(CC) -o httpd httpd.o ../src/yxtrang.a $(LDFLAGS)
 
 clean:
-	rm -f *.o test echo1 echo2 echod httpd
+	rm -f *.o test echo1 echo2 echod httpd lindad
 
 # DO NOT DELETE
 
