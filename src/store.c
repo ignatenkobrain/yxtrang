@@ -37,7 +37,7 @@ static const char STX = '+';		// Start transaction (begin)
 static const char ETX = '-';		// End transaction (commit)
 static const char CAN = '!';		// Cancel (rollback)
 
-#define MAX_LOGFILE_SIZE (32L*1024*1024*1024)	// 32 GB
+#define MAX_LOGFILE_SIZE (32LL*1024*1024*1024)	// 32 GB
 
 #define MAX_LOGFILES 256			// 8 bits +
 #define POS_BITS 56					// 56 bits = 64 bits
