@@ -37,7 +37,15 @@ enum {	HTTP_READY, HTTP_HEAD, HTTP_GET, HTTP_POST,
 
 typedef struct _httpserver* httpserver;
 
+struct _httpserver_reqs
+{
+	int (*f)(session s, void* param);
+	const char* path;
+	void* data;
+};
+
 extern httpserver httpserver_create(int (*)(session,void*), void* p1);
+extern httpserver httpserver_create2(struct _httpserver_reqs reqs[]);
 
 extern void* httpserver_get_content(session s);	// MUST free after use
 

@@ -18,6 +18,7 @@ int g_http_debug = 0;
 
 struct _httpserver
 {
+	struct _httpserver_reqs reqs[64];
 	int (*f)(session,void*);
 	void* data;
 };
@@ -266,7 +267,30 @@ int httpserver_handler(session s, void* p1)
 		get_postdata(s);
 
 	httpserver h = (httpserver)p1;
-	h->f(s, h->data);
+
+	if (!h->f)
+	{
+		const char* filename = session_get_stash(s, HTTP_FILENAME);
+
+		size_t i = 0;
+
+		while (h->reqs[i].f)
+		{
+			if (!h->reqs[i].path)
+			{
+				h->reqs[i].f(s, h->reqs[i].data);
+				break;
+			}
+
+			if (!strcmp(h->reqs[i].path, filename))
+			{
+				h->reqs[i].f(s, h->reqs[i].data);
+				break;
+			}
+		}
+	}
+	else
+		h->f(s, h->data);
 
 	// If persistent then reset...
 
@@ -334,6 +358,23 @@ httpserver httpserver_create(int (*f)(session,void*), void* p1)
 	httpserver h = (httpserver)calloc(1, sizeof(struct _httpserver));
 	h->f = f;
 	h->data = p1;
+	return h;
+}
+
+httpserver httpserver_create2(struct _httpserver_reqs* reqs)
+{
+	httpserver h = (httpserver)calloc(1, sizeof(struct _httpserver));
+	size_t i = 0;
+
+	while (reqs->f)
+	{
+		h->reqs[i].f = reqs->f;
+		h->reqs[i].path = reqs->path;
+		h->reqs[i].data = reqs->data;
+		i++;
+	}
+
+	h->reqs[i].f = NULL;
 	return h;
 }
 

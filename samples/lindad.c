@@ -82,10 +82,6 @@ static int linda_request(session s, void* param)
 static int http_request(session s, void* param)
 {
 	const char* filename = session_get_stash(s, HTTP_FILENAME);
-
-	if (!strcmp(filename, "linda"))
-		return linda_request(s, param);
-
 	char body[1024];
 	const size_t len =
 		sprintf(body,
@@ -123,7 +119,14 @@ int main(int ac, char** av)
 	linda l = linda_open(path1, path2);
 	if (!l) return 3;
 
-	httpserver http = httpserver_create(&http_request, l);
+	struct _httpserver_reqs reqs[] =
+	{
+		{&linda_request, "linda", l},
+		{&http_request, NULL, NULL},
+		{0}
+	};
+
+	httpserver http = httpserver_create2(reqs);
 	if (!http) return 4;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, LINDA_SERVICE))
