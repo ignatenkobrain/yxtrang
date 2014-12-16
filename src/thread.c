@@ -141,7 +141,7 @@ int atomic_inc(int* v)
 int atomic_dec(int* v)
 {
 	if (!g_lock)
-		return 0;
+		g_lock = lock_create();
 
 	lock_lock(g_lock);
 	int tmp = --(*v);
