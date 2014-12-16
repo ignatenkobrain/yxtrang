@@ -15,13 +15,15 @@ typedef struct _hreader* hreader;
 extern store store_open(const char* path1, const char* path2, int compact);
 extern store store_open2(const char* path1, const char* path2, int compact, void (*)(void*,const uuid,const void*,int), void* p1);
 
+// Non-transactions are NOT thread-safe...
+
 extern int store_get(const store st, const uuid u, void** buf, size_t* len);
 extern int store_add(store st, const uuid u, const void* buf, size_t len);
 extern int store_rem(store st, const uuid u);
 extern int store_rem2(store st, const uuid u, const void* buf, size_t len);
 extern unsigned long store_count(const store st);
 
-// Transactions...
+// Transactions are thread-safe...
 
 extern hstore store_begin(store st, int dbsync);
 extern int store_hadd(hstore h, const uuid u, const void* buf, size_t len);

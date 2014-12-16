@@ -46,7 +46,8 @@ static int linda_request(session s, void* param)
 		return 1;
 	}
 
-	hlinda h = linda_begin(l, 1);
+	const int tran = 1, dbsync = 0;
+	hlinda h = linda_begin(l, tran, dbsync);
 	const char* buf = NULL;
 
 	if (!linda_rdp(h, query, &buf))

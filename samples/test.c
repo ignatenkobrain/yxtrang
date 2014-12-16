@@ -168,7 +168,8 @@ static void do_script(long cnt)
 static void do_linda_out(long cnt, int tran)
 {
 	linda l = linda_open("./db", NULL);
-	hlinda h = linda_begin(l, tran);
+	const int dbsync = 0;
+	hlinda h = linda_begin(l, tran, dbsync);
 	long i;
 
 	for (i = 0; i < cnt; i++)
@@ -181,7 +182,7 @@ static void do_linda_out(long cnt, int tran)
 		if (tran && !(i%10))
 		{
 			linda_end(h);
-			h = linda_begin(l, tran);
+			h = linda_begin(l, tran, dbsync);
 		}
 	}
 
@@ -206,7 +207,7 @@ static void do_linda_out(long cnt, int tran)
 static void do_linda_in()
 {
 	linda l = linda_open("./db", NULL);
-	hlinda h = linda_begin(l, 0);
+	hlinda h = linda_begin(l, 0, 0);
 	long i;
 
 	// Return by id (indexed)...

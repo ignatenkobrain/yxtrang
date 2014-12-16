@@ -238,6 +238,9 @@ static int store_apply(store st, int n, uint64_t pos)
 	int fd = st->fd[st->idx-1];
 	int cnt = 0;
 
+	if (st->transactions)
+		lock_lock(st->lk);
+
 	for (;;)
 	{
 		char tmpbuf[1024];
@@ -311,7 +314,7 @@ static int store_apply(store st, int n, uint64_t pos)
 							src = (char*)malloc(nbytes+1);
 
 							if (pread(fd, src, nbytes, pos+skip) <= 0)
-								return 0;
+								break;
 
 							src[nbytes] = 0;
 						}
@@ -330,6 +333,9 @@ static int store_apply(store st, int n, uint64_t pos)
 			pos += nbytes;
 		}
 	}
+
+	if (st->transactions)
+		lock_unlock(st->lk);
 
 	return cnt;
 }
@@ -404,7 +410,15 @@ int store_get(const store st, const uuid u, void** buf, size_t* len)
 
 	unsigned long long v;
 
-	if (!tree_get(st->tptr, u, &v))
+	if (st->transactions)
+		lock_lock(st->lk);
+
+	int ok = tree_get(st->tptr, u, &v);
+
+	if (st->transactions)
+		lock_unlock(st->lk);
+
+	if (!ok)
 		return 0;
 
 	int idx = FILEIDX(v);
@@ -480,7 +494,7 @@ hstore store_begin(store st, int dbsync)
 	if (!h)
 		return 0;
 
-	h->nbr = ++st->current;
+	h->nbr = atomic_inc(&st->current);
 	atomic_inc(&st->transactions);
 	h->st = st;
 	h->wait_for_write = 1;
@@ -495,6 +509,7 @@ int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 
 	char tmpbuf[256];
 	char* dst = tmpbuf;
+	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
 	{
@@ -506,11 +521,9 @@ int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 	unsigned flags = 0;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, len);
-
-	if (!store_write2(h->st, tmpbuf, plen, buf, len))
-		return 0;
-
-	return 1;
+	int ok = store_write2(h->st, tmpbuf, plen, buf, len);
+	lock_unlock(h->st->lk);
+	return ok;
 }
 
 int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
@@ -520,6 +533,7 @@ int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 
 	char tmpbuf[256];
 	char* dst = tmpbuf;
+	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
 	{
@@ -531,11 +545,9 @@ int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, 0);
-
-	if (!store_write2(h->st, tmpbuf, plen, buf, len))
-		return 0;
-
-	return 1;
+	int ok = store_write2(h->st, tmpbuf, plen, buf, len);
+	lock_unlock(h->st->lk);
+	return ok;
 }
 
 int store_hrem(hstore h, const uuid u)
@@ -545,6 +557,7 @@ int store_hrem(hstore h, const uuid u)
 
 	char tmpbuf[256];
 	char* dst = tmpbuf;
+	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
 	{
@@ -557,11 +570,9 @@ int store_hrem(hstore h, const uuid u)
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, 0);
 	tmpbuf[plen++] = '\n';
-
-	if (!store_write(h->st, tmpbuf, plen))
-		return 0;
-
-	return 1;
+	int ok = store_write(h->st, tmpbuf, plen);
+	lock_unlock(h->st->lk);
+	return ok;
 }
 
 int store_cancel(hstore h)
@@ -569,14 +580,15 @@ int store_cancel(hstore h)
 	if (!h)
 		return 0;
 
-	int ok = 0;
-
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
 		int len = sprintf(tmpbuf, "%c %X\n", CAN, h->nbr);
+		lock_lock(h->st->lk);
+		int ok2 = store_write(h->st, tmpbuf, len);
+		lock_unlock(h->st->lk);
 
-		if (!store_write(h->st, tmpbuf, len))
+		if (!ok2)
 		{
 			free(h);
 			return 0;
@@ -590,7 +602,7 @@ int store_cancel(hstore h)
 		h->st->current = 0;
 
 	free(h);
-	return ok;
+	return 1;
 }
 
 int store_end(hstore h)
@@ -598,16 +610,15 @@ int store_end(hstore h)
 	if (!h)
 		return 0;
 
-	int ok = 0;
-
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
-		int len;
+		int len = sprintf(tmpbuf, "%c %X\n", ETX, h->nbr);
+		lock_lock(h->st->lk);
+		int ok2 = store_write(h->st, tmpbuf, len);
+		lock_unlock(h->st->lk);
 
-		len = sprintf(tmpbuf, "%c %X\n", ETX, h->nbr);
-
-		if (!store_write(h->st, tmpbuf, len))
+		if (!ok2)
 		{
 			free(h);
 			return 0;
@@ -623,7 +634,7 @@ int store_end(hstore h)
 		h->st->current = 0;
 
 	free(h);
-	return ok;
+	return 1;
 }
 
 static void store_load_file(store st)
@@ -925,6 +936,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	st->f = f;
 	st->p1 = p1;
 	st->tptr = tree_create();
+	st->lk = lock_create();
 
 	if ((mkdir(st->path1, 0777) < 0) && (errno != EEXIST))
 	{
@@ -1003,9 +1015,8 @@ int store_close(store st)
 		}
 	}
 
-	if (st->tptr)
-		tree_destroy(st->tptr);
-
+	tree_destroy(st->tptr);
+	lock_destroy(st->lk);
 	free(st);
 	return 1;
 }
@@ -1109,7 +1120,15 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 
 	if (!uuid_is_zero(u))
 	{
-		if (!tree_get(st->tptr, u, &v))
+		if (st->transactions)
+			lock_lock(st->lk);
+
+		int ok = tree_get(st->tptr, u, &v);
+
+		if (st->transactions)
+			lock_unlock(st->lk);
+
+		if (!ok)
 			return 0;
 	}
 
