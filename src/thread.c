@@ -103,25 +103,25 @@ void lock_destroy(lock l)
 
 static lock g_lock = NULL;
 
-int atomic_addu64(uint64_t* v, int n)
+uint64_t atomic_addu64(uint64_t* v, int n)
 {
 	if (!g_lock)
 		g_lock = lock_create();
 
 	lock_lock(g_lock);
-	int tmp = *v;
+	uint64_t tmp = *v;
 	*v += n;
 	lock_unlock(g_lock);
 	return tmp;
 }
 
-int atomic_add(int* v, int n)
+int64_t atomic_add64(int64_t* v, int n)
 {
 	if (!g_lock)
 		g_lock = lock_create();
 
 	lock_lock(g_lock);
-	int tmp = *v;
+	int64_t tmp = *v;
 	*v += n;
 	lock_unlock(g_lock);
 	return tmp;
