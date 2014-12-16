@@ -14,6 +14,8 @@
 
 #include <httpserver.h>
 
+#define HTTP_DEFAULT_PORT 8080
+
 extern int g_http_debug;
 static const char* g_www = "/var/www";
 
@@ -34,9 +36,9 @@ static int request(session s, void* param)
 
 int main(int ac, char** av)
 {
-	printf("Usage: httpd [port|8080 [ssl|0 [quiet|0 [threads|0 [www|/var/www]]]]]]\n");
+	printf("Usage: httpd [port|%u [ssl|0 [quiet|0 [threads|0 [www|/var/www]]]]]]\n", HTTP_DEFAULT_PORT);
 	const char* binding = NULL;
-	unsigned short port = (short)(ac>1?atoi(av[1]):8080);
+	unsigned short port = (short)(ac>1?atoi(av[1]):HTTP_DEFAULT_PORT);
 	int ssl = (ac>2?atoi(av[2]):0);
 	g_http_debug = !(ac>3?atoi(av[3])>0?1:0:0);
 	int threads = (ac>4?atoi(av[4]):0);

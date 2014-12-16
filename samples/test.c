@@ -15,7 +15,6 @@
 #include <skiplist_int.h>
 #include <uncle.h>
 
-#define UNCLE_PORT 6199
 #define SERVER_PORT 6198
 
 #ifdef _WIN32

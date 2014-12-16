@@ -1,6 +1,8 @@
 #ifndef UNCLE_H
 #define UNCLE_H
 
+#define UNCLE_DEFAULT_PORT 6199
+
 typedef struct _uncle* uncle;
 
 #define SCOPE_DEFAULT "DEFAULT"

@@ -14,6 +14,9 @@
 
 #include <httpserver.h>
 #include <linda.h>
+#include <uncle.h>
+
+#define HTTP_DEFAULT_PORT 8080
 
 extern int g_http_debug;
 
@@ -72,14 +75,15 @@ static int request(session s, void* param)
 
 int main(int ac, char** av)
 {
-	printf("Usage: lindad [port|8080 [ssl|0 [quiet|0 [threads|0 [path1 [path2]]]]]]\n");
+	printf("Usage: lindad [port|%u [ssl|0 [quiet|0 [threads|0 [path1 [path2 [uncle|%u]]]]]]]\n", HTTP_DEFAULT_PORT, UNCLE_DEFAULT_PORT);
 	const char* binding = NULL;
-	unsigned short port = (short)(ac>1?atoi(av[1]):8080);
+	unsigned short port = (short)(ac>1?atoi(av[1]):HTTP_DEFAULT_PORT);
 	int ssl = (ac>2?atoi(av[2]):0);
 	g_http_debug = !(ac>3?atoi(av[3])>0?1:0:0);
 	int threads = (ac>4?atoi(av[4]):0);
 	const char* path1 = (ac>5?av[5]:"./db");
 	const char* path2 = (ac>6?av[6]:NULL);
+	unsigned short uncle_port = (short)(ac>7?atoi(av[7]):UNCLE_DEFAULT_PORT);
 	void* param = (void*)0;
 
 	handler h = handler_create(threads);
@@ -88,13 +92,19 @@ int main(int ac, char** av)
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
+	if (!handler_add_uncle(h, NULL, (short)uncle_port, SCOPE_DEFAULT))
+	{
+		printf("add uncle failed\n");
+		return;
+	}
+
 	linda l = linda_open(path1, path2);
 	if (!l) return 2;
 
 	httpserver http = httpserver_create(&request, l);
 	if (!http) return 3;
 
-	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, NULL))
+	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, "LINDA"))
 		return 1;
 
 	handler_wait(h);
