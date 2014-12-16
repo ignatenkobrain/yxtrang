@@ -13,12 +13,13 @@
 #include "httpserver.h"
 
 #define PREFIX "_"
+#define MAX_REQS 64
 
 int g_http_debug = 0;
 
 struct _httpserver
 {
-	struct _httpserver_reqs reqs[64];
+	struct _httpserver_reqs reqs[MAX_REQS];
 	int (*f)(session,void*);
 	void* data;
 };
@@ -289,6 +290,9 @@ int httpserver_handler(session s, void* p1)
 			}
 
 			i++;
+
+			if (i == MAX_REQS)
+				break;
 		}
 	}
 	else
