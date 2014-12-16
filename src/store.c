@@ -505,6 +505,14 @@ hstore store_begin(store st, int dbsync)
 	return h;
 }
 
+int store_hget(hstore h, const uuid u, void** buf, size_t* len)
+{
+	if (!h)
+		return 0;
+
+	return store_get(h->st, u, buf, len);
+}
+
 int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 {
 	if (!h || !u || !buf || !len)

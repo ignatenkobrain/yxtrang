@@ -24,6 +24,7 @@ extern unsigned long store_count(const store st);
 // Only transactions are thread-safe...
 
 extern hstore store_begin(store st, int dbsync);
+extern int store_hget(hstore h, const uuid u, void** buf, size_t* len);
 extern int store_hadd(hstore h, const uuid u, const void* buf, size_t len);
 extern int store_hrem(hstore h, const uuid u);
 extern int store_hrem2(hstore h, const uuid u, const void* buf, size_t len);
