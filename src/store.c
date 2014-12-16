@@ -181,7 +181,7 @@ unsigned long store_count(const store st)
 	return tree_count(st->tptr);
 }
 
-static int store_write2(store st, const void* buf, size_t len, const void* buf2, size_t len2)
+static int store_write2(store st, const void* buf, size_t len, const void* buf2, size_t len2, uint64_t pos)
 {
 	int wlen;
 
@@ -193,12 +193,12 @@ static int store_write2(store st, const void* buf, size_t len, const void* buf2,
 	{
 		memcpy(tmpbuf, buf, len);
 		memcpy(tmpbuf+len, buf2, len2);
-		wlen = (size_t)pwrite(st->fd[st->idx-1], tmpbuf, (size_t)nbytes, st->eodpos[st->idx-1]);
+		wlen = (size_t)pwrite(st->fd[st->idx-1], tmpbuf, (size_t)nbytes, pos);
 	}
 	else
 	{
-		wlen = (size_t)pwrite(st->fd[st->idx-1], buf, (size_t)len, st->eodpos[st->idx-1]);
-		wlen += pwrite(st->fd[st->idx-1], buf2, len2, st->eodpos[st->idx-1]+len2);
+		wlen = (size_t)pwrite(st->fd[st->idx-1], buf, (size_t)len, pos);
+		wlen += pwrite(st->fd[st->idx-1], buf2, len2, pos+len2);
 	}
 #else
 	struct iovec iov[2];
@@ -206,30 +206,28 @@ static int store_write2(store st, const void* buf, size_t len, const void* buf2,
 	iov[0].iov_len = len;
 	iov[1].iov_base = (void*)buf2;
 	iov[1].iov_len = len2;
-	wlen = pwritev(st->fd[st->idx-1], iov, 2, st->eodpos[st->idx-1]);
+	wlen = pwritev(st->fd[st->idx-1], iov, 2, pos);
 #endif
 
 	if (wlen != (len+len2))
 	{
-		printf("store_write2 pwrite fd=%d data failed, pos=%llu\n", st->fd[st->idx-1], (unsigned long long)st->eodpos[st->idx-1]);
+		printf("store_write2 pwrite fd=%d data failed, pos=%llu\n", st->fd[st->idx-1], (unsigned long long)pos);
 		return 0;
 	}
 
-	st->eodpos[st->idx-1] += wlen;
 	return 1;
 }
 
-static int store_write(store st, const void* buf, size_t len)
+static int store_write(store st, const void* buf, size_t len, uint64_t pos)
 {
-	int wlen = pwrite(st->fd[st->idx-1], buf, len, st->eodpos[st->idx-1]);
+	int wlen = pwrite(st->fd[st->idx-1], buf, len, pos);
 
 	if (wlen != len)
 	{
-		printf("store_write pwrite fd=%d data failed, pos=%llu\n", st->fd[st->idx-1], (unsigned long long)st->eodpos[st->idx-1]);
+		printf("store_write pwrite fd=%d data failed, pos=%llu\n", st->fd[st->idx-1], (unsigned long long)pos);
 		return 0;
 	}
 
-	st->eodpos[st->idx-1] += wlen;
 	return 1;
 }
 
@@ -354,9 +352,10 @@ int store_add(store st, const uuid u, const void* buf, size_t len)
 	int plen = prefix(dst, 0, u, flags, len);
 	uint64_t pos = st->eodpos[st->idx-1];
 
-	if (!store_write2(st, tmpbuf, plen, buf, len))
+	if (!store_write2(st, tmpbuf, plen, buf, len, pos))
 		return 0;
 
+	st->eodpos[st->idx-1] += plen + len;
 	int idx = st->idx-1;
 	uint64_t fp = MAKE_FILEPOS(idx,pos);
 	tree_add(st->tptr, u, fp);
@@ -374,10 +373,12 @@ int store_rem2(store st, const uuid u, const void* buf, size_t len)
 	char tmpbuf[256];
 	unsigned flags = FLAG_RM;
 	int plen = prefix(tmpbuf, 0, u, flags, len);
+	uint64_t pos = st->eodpos[st->idx-1];
 
-	if (!store_write2(st, tmpbuf, plen, buf, len))
+	if (!store_write2(st, tmpbuf, plen, buf, len, pos))
 		return 0;
 
+	st->eodpos[st->idx-1] += plen + len;
 	return 1;
 }
 
@@ -393,10 +394,12 @@ int store_rem(store st, const uuid u)
 	unsigned flags = FLAG_RM;
 	int plen = prefix(tmpbuf, 0, u, flags, 0);
 	tmpbuf[plen++] = '\n';
+	uint64_t pos = st->eodpos[st->idx-1];
 
-	if (!store_write(st, tmpbuf, plen))
+	if (!store_write(st, tmpbuf, plen, pos))
 		return 0;
 
+	st->eodpos[st->idx-1] += plen;
 	return 1;
 }
 
@@ -509,20 +512,22 @@ int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 
 	char tmpbuf[256];
 	char* dst = tmpbuf;
-	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
-	{
-		h->wait_for_write = 0;
 		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
-		h->start_pos = h->st->eodpos[h->st->idx-1];
-	}
 
 	unsigned flags = 0;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, len);
-	int ok = store_write2(h->st, tmpbuf, plen, buf, len);
-	lock_unlock(h->st->lk);
+	uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], plen+len);
+
+	if (h->wait_for_write)
+	{
+		h->wait_for_write = 0;
+		h->start_pos = pos;
+	}
+
+	int ok = store_write2(h->st, tmpbuf, plen, buf, len, pos);
 	return ok;
 }
 
@@ -536,17 +541,20 @@ int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
-	{
-		h->wait_for_write = 0;
 		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
-		h->start_pos = h->st->eodpos[h->st->idx-1];
-	}
 
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, 0);
-	int ok = store_write2(h->st, tmpbuf, plen, buf, len);
-	lock_unlock(h->st->lk);
+	uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], plen+len);
+
+	if (h->wait_for_write)
+	{
+		h->wait_for_write = 0;
+		h->start_pos = pos;
+	}
+
+	int ok = store_write2(h->st, tmpbuf, plen, buf, len, pos);
 	return ok;
 }
 
@@ -560,18 +568,21 @@ int store_hrem(hstore h, const uuid u)
 	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
-	{
-		h->wait_for_write = 0;
 		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
-		h->start_pos = h->st->eodpos[h->st->idx-1];
-	}
 
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
 	plen += prefix(dst, h->nbr, u, flags, 0);
 	tmpbuf[plen++] = '\n';
-	int ok = store_write(h->st, tmpbuf, plen);
-	lock_unlock(h->st->lk);
+	uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], plen);
+
+	if (h->wait_for_write)
+	{
+		h->wait_for_write = 0;
+		h->start_pos = pos;
+	}
+
+	int ok = store_write(h->st, tmpbuf, plen, pos);
 	return ok;
 }
 
@@ -584,9 +595,8 @@ int store_cancel(hstore h)
 	{
 		char tmpbuf[256];
 		int len = sprintf(tmpbuf, "%c %X\n", CAN, h->nbr);
-		lock_lock(h->st->lk);
-		int ok2 = store_write(h->st, tmpbuf, len);
-		lock_unlock(h->st->lk);
+		uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], len);
+		int ok2 = store_write(h->st, tmpbuf, len, pos);
 
 		if (!ok2)
 		{
@@ -614,9 +624,8 @@ int store_end(hstore h)
 	{
 		char tmpbuf[256];
 		int len = sprintf(tmpbuf, "%c %X\n", ETX, h->nbr);
-		lock_lock(h->st->lk);
-		int ok2 = store_write(h->st, tmpbuf, len);
-		lock_unlock(h->st->lk);
+		uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], len);
+		int ok2 = store_write(h->st, tmpbuf, len, pos);
 
 		if (!ok2)
 		{
@@ -624,10 +633,10 @@ int store_end(hstore h)
 			return 0;
 		}
 
+		store_apply(h->st, h->nbr, h->start_pos);
+
 		if (h->dbsync)
 			fsync(h->st->fd[h->st->idx]);
-
-		store_apply(h->st, h->nbr, h->start_pos);
 	}
 
 	if (!atomic_dec(&h->st->transactions))
