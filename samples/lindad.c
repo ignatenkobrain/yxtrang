@@ -63,7 +63,7 @@ static int request(session s, void* param)
 
 	//////////////////////////////////////
 	//
-	// Linda is not yet thread-safe
+	// Linda/Store is not yet thread-safe
 	//
 	session_lock(s);
 
