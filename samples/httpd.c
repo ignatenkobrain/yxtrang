@@ -25,7 +25,7 @@ static int http_request(session s, void* param)
 	char body[1024];
 	const size_t len =
 		sprintf(body,
-		"<html>\n<title>test</title>\n<body>\n<h1>Request for: '%s'</h1>\n</body>\n</html>\n",
+		"<html>\n<title>404 NOT FOUND</title>\n<body>\n<h1>Request for: '%s'</h1>\n</body>\n</html>\n",
 		filename
 		);
 
