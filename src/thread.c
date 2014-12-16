@@ -149,6 +149,18 @@ int atomic_dec(int* v)
 	return tmp;
 }
 
+int atomic_dec_and_zero(int* v, int* v2)
+{
+	if (!g_lock)
+		g_lock = lock_create();
+
+	lock_lock(g_lock);
+	int tmp = --(*v);
+	if (tmp == 0) *v2 = 0;
+	lock_unlock(g_lock);
+	return tmp;
+}
+
 static void thread_pause(thread t)
 {
 #ifdef _WIN32

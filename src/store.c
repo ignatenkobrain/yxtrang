@@ -614,9 +614,7 @@ int store_cancel(hstore h)
 			fsync(h->st->fd[h->st->idx]);
 	}
 
-	if (!atomic_dec(&h->st->transactions))
-		h->st->current = 0;
-
+	atomic_dec_and_zero(&h->st->transactions, &h->st->current);
 	free(h);
 	return 1;
 }
@@ -645,9 +643,7 @@ int store_end(hstore h)
 			fsync(h->st->fd[h->st->idx]);
 	}
 
-	if (!atomic_dec(&h->st->transactions))
-		h->st->current = 0;
-
+	atomic_dec_and_zero(&h->st->transactions, &h->st->current);
 	free(h);
 	return 1;
 }
