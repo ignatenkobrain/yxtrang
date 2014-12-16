@@ -6,6 +6,7 @@
 
 #include "uuid.h"
 
+#define LINDA_SERVICE "LINDA"
 #define LINDA_ID "$id"
 #define LINDA_OID "$oid"
 

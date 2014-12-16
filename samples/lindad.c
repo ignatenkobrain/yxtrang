@@ -101,7 +101,7 @@ int main(int ac, char** av)
 	httpserver http = httpserver_create(&request, l);
 	if (!http) return 4;
 
-	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, "LINDA"))
+	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, LINDA_SERVICE))
 		return 5;
 
 	handler_wait(h);

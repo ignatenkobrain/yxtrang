@@ -24,7 +24,7 @@
 #endif
 
 static int g_debug = 0, g_quiet = 1;
-static unsigned short g_uncle = UNCLE_PORT;
+static unsigned short g_uncle = UNCLE_DEFAULT_PORT;
 static const char* g_service = "TEST";
 static const char* qbf = "the quick brown fox jumped over the lazy dog";
 

@@ -49,7 +49,8 @@ $*.obj
 ..\src\yxtrang.lib $(WINLIBS)
 <<
 
-test.obj: $*.c ..\src\scriptlet.h ..\src\skiplist.h  ..\src\tree.h ..\src\store.h ..\src\network.h ..\src\uuid.h ..\src\base64.h ..\src\json.h
+test.obj: $*.c ..\src\scriptlet.h ..\src\skiplist.h  ..\src\tree.h ..\src\store.h ..\src\network.h \
+				..\src\uuid.h ..\src\base64.h ..\src\json.h ..\src\uncle.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
 echo1.obj: $*.c ..\src\network.h
@@ -64,7 +65,7 @@ echod.obj: $*.c ..\src\network.h
 httpd.obj: $*.c ..\src\network.h ..\src\httpserver.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
-lindad.obj: $*.c ..\src\network.h ..\src\httpserver.h ..\src\lindatp.h
+lindad.obj: $*.c ..\src\network.h ..\src\httpserver.h ..\src\lindatp.h ..\src\uncle.h ..\src\json.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
 clean:
