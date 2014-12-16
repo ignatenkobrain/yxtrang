@@ -47,7 +47,7 @@ static int request(session s, void* param)
 
 	const char* ct = session_get_stash(s, "content-type");
 
-	if (strstri(ct, "application/json"))
+	if (strstr(ct, "application/json"))
 	{
 		httpserver_response(s, 415, "BAD MEDIA TYPE", 0, NULL);
 		return 1;
