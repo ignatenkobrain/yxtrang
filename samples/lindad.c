@@ -75,7 +75,7 @@ static int linda_request(session s, void* param)
 	httpserver_response(s, 200, "OK", len, "application/json");
 	if (g_http_debug) printf("SEND: %s", buf);
 	session_write(s, buf, len);
-	free((void*)buf);
+	free((void*)buf);					// now free the buf
 	return 1;
 }
 

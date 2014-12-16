@@ -326,7 +326,7 @@ const char* httpserver_value(session s, const char* name)
 
 int httpserver_response(session s, unsigned code, const char* msg, size_t len, const char* content_type)
 {
-	if (!s || !msg || !content_type)
+	if (!s || !msg)
 		return 0;
 
 	char headers[1024];
