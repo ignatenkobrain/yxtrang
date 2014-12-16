@@ -120,18 +120,6 @@ const uuid linda_last_oid(hlinda h)
 	return &h->last_oid;
 }
 
-void linda_release(hlinda h)
-{
-	if (!h)
-		return;
-
-	if (!h->dst)
-		return;
-
-	free(h->dst);
-	h->dst = NULL;
-}
-
 static int read_handler(void* arg, void* k, void* v)
 {
 	hlinda h = (hlinda)arg;
@@ -481,7 +469,19 @@ int linda_rm(hlinda h, const char* s)
 	return 1;
 }
 
-extern hlinda linda_begin(linda l, int tran)
+void linda_release(hlinda h)
+{
+	if (!h)
+		return;
+
+	if (!h->dst)
+		return;
+
+	free(h->dst);
+	h->dst = NULL;
+}
+
+hlinda linda_begin(linda l, int tran)
 {
 	if (!l)
 		return NULL;
@@ -495,7 +495,7 @@ extern hlinda linda_begin(linda l, int tran)
 	return h;
 }
 
-extern void linda_end(hlinda h)
+void linda_end(hlinda h)
 {
 	if (!h)
 		return;

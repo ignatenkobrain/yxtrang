@@ -10,7 +10,7 @@ extern void lock_unlock(lock l);
 extern void lock_destroy(lock l);
 
 extern int atomic_inc(int* v);	// returns pre-value
-extern int atomic_dec(int* v);	// return post-value
+extern int atomic_dec(int* v);	// returns post-value
 
 // Run a supplied function as a one-off detached thread. The
 // thread will be destroyed after this single use.

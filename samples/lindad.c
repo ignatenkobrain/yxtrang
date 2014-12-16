@@ -46,35 +46,25 @@ static int linda_request(session s, void* param)
 		return 1;
 	}
 
-	//////////////////////////////////////
-	//
-	// Linda/Store is not yet thread-safe
-	//
-	session_lock(s);
-
-	hlinda h = linda_begin(l, 0);
+	hlinda h = linda_begin(l, 1);
 	const char* buf = NULL;
 
 	if (!linda_rdp(h, query, &buf))
 	{
 		linda_end(h);
-		session_unlock(s);
-		free(query);
 		httpserver_response(s, 404, "NOT FOUND", 0, NULL);
+		free(query);
 		return 1;
 	}
 
 	size_t len = linda_get_length(h);
 	linda_release(h);					// release the buf
 	linda_end(h);
-	session_unlock(s);
-	//
-	//////////////////////////////////////
 
-	free(query);
 	httpserver_response(s, 200, "OK", len, APPLICATION_JSON);
 	if (g_http_debug) printf("LINDA: %s", buf);
 	session_write(s, buf, len);
+	free(query);
 	free((void*)buf);					// now free the buf
 	return 1;
 }

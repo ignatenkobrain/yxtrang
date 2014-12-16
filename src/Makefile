@@ -25,7 +25,7 @@ linda.o: linda.h skiplist.h skiplist_uuid.h store.h json.h uuid.h
 network.o: network.h skiplist.h skiplist_int.h skiplist_string.h thread.h uncle.h
 scriptlet.o: scriptlet.h skiplist.h skiplist_string.h
 skiplist.o: skiplist.h
-store.o: store.h uuid.h tree.h
+store.o: store.h uuid.h tree.h thread.h
 thread.o: thread.h
 tree.o: tree.h uuid.h
 uncle.o: uncle.h jsonq.h network.h skiplist.h skiplist_string.h thread.h

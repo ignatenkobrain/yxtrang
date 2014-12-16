@@ -62,12 +62,12 @@ skiplist.obj: $*.h $*.c
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-thread.obj: $*.h $*.c
+store.obj: $*.h $*.c uuid.h tree.h thread.h
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-store.obj: $*.h $*.c uuid.h tree.h
+thread.obj: $*.h $*.c
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<

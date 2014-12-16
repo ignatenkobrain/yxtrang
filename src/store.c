@@ -32,6 +32,7 @@
 
 #include "store.h"
 #include "tree.h"
+#include "thread.h"
 
 static const char STX = '+';		// Start transaction (begin)
 static const char ETX = '-';		// End transaction (commit)
@@ -62,6 +63,7 @@ struct _store
 	uint64_t eodpos[MAX_LOGFILES];
 	int fd[MAX_LOGFILES], idx;
 	int transactions, current;
+	lock lk;
 };
 
 struct _hstore
@@ -479,7 +481,7 @@ hstore store_begin(store st, int dbsync)
 		return 0;
 
 	h->nbr = ++st->current;
-	st->transactions++;
+	atomic_inc(&st->transactions);
 	h->st = st;
 	h->wait_for_write = 1;
 	h->dbsync = dbsync;
@@ -584,7 +586,7 @@ int store_cancel(hstore h)
 			fsync(h->st->fd[h->st->idx]);
 	}
 
-	if (!--h->st->transactions)
+	if (!atomic_dec(&h->st->transactions))
 		h->st->current = 0;
 
 	free(h);
@@ -617,7 +619,7 @@ int store_end(hstore h)
 		store_apply(h->st, h->nbr, h->start_pos);
 	}
 
-	if (!--h->st->transactions)
+	if (!atomic_dec(&h->st->transactions))
 		h->st->current = 0;
 
 	free(h);
