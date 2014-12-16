@@ -20,25 +20,8 @@
 
 extern int g_http_debug;
 
-static int request(session s, void* param)
+static int linda_request(session s, linda l)
 {
-	linda l = (linda)param;
-	const char* filename = session_get_stash(s, HTTP_FILENAME);
-
-	if (strcmp(filename, "linda"))
-	{
-		char body[1024];
-		const size_t len =
-			sprintf(body,
-			"<html><title>test</title>\n<body><h1>Request for: '%s'</h1></body>\n</html>\n",
-			filename
-			);
-
-		httpserver_response(s, 404, "NOT FOUND", len, "text/html");
-		if (g_http_debug) printf("SEND: %s", body);
-		return session_write(s, body, len);
-	}
-
 	if (!session_get_udata_flag(s, HTTP_GET))
 	{
 		httpserver_response(s, 501, "METHOD NOT IMPLEMENTED", 0, NULL);
@@ -94,6 +77,25 @@ static int request(session s, void* param)
 	return 1;
 }
 
+static int http_request(session s, void* param)
+{
+	const char* filename = session_get_stash(s, HTTP_FILENAME);
+
+	if (!strcmp(filename, "linda"))
+		return linda_request(s, param);
+
+	char body[1024];
+	const size_t len =
+		sprintf(body,
+		"<html><title>test</title>\n<body><h1>Request for: '%s'</h1></body>\n</html>\n",
+		filename
+		);
+
+	httpserver_response(s, 404, "NOT FOUND", len, "text/html");
+	if (g_http_debug) printf("SEND: %s", body);
+	return session_write(s, body, len);
+}
+
 int main(int ac, char** av)
 {
 	printf("Usage: lindad [port|%u [ssl|0 [quiet|0 [threads|0 [path1 [path2 [uncle|%u]]]]]]]\n", HTTP_DEFAULT_PORT, UNCLE_DEFAULT_PORT);
@@ -119,7 +121,7 @@ int main(int ac, char** av)
 	linda l = linda_open(path1, path2);
 	if (!l) return 3;
 
-	httpserver http = httpserver_create(&request, l);
+	httpserver http = httpserver_create(&http_request, l);
 	if (!http) return 4;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, LINDA_SERVICE))

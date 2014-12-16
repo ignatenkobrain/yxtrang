@@ -19,7 +19,7 @@
 extern int g_http_debug;
 static const char* g_www = "/var/www";
 
-static int request(session s, void* param)
+static int http_request(session s, void* param)
 {
 	const char* filename = session_get_stash(s, HTTP_FILENAME);
 	char body[1024];
@@ -51,7 +51,7 @@ int main(int ac, char** av)
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
-	httpserver http = httpserver_create(&request, NULL);
+	httpserver http = httpserver_create(&http_request, NULL);
 	if (!http) return 2;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, NULL))
