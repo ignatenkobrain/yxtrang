@@ -201,7 +201,7 @@ int httpserver_handler(session s, void* p1)
 		sscanf(path, "%1023[^?]?%8191s", filename, query);
 		filename[sizeof(filename)-1] = query[sizeof(query)-1] = 0;
 		session_set_stash(s, HTTP_RESOURCE, url_decode(filename, path));
-		session_set_stash(s, HTTP_QUERY, query);
+		session_set_stash(s, HTTP_QUERYSTRING, query);
 		decode_data(s, query);
 
 		if (v == 1.1)
