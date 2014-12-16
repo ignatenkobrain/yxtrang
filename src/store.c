@@ -538,7 +538,6 @@ int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 
 	char tmpbuf[256];
 	char* dst = tmpbuf;
-	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
 		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
@@ -565,7 +564,6 @@ int store_hrem(hstore h, const uuid u)
 
 	char tmpbuf[256];
 	char* dst = tmpbuf;
-	lock_lock(h->st->lk);
 
 	if (h->wait_for_write)
 		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
