@@ -105,7 +105,7 @@ int main(int ac, char** av)
 	if (!http) return 3;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, "LINDA"))
-		return 1;
+		return 4;
 
 	handler_wait(h);
 	handler_destroy(h);

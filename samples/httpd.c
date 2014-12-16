@@ -55,7 +55,7 @@ int main(int ac, char** av)
 	if (!http) return 2;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, NULL))
-		return 1;
+		return 3;
 
 	handler_wait(h);
 	handler_destroy(h);
