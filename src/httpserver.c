@@ -321,6 +321,11 @@ int httpserver_response(session s, unsigned code, const char* msg, size_t len, c
 	if (!session_writemsg(s, headers))
 		return 0;
 
+	long ct_len = atol(session_get_stash(s, "content-length"));
+
+	if ((code > 299) && (ct_len != 0))
+		session_clr_udata_flag(s, HTTP_PERSIST);
+
 	return 1;
 }
 
