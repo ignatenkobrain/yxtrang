@@ -16,7 +16,6 @@
 #include <linda.h>
 #include <uncle.h>
 
-#define HTTP_DEFAULT_PORT 8080
 #define APPLICATION_JSON "application/json"
 
 extern int g_http_debug;
@@ -82,7 +81,7 @@ static int linda_request(session s, void* param)
 
 static int http_request(session s, void* param)
 {
-	const char* filename = session_get_stash(s, HTTP_FILENAME);
+	const char* filename = session_get_stash(s, HTTP_RESOURCE);
 	char body[1024];
 	const size_t len =
 		sprintf(body,

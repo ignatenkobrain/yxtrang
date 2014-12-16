@@ -6,11 +6,11 @@
 // name-value pairs. Each name will be preceded by an underscore
 // in the stash, eg:
 //
-//    GET xyz?id=123456&blah
+//    GET /filename?id=123456&blah
 //
 // is retrieved by:
 //
-//    const char* filename = session_get_stash(s, "HTTP_FILENAME")
+//    const char* filename = session_get_stash(s, HTTP_RESOURCE)
 //    long id = session_get_stash(s, "_id")
 //
 // Other content associated with a request is left unread and should
@@ -18,12 +18,14 @@
 
 #include "network.h"
 
+#define HTTP_DEFAULT_PORT 8080
+
 // Session stash variables:
 
 #define HTTP_COMMAND "HTTP_COMMAND"
 #define HTTP_RESOURCE "HTTP_RESOURCE"
 #define HTTP_VERSION "HTTP_VERSION"
-#define HTTP_FILENAME "HTTP_FILENAME"
+#define HTTP_RESOURCE "HTTP_RESOURCE"
 #define HTTP_QUERY "HTTP_QUERY"
 #define HTTP_HOST "HTTP_HOST"
 #define HTTP_PORT "HTTP_PORT"
