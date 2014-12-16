@@ -88,4 +88,4 @@ $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
 clean:
-	erase *.obj *.pdb *.lib db
+	erase *.obj *.pdb *.lib

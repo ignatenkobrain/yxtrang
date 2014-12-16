@@ -15,5 +15,6 @@ profile:
 
 clean:
 
+	rm -rf db
 	make -C src clean
 	make -C samples clean

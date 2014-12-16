@@ -12,7 +12,7 @@ yxtrang.a: $(OBJECTS)
 	ranlib yxtrang.a
 
 clean:
-	rm -f *.o *.a db
+	rm -f *.o *.a
 
 # DO NOT DELETE
 
