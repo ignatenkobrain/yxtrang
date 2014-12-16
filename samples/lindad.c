@@ -47,7 +47,7 @@ static int request(session s, void* param)
 
 	const char* ct = session_get_stash(s, "content-type");
 
-	if (strstr(ct, "application/json"))
+	if (!strstr(ct, "application/json"))
 	{
 		httpserver_response(s, 415, "BAD MEDIA TYPE", 0, NULL);
 		return 1;
@@ -74,8 +74,8 @@ static int request(session s, void* param)
 	{
 		linda_end(h);
 		session_unlock(s);
-		httpserver_response(s, 404, "NOT FOUND", 0, NULL);
 		free(query);
+		httpserver_response(s, 404, "NOT FOUND", 0, NULL);
 		return 1;
 	}
 
