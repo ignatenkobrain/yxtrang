@@ -64,18 +64,18 @@ static int linda_request(session s, void* param)
 		return 1;
 	}
 
-	free(query);
-	const char* body = buf;
 	size_t len = linda_get_length(h);
+	linda_release(h);					// release the buf
 	linda_end(h);
-
 	session_unlock(s);
 	//
 	//////////////////////////////////////
 
+	free(query);
 	httpserver_response(s, 200, "OK", len, "application/json");
-	if (g_http_debug) printf("SEND: %s", body);
-	return session_write(s, body, len);
+	if (g_http_debug) printf("SEND: %s", buf);
+	session_write(s, buf, len);
+	free((void*)buf);
 	return 1;
 }
 
