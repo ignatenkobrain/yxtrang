@@ -246,6 +246,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 {
 	store st = store_open("./db", 0, compact);
 	time_t t = time(NULL);
+	printf("Store: %ld items\n", (long)store_count(st));
 
 	printf("Writing...\n");
 	hstore h = store_begin(st, 0);
