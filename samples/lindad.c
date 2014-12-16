@@ -20,8 +20,10 @@
 
 extern int g_http_debug;
 
-static int linda_request(session s, linda l)
+static int linda_request(session s, void* param)
 {
+	linda l = (linda)param;
+
 	if (!session_get_udata_flag(s, HTTP_GET))
 	{
 		httpserver_response(s, 501, "METHOD NOT IMPLEMENTED", 0, NULL);
