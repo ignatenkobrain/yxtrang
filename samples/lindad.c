@@ -93,19 +93,16 @@ int main(int ac, char** av)
 		handler_set_tls(h, "server.pem");
 
 	if (!handler_add_uncle(h, NULL, (short)uncle_port, SCOPE_DEFAULT))
-	{
-		printf("add uncle failed\n");
-		return;
-	}
+		return 2;
 
 	linda l = linda_open(path1, path2);
-	if (!l) return 2;
+	if (!l) return 3;
 
 	httpserver http = httpserver_create(&request, l);
-	if (!http) return 3;
+	if (!http) return 4;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, "LINDA"))
-		return 4;
+		return 5;
 
 	handler_wait(h);
 	handler_destroy(h);
