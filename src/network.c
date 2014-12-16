@@ -771,7 +771,7 @@ int session_get_udata_flag(session s, int flag)
 	return s->udata_flags & (((uint64_t)1) << flag);
 }
 
-void session_set_udata_int(session s, long long data)
+void session_set_udata_int(session s, unsigned long long data)
 {
 	if (!s)
 		return;
@@ -779,7 +779,7 @@ void session_set_udata_int(session s, long long data)
 	s->udata_int = data;
 }
 
-long long session_get_udata_int(session s)
+unsigned long long session_get_udata_int(session s)
 {
 	if (!s)
 		return 0;

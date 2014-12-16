@@ -41,8 +41,8 @@ extern void session_clr_udata_flag(session s, int flag);   // flag=0..63
 extern void session_set_udata_flag(session s, int flag);   // flag=0..63
 extern int session_get_udata_flag(session s, int flag);    // flag=0..63
 
-extern void session_set_udata_int(session s, long long data);
-extern long long session_get_udata_int(session s);
+extern void session_set_udata_int(session s, unsigned long long data);
+extern unsigned long long session_get_udata_int(session s);
 
 extern void session_clr_stash(session s);
 extern void session_set_stash(session s, const char* key, const char* value);
