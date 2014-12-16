@@ -61,11 +61,19 @@ static int request(session s, void* param)
 		return 1;
 	}
 
+	//////////////////////////////////////
+	//
+	// Linda is not yet thread-safe
+	//
+	session_lock(s);
+
 	hlinda h = linda_begin(l, 0);
 	const char* buf = NULL;
 
 	if (!linda_rdp(h, query, &buf))
 	{
+		linda_end(h);
+		session_unlock(s);
 		httpserver_response(s, 404, "NOT FOUND", 0, NULL);
 		free(query);
 		return 1;
@@ -75,6 +83,10 @@ static int request(session s, void* param)
 	const char* body = buf;
 	size_t len = linda_get_length(h);
 	linda_end(h);
+
+	session_unlock(s);
+	//
+	//////////////////////////////////////
 
 	httpserver_response(s, 200, "OK", len, "application/json");
 	if (g_http_debug) printf("SEND: %s", body);
