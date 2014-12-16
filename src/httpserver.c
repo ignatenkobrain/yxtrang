@@ -192,10 +192,7 @@ int httpserver_handler(session s, void* p1)
 		cmd[sizeof(cmd)-1] = path[sizeof(path)-1] = ver[sizeof(ver)-1] = 0;
 		session_set_stash(s, HTTP_COMMAND, cmd);
 		session_set_stash(s, HTTP_VERSION, ver);
-
 		double v = atof(ver);
-		session_set_udata_real(s, v);
-
 		char filename[1024], query[8192];
 		filename[0] = query[0] = 0;
 		sscanf(path, "%1023[^?]?%8191s", filename, query);

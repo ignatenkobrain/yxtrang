@@ -138,7 +138,6 @@ struct _session
 	lock strand;
 	uint64_t udata_flags;
 	unsigned long long udata_int;
-	double udata_real;
 	int connected, disconnected, len, busy;
 	int fd, port, tcp, is_ssl, ipv4, idx, use_cnt;
 	int (*f)(session, void*);
@@ -786,22 +785,6 @@ long long session_get_udata_int(session s)
 		return 0;
 
 	return s->udata_int;
-}
-
-void session_set_udata_real(session s, double data)
-{
-	if (!s)
-		return;
-
-	s->udata_real = data;
-}
-
-double session_get_udata_real(session s)
-{
-	if (!s)
-		return 0;
-
-	return s->udata_real;
 }
 
 void session_clr_stash(session s)
