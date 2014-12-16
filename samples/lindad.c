@@ -17,6 +17,7 @@
 #include <uncle.h>
 
 #define HTTP_DEFAULT_PORT 8080
+#define APPLICATION_JSON "application/json"
 
 extern int g_http_debug;
 
@@ -32,7 +33,7 @@ static int linda_request(session s, void* param)
 
 	const char* ct = session_get_stash(s, "content-type");
 
-	if (!strstr(ct, "application/json"))
+	if (!strstr(ct, APPLICATION_JSON))
 	{
 		httpserver_response(s, 415, "BAD MEDIA TYPE", 0, NULL);
 		return 1;
@@ -72,7 +73,7 @@ static int linda_request(session s, void* param)
 	//////////////////////////////////////
 
 	free(query);
-	httpserver_response(s, 200, "OK", len, "application/json");
+	httpserver_response(s, 200, "OK", len, APPLICATION_JSON);
 	if (g_http_debug) printf("SEND: %s", buf);
 	session_write(s, buf, len);
 	free((void*)buf);					// now free the buf
