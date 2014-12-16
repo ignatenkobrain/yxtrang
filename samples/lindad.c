@@ -27,7 +27,7 @@ static int linda_request(session s, void* param)
 
 	if (!session_get_udata_flag(s, HTTP_GET))
 	{
-		httpserver_response(s, 501, "METHOD NOT IMPLEMENTED", 0, NULL);
+		httpserver_response(s, 501, "NOT IMPLEMENTED", 0, NULL);
 		return 1;
 	}
 
@@ -35,7 +35,7 @@ static int linda_request(session s, void* param)
 
 	if (!strstr(ct, APPLICATION_JSON))
 	{
-		httpserver_response(s, 415, "BAD MEDIA TYPE", 0, NULL);
+		httpserver_response(s, 415, "UNSUPPORTED MEDIA TYPE", 0, NULL);
 		return 1;
 	}
 
@@ -43,7 +43,7 @@ static int linda_request(session s, void* param)
 
 	if (!query)
 	{
-		httpserver_response(s, 400, "NO DATA", 0, NULL);
+		httpserver_response(s, 400, "BAD REQUEST", 0, NULL);
 		return 1;
 	}
 
