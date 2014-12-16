@@ -121,9 +121,9 @@ int main(int ac, char** av)
 
 	struct _httpserver_reqs reqs[] =
 	{
-		{&linda_request, "linda", l},
-		{&http_request, NULL, NULL},
-		{0}
+		{&linda_request, "linda", l},	// http://server/linda
+		{&http_request, NULL, NULL},	// ... others ...
+		0
 	};
 
 	httpserver http = httpserver_create2(reqs);
