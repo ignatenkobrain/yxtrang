@@ -287,6 +287,8 @@ int httpserver_handler(session s, void* p1)
 				h->reqs[i].f(s, h->reqs[i].data);
 				break;
 			}
+
+			i++;
 		}
 	}
 	else
