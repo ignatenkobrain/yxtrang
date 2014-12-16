@@ -53,7 +53,7 @@ static int request(session s, void* param)
 		return 1;
 	}
 
-	char* query = httpserver_get_content(s);
+	char* query = (char*)httpserver_get_content(s);
 
 	if (!query)
 	{
