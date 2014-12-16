@@ -122,6 +122,22 @@ static void decode_data(session s, const char* str)
 	session_set_stash(s, tmpbuf4, url_decode(tmpbuf3, tmpbuf5));
 }
 
+void* httpserver_get_content(session s)
+{
+	long len = atol(session_get_stash(s, "content-length"));
+	if (!len) return NULL;
+	char* data = (char*)malloc(len+1);
+
+	if (!session_read(s, data, len))
+	{
+		free(data);
+		return NULL;
+	}
+
+	data[len] = 0;
+	return data;
+}
+
 static int get_postdata(session s)
 {
 	const char* ct = session_get_stash(s, "content-type");
@@ -129,19 +145,9 @@ static int get_postdata(session s)
 	if (!strstri(ct, "application/x-www-form-urlencoded"))
 		return 0;
 
-	long len = atol(session_get_stash(s, "content-length"));
-	if (!len) return 1;
-	char* query = (char*)malloc(len+1);
-
-	if (!session_read(s, query, len))
-	{
-		free(query);
-		return 0;
-	}
-
-	query[len] = 0;
+	char* query = (char*)httpserver_get_content(s);
 	decode_data(s, query);
-	free(query);
+	free(s);
 	return 1;
 }
 
@@ -296,7 +302,9 @@ int httpserver_response(session s, unsigned code, const char* msg, size_t len, c
 	char headers[1024];
 	char* dst = headers;
 	dst += sprintf(dst, "HTTP/%s %u %s\n", session_get_stash(s, HTTP_VERSION), code, msg);
-	dst += sprintf(dst, "Content-Type: %s\r\n", content_type);
+
+	if (content_type && *content_type)
+		dst += sprintf(dst, "Content-Type: %s\r\n", content_type);
 
 	if (session_get_udata_flag(s, HTTP_PERSIST))
 	{

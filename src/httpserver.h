@@ -39,6 +39,8 @@ typedef struct _httpserver* httpserver;
 
 extern httpserver httpserver_create(int (*)(session,void*), void* p1);
 
+extern void* httpserver_get_content(session s);	// MUST free after use
+
 extern const char* httpserver_value(session s, const char* name);
 extern int httpserver_response(session s, unsigned code, const char* msg, size_t len, const char* content_type);
 extern void httpserver_destroy(httpserver h);
