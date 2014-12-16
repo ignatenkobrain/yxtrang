@@ -41,12 +41,18 @@ static int request(session s, void* param)
 
 	if (!session_get_udata_flag(s, HTTP_GET))
 	{
-		httpserver_response(s, 501, "METHOD NOT SUPPORTED", 0, NULL);
+		httpserver_response(s, 501, "METHOD NOT IMPLEMENTED", 0, NULL);
 		return 1;
 	}
 
-	hlinda h = linda_begin(l, 0);
-	const char* buf = NULL;
+	const char* ct = session_get_stash(s, "content-type");
+
+	if (strstri(ct, "application/json"))
+	{
+		httpserver_response(s, 415, "BAD MEDIA TYPE", 0, NULL);
+		return 1;
+	}
+
 	char* query = httpserver_get_content(s);
 
 	if (!query)
@@ -54,6 +60,9 @@ static int request(session s, void* param)
 		httpserver_response(s, 400, "NO DATA", 0, NULL);
 		return 1;
 	}
+
+	hlinda h = linda_begin(l, 0);
+	const char* buf = NULL;
 
 	if (!linda_rdp(h, query, &buf))
 	{
