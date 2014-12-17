@@ -15,7 +15,7 @@
 #include <httpserver.h>
 
 extern int g_http_debug;
-static const char* g_www = "/var/www";
+static const char* g_www_root = "/var/www";
 
 static int http_request(session s, void* param)
 {
@@ -34,13 +34,68 @@ static int http_request(session s, void* param)
 
 int main(int ac, char** av)
 {
-	printf("Usage: httpd [port|%u [ssl|0 [quiet|0 [threads|0 [www|/var/www]]]]]]\n", HTTP_DEFAULT_PORT);
 	const char* binding = NULL;
-	unsigned short port = (short)(ac>1?atoi(av[1]):HTTP_DEFAULT_PORT);
-	int ssl = (ac>2?atoi(av[2]):0);
-	g_http_debug = !(ac>3?atoi(av[3])>0?1:0:0);
-	int threads = (ac>4?atoi(av[4]):0);
-	g_www = (ac>5?av[5]:"/var/www");
+	unsigned short port = HTTP_DEFAULT_PORT;
+	int ssl = 0, threads = 0;
+	int i;
+
+	for (i = 1; i < ac; i++)
+	{
+		char tmpbuf[256];
+		tmpbuf[0] = 0;
+
+		if (!strncmp(av[i], "--port=", 7))
+		{
+			unsigned tmp;
+			sscanf(av[i], "%*[^=]=%u", &tmp);
+			port = (short)tmp;
+		}
+		else if (!strncmp(av[i], "--threads=", 10))
+		{
+			unsigned tmp;
+			sscanf(av[i], "%*[^=]=%u", &tmp);
+			threads = (short)tmp;
+		}
+		else if (!strncmp(av[i], "--ssl=", 6))
+		{
+			unsigned tmp;
+			sscanf(av[i], "%*[^=]=%u", &tmp);
+			ssl = (short)tmp;
+		}
+		else if (!strcmp(av[i], "--ssl"))
+		{
+			ssl = 1;
+		}
+		else if (!strncmp(av[i], "--tls=", 6))
+		{
+			unsigned tmp;
+			sscanf(av[i], "%*[^=]=%u", &tmp);
+			ssl = (short)tmp;
+		}
+		else if (!strcmp(av[i], "--tls"))
+		{
+			ssl = 1;
+		}
+		else if (!strncmp(av[i], "--debug=", 8))
+		{
+			unsigned tmp;
+			sscanf(av[i], "%*[^=]=%u", &tmp);
+			g_http_debug = (short)tmp;
+		}
+		else if (!strcmp(av[i], "--debug"))
+		{
+			g_http_debug = 1;
+		}
+		else if (!strncmp(av[i], "--www=", 6))
+		{
+			unsigned tmp;
+			sscanf(av[i], "%*[^=]=%s", tmpbuf);
+			tmpbuf[sizeof(tmpbuf)-1] = 0;
+			g_www_root = strdup(tmpbuf);
+		}
+	}
+
+	printf("Usage: httpd --port=%u --ssl=%d --debug=%d --threads=%d --www=%s\n", port, ssl, g_http_debug, threads, g_www_root);
 	void* param = (void*)0;
 
 	handler h = handler_create(threads);
