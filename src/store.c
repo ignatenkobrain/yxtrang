@@ -110,7 +110,7 @@ static void dirlist(const char* path, const char* dotted_ext, int (*f)(void*,con
 		return;
 
 #ifdef _WIN32
-	if (strlen(path > 256))
+	if (strlen(path) > 256)
 		return;
 
 	HANDLE hFind;
