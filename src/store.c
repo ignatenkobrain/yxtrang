@@ -98,14 +98,25 @@ static long pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 }
 #endif
 
-static void dirlist(const char* path, const char* ext, int (*f)(void*,const char*), void* p1)
+static void dirlist(const char* path, const char* dotted_ext, int (*f)(void*,const char*), void* p1)
 {
+	if (!path || !dotted_ext || !f)
+		return;
+
+	if (strchr(dotted_ext, '\\') || strchr(dotted_ext, '/'))
+		return;
+
+	if (dotted_ext[0] != '.')
+		return;
+
 #ifdef _WIN32
+	if (strlen(path > 256))
+		return;
+
 	HANDLE hFind;
 	WIN32_FIND_DATA FindFileData;
 	char filespec[1024];
-
-	sprintf(filespec, "%s\\*%s", path, ext);
+	sprintf(filespec, "%s\\*%s", path, dotted_ext);
 
 	if ((hFind = FindFirstFile(filespec, &FindFileData)) != INVALID_HANDLE_VALUE)
 	{
@@ -132,7 +143,7 @@ static void dirlist(const char* path, const char* ext, int (*f)(void*,const char
 		const char* tmpext = strrchr(entry.d_name, '.');
 		if (!tmpext) continue;
 
-		if (strcmp(tmpext, ext))
+		if (strcmp(tmpext, dotted_ext))
 			continue;
 
 		if (!f(p1, entry.d_name))
