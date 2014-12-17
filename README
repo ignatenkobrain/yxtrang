@@ -24,7 +24,7 @@ daemon:
 
 httpserver:
 
- Mechanism to easily write a custom HTTP handler (see samples/httpd).
+ Mechanism to easily write a custom HTTP handler (see examples/httpd).
  Should also serve as a template for writing any bespoke protocol
  server.
 
@@ -43,7 +43,7 @@ linda:
 
   An implementation of the Linda coordination language as an
   idempotent JSON database. It has limited indexing and ad-hoc
-  querying capabilities (see samples/lindad).
+  querying capabilities (see examples/lindad).
 
 
 network:

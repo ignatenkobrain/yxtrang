@@ -1,5 +1,5 @@
 cd src
 nmake WANT_POLL=1 -f Makefile.win
-cd ..\samples
+cd ..\examples
 nmake -f Makefile.win
 cd ..
