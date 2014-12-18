@@ -34,18 +34,18 @@
 #include "tree.h"
 #include "thread.h"
 
-static const char STX = '+';		// Start transaction (begin)
-static const char ETX = '-';		// End transaction (commit)
-static const char CAN = '!';		// Cancel (rollback)
+static const char TR_BEGIN = '+';		// Begin transaction (start)
+static const char TR_END = '-';			// End transaction (commit)
+static const char TR_CANCEL = '!';		// Cancel (rollback)
 
-#define MAX_LOGFILE_SIZE (32LL*1024*1024*1024)	// 32 GB
+#define MAX_LOGFILE_SIZE (8LL*1024*1024*1024)
 
 #define MAX_LOGFILES 256			// 8 bits +
 #define POS_BITS 56					// 56 bits = 64 bits
 
 #define MAKE_FILEPOS(idx,pos) (((uint64_t)idx << POS_BITS) | POS(pos))
 #define FILEIDX(fp) (unsigned)((fp) >> POS_BITS)
-#define POS(fp) ((fp) & ~(0xfULL<<POS_BITS))
+#define POS(fp) ((fp) & ~(0xffULL<<POS_BITS))
 
 #define FLAG_RM		1
 
@@ -257,7 +257,7 @@ static int store_apply(store st, int n, uint64_t pos)
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 			return 0;
 
-		if (tmpbuf[0] == STX)
+		if (tmpbuf[0] == TR_BEGIN)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -266,7 +266,7 @@ static int store_apply(store st, int n, uint64_t pos)
 			while (*src++ != '\n')
 				pos++;
 		}
-		else if (tmpbuf[0] == CAN)
+		else if (tmpbuf[0] == TR_CANCEL)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -279,7 +279,7 @@ static int store_apply(store st, int n, uint64_t pos)
 			while (*src++ != '\n')
 				pos++;
 		}
-		else if (tmpbuf[0] == ETX)
+		else if (tmpbuf[0] == TR_END)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -533,7 +533,7 @@ int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 	char* dst = tmpbuf;
 
 	if (h->wait_for_write)
-		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %X\n", TR_BEGIN, h->nbr);
 
 	unsigned flags = 0;
 	int plen = dst - tmpbuf;
@@ -559,7 +559,7 @@ int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 	char* dst = tmpbuf;
 
 	if (h->wait_for_write)
-		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %X\n", TR_BEGIN, h->nbr);
 
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
@@ -585,7 +585,7 @@ int store_hrem(hstore h, const uuid u)
 	char* dst = tmpbuf;
 
 	if (h->wait_for_write)
-		dst += sprintf(dst, "%c %X\n", STX, h->nbr);
+		dst += sprintf(dst, "%c %X\n", TR_BEGIN, h->nbr);
 
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
@@ -611,7 +611,7 @@ int store_cancel(hstore h)
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
-		int len = sprintf(tmpbuf, "%c %X\n", CAN, h->nbr);
+		int len = sprintf(tmpbuf, "%c %X\n", TR_CANCEL, h->nbr);
 		uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], len);
 		int ok2 = store_write(h->st, tmpbuf, len, pos);
 
@@ -638,7 +638,7 @@ int store_end(hstore h)
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
-		int len = sprintf(tmpbuf, "%c %X\n", ETX, h->nbr);
+		int len = sprintf(tmpbuf, "%c %X\n", TR_END, h->nbr);
 		uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], len);
 		int ok2 = store_write(h->st, tmpbuf, len, pos);
 
@@ -673,7 +673,7 @@ static void store_load_file(store st)
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 			break;
 
-		if (tmpbuf[0] == STX)
+		if (tmpbuf[0] == TR_BEGIN)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -692,7 +692,7 @@ static void store_load_file(store st)
 			while (*src++ != '\n')
 				pos++;
 		}
-		else if (tmpbuf[0] == CAN)
+		else if (tmpbuf[0] == TR_CANCEL)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -709,7 +709,7 @@ static void store_load_file(store st)
 			else
 				valid = 0;
 		}
-		else if (tmpbuf[0] == ETX)
+		else if (tmpbuf[0] == TR_END)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -1055,7 +1055,7 @@ static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,c
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 			return 0;
 
-		if (tmpbuf[0] == STX)
+		if (tmpbuf[0] == TR_BEGIN)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -1064,7 +1064,7 @@ static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,c
 			while (*src++ != '\n')
 				pos++;
 		}
-		else if (tmpbuf[0] == CAN)
+		else if (tmpbuf[0] == TR_CANCEL)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -1077,7 +1077,7 @@ static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,c
 			while (*src++ != '\n')
 				pos++;
 		}
-		else if (tmpbuf[0] == ETX)
+		else if (tmpbuf[0] == TR_END)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -1183,7 +1183,7 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 			continue;
 		}
 
-		if (tmpbuf[0] == STX)
+		if (tmpbuf[0] == TR_BEGIN)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -1202,7 +1202,7 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 			while (*src++ != '\n')
 				pos++;
 		}
-		else if (tmpbuf[0] == CAN)
+		else if (tmpbuf[0] == TR_CANCEL)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
@@ -1219,7 +1219,7 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 			else
 				valid = 0;
 		}
-		else if (tmpbuf[0] == ETX)
+		else if (tmpbuf[0] == TR_END)
 		{
 			unsigned nbr = 0;
 			sscanf(tmpbuf, "%*s %X", &nbr);
