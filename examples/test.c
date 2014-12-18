@@ -249,7 +249,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 	printf("Store: %ld items\n", (long)store_count(st));
 
 	printf("Writing...\n");
-	hstore h = store_begin(st);
+	hstore h = tran ? store_begin(st) : NULL;
 	long i;
 
 	for (i = 1; i <= cnt; i++)
@@ -258,8 +258,16 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 		int len = sprintf(tmpbuf, "{'name':'test','i':%ld}\n", i);
 		uuid_t u = {i, t};
 
-		if (!store_hadd(h, &u, tmpbuf, len))
-			printf("ADD failed: %ld\n", i);
+		if (tran)
+		{
+			if (!store_hadd(h, &u, tmpbuf, len))
+				printf("ADD failed: %ld\n", i);
+		}
+		else
+		{
+			if (!store_add(st, &u, tmpbuf, len))
+				printf("ADD failed: %ld\n", i);
+		}
 
 		if (tran && !(i%10))
 		{
@@ -268,7 +276,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 		}
 	}
 
-	store_end(h, 0);
+	if (h) store_end(h, 0);
 	printf("Store: %ld items\n", (long)store_count(st));
 
 	if (vfy)

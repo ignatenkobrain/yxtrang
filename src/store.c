@@ -34,10 +34,6 @@
 #include "tree.h"
 #include "thread.h"
 
-static const char TR_BEGIN = '+';		// Begin transaction (start)
-static const char TR_END = '-';			// End transaction (commit)
-static const char TR_CANCEL = '!';		// Cancel (rollback)
-
 #define MAX_LOGFILE_SIZE (8LL*1024*1024*1024)
 
 #define MAX_LOGFILES 256			// 8 bits +
@@ -48,6 +44,9 @@ static const char TR_CANCEL = '!';		// Cancel (rollback)
 #define POS(fp) ((fp) & ~(0xffULL<<POS_BITS))
 
 #define FLAG_RM		1
+#define TR_BEGIN	2
+#define TR_END		4
+#define TR_CANCEL	(TR_END|FLAG_RM)
 
 typedef char string[1024];
 
@@ -157,32 +156,35 @@ static void dirlist(const char* path, const char* dotted_ext, int (*f)(void*,con
 static int prefix(char* buf, unsigned nbr, const uuid u, unsigned flags, unsigned len)
 {
 	char tmpbuf[256];
-	return sprintf(buf, "* %X %s %X %X ", nbr, uuid_to_string(u, tmpbuf), flags, len);
+	return sprintf(buf, "[ %u %u %s %u ] ", nbr, flags, uuid_to_string(u, tmpbuf), len);
 }
 
 static int parse(const char* buf, unsigned* nbr, uuid u, unsigned* flags, unsigned* len)
 {
 	char tmpbuf[256];
 	tmpbuf[0] = 0;
-	sscanf(buf, "%*s %X %s %X %X ", nbr, tmpbuf, flags, len);
+	sscanf(buf, "[ %u %u %s %u ]", nbr, flags, tmpbuf, len);
 	tmpbuf[sizeof(tmpbuf)-1] = 0;
 	uuid_from_string(tmpbuf, u);
 	const char* src = buf;
 
-	while (*src++ != ' ')		// skip control
+	while (*src++ != ' ')		// [
 		;
 
 	while (*src++ != ' ')		// skip nbr
 		;
 
-	while (*src++ != ' ')		// skip uuid_t
+	while (*src++ != ' ')		// skip flags
 		;
 
-	while (*src++ != ' ')		// skip flags
+	while (*src++ != ' ')		// skip uuid_t
 		;
 
 	while (*src++ != ' ')		// skip len
 		;
+
+	src++;						// skip ]
+	src++;						// skip SPACE or NL
 
 	return src-buf;
 }
@@ -257,48 +259,26 @@ static int store_apply(store st, int n, uint64_t pos)
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 			return 0;
 
-		if (tmpbuf[0] == TR_BEGIN)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-			const char* src = tmpbuf;
+		unsigned nbr, flags, nbytes;
+		uuid_t u;
 
-			while (*src++ != '\n')
-				pos++;
+		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
+
+		if (flags == TR_BEGIN)
+		{
 		}
-		else if (tmpbuf[0] == TR_CANCEL)
+		else if (flags == TR_CANCEL)
 		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-
 			if (nbr == n)
 				break;
-
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
 		}
-		else if (tmpbuf[0] == TR_END)
+		else if (flags == TR_END)
 		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-
 			if (nbr == n)
 				break;
-
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
 		}
 		else
 		{
-			unsigned nbr, flags, nbytes;
-			uuid_t u;
-
-			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
-
 			if (nbr == n)
 			{
 				if (!(flags & FLAG_RM))
@@ -337,10 +317,10 @@ static int store_apply(store st, int n, uint64_t pos)
 
 				cnt++;
 			}
-
-			pos += skip;
-			pos += nbytes;
 		}
+
+		pos += skip;
+		pos += nbytes;
 	}
 
 	if (st->transactions)
@@ -532,7 +512,7 @@ int store_hadd(hstore h, const uuid u, const void* buf, size_t len)
 	char* dst = tmpbuf;
 
 	if (h->wait_for_write)
-		dst += sprintf(dst, "%c %X\n", TR_BEGIN, h->nbr);
+		dst += sprintf(dst, "[ %u %u 0 0 ]\n", h->nbr, TR_BEGIN);
 
 	unsigned flags = 0;
 	int plen = dst - tmpbuf;
@@ -558,7 +538,7 @@ int store_hrem2(hstore h, const uuid u, const void* buf, size_t len)
 	char* dst = tmpbuf;
 
 	if (h->wait_for_write)
-		dst += sprintf(dst, "%c %X\n", TR_BEGIN, h->nbr);
+		dst += sprintf(dst, "[ %u %u 0 %u ] ", h->nbr, TR_BEGIN, (unsigned)len);
 
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
@@ -584,7 +564,7 @@ int store_hrem(hstore h, const uuid u)
 	char* dst = tmpbuf;
 
 	if (h->wait_for_write)
-		dst += sprintf(dst, "%c %X\n", TR_BEGIN, h->nbr);
+		dst += sprintf(dst, "[ %u %u 0 0 ]\n", h->nbr, TR_BEGIN);
 
 	unsigned flags = FLAG_RM;
 	int plen = dst - tmpbuf;
@@ -610,7 +590,7 @@ int store_cancel(hstore h)
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
-		int len = sprintf(tmpbuf, "%c %X\n", TR_CANCEL, h->nbr);
+		int len = sprintf(tmpbuf, "[ %u %u 0 0 ]\n", h->nbr, TR_CANCEL);
 		uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], len);
 		int ok2 = store_write(h->st, tmpbuf, len, pos);
 
@@ -634,7 +614,7 @@ int store_end(hstore h, int dbsync)
 	if (!h->wait_for_write)
 	{
 		char tmpbuf[256];
-		int len = sprintf(tmpbuf, "%c %X\n", TR_END, h->nbr);
+		int len = sprintf(tmpbuf, "[ %u %u 0 0 ]\n", h->nbr, TR_END);
 		uint64_t pos = atomic_addu64(&h->st->eodpos[h->st->idx-1], len);
 		int ok2 = store_write(h->st, tmpbuf, len, pos);
 
@@ -669,11 +649,12 @@ static void store_load_file(store st)
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 			break;
 
-		if (tmpbuf[0] == TR_BEGIN)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
+		unsigned nbr, flags, nbytes;
+		uuid_t u;
+		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
 
+		if (flags == TR_BEGIN)
+		{
 			if (!save_nbr)
 			{
 				save_nbr = nbr;
@@ -682,20 +663,10 @@ static void store_load_file(store st)
 			}
 			else
 				valid = 0;
-
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
 		}
-		else if (tmpbuf[0] == TR_CANCEL)
+		else if (flags == TR_CANCEL)
 		{
 			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
 
 			if (nbr == save_nbr)		// drop on rollback
 			{
@@ -705,15 +676,8 @@ static void store_load_file(store st)
 			else
 				valid = 0;
 		}
-		else if (tmpbuf[0] == TR_END)
+		else if (flags == TR_END)
 		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
-
 			if (nbr == save_nbr)		// apply on commit
 			{
 				cnt += store_apply(st, nbr, save_pos);
@@ -731,22 +695,9 @@ static void store_load_file(store st)
 		}
 		else if (save_nbr != 0)
 		{
-			unsigned nbr, flags, nbytes;
-			uuid_t u;
-			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
-
-			if (nbr != save_nbr)
-				valid = 0;
-
-			pos += skip;
-			pos += nbytes;
 		}
 		else
 		{
-			unsigned nbr, flags, nbytes;
-			uuid_t u;
-			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
-
 			if (!(flags & FLAG_RM))
 			{
 				int idx = st->idx-1;
@@ -781,9 +732,10 @@ static void store_load_file(store st)
 			}
 
 			cnt++;
-			pos += skip;
-			pos += nbytes;
 		}
+
+		pos += skip;
+		pos += nbytes;
 	}
 
 	st->eodpos[st->idx-1] = pos;
@@ -1026,48 +978,26 @@ static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,c
 		if (pread(fd, tmpbuf, sizeof(tmpbuf), pos) <= 0)
 			return 0;
 
-		if (tmpbuf[0] == TR_BEGIN)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-			const char* src = tmpbuf;
+		unsigned nbr, flags, nbytes;
+		uuid_t u;
 
-			while (*src++ != '\n')
-				pos++;
+		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
+
+		if (flags == TR_BEGIN)
+		{
 		}
-		else if (tmpbuf[0] == TR_CANCEL)
+		else if (flags == TR_CANCEL)
 		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-
 			if (nbr == n)
 				break;
-
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
 		}
-		else if (tmpbuf[0] == TR_END)
+		else if (flags == TR_END)
 		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-
 			if (nbr == n)
 				break;
-
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
 		}
 		else
 		{
-			unsigned nbr, flags, nbytes;
-			uuid_t u;
-
-			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
-
 			if (nbr == n)
 			{
 				if (nbytes)
@@ -1093,10 +1023,10 @@ static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,c
 				else
 					f(p1, &u, NULL, 0);
 			}
-
-			pos += skip;
-			pos += nbytes;
 		}
+
+		pos += skip;
+		pos += nbytes;
 	}
 
 	return 1;
@@ -1154,11 +1084,12 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 			continue;
 		}
 
-		if (tmpbuf[0] == TR_BEGIN)
-		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
+		unsigned nbr, flags, nbytes;
+		uuid_t u;
+		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
 
+		if (flags == TR_BEGIN)
+		{
 			if (!save_nbr)
 			{
 				save_nbr = nbr;
@@ -1167,20 +1098,10 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 			}
 			else
 				valid = 0;
-
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
 				pos++;
 		}
-		else if (tmpbuf[0] == TR_CANCEL)
+		else if (flags == TR_CANCEL)
 		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
 
 			if (nbr == save_nbr)		// drop on rollback
 			{
@@ -1190,15 +1111,8 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 			else
 				valid = 0;
 		}
-		else if (tmpbuf[0] == TR_END)
+		else if (flags == TR_END)
 		{
-			unsigned nbr = 0;
-			sscanf(tmpbuf, "%*s %X", &nbr);
-			const char* src = tmpbuf;
-
-			while (*src++ != '\n')
-				pos++;
-
 			if (nbr == save_nbr)		// apply on commit
 			{
 				if (!store_logreader_apply(st, nbr, save_pos, f, p1))
@@ -1218,22 +1132,11 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 		}
 		else if (save_nbr != 0)
 		{
-			unsigned nbr, flags, nbytes;
-			uuid_t u;
-			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
-
 			if (nbr != save_nbr)
 				valid = 0;
-
-			pos += skip;
-			pos += nbytes;
 		}
 		else
 		{
-			unsigned nbr, flags, nbytes;
-			uuid_t u;
-			int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
-
 			if (nbytes)
 			{
 				char* src = tmpbuf+skip;
@@ -1260,9 +1163,10 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 			}
 
 			cnt++;
-			pos += skip;
-			pos += nbytes;
 		}
+
+		pos += skip;
+		pos += nbytes;
 	}
 
 	return cnt;
