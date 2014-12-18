@@ -17,7 +17,7 @@ extern linda linda_open(const char* path1, const char* path2);
 
 // Begin a sequence of one or more operations.
 
-extern hlinda linda_begin(linda l, int tran, int dbsync);
+extern hlinda linda_begin(linda l, int tran);
 
 extern int linda_out(hlinda l, const char* s);
 
@@ -40,7 +40,7 @@ extern int linda_get_length(hlinda h);			// of last read
 extern const uuid linda_get_oid(hlinda h);		// of last read
 extern const uuid linda_last_oid(hlinda h);		// of last write
 
-extern void linda_end(hlinda h);
+extern void linda_end(hlinda h, int dbsync);
 
 extern int linda_close(linda l);
 

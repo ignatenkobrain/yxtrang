@@ -481,7 +481,7 @@ void linda_release(hlinda h)
 	h->dst = NULL;
 }
 
-hlinda linda_begin(linda l, int tran, int dbsync)
+hlinda linda_begin(linda l, int tran)
 {
 	if (!l)
 		return NULL;
@@ -490,18 +490,18 @@ hlinda linda_begin(linda l, int tran, int dbsync)
 	h->l = l;
 
 	if (tran)
-		h->hst = store_begin(l->st, dbsync);
+		h->hst = store_begin(l->st);
 
 	return h;
 }
 
-void linda_end(hlinda h)
+void linda_end(hlinda h, int dbsync)
 {
 	if (!h)
 		return;
 
 	if (h->hst)
-		store_end(h->hst);
+		store_end(h->hst, dbsync);
 
 	linda_release(h);
 	free(h);

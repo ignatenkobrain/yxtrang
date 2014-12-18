@@ -70,7 +70,7 @@ struct _hstore
 {
 	store st;
 	uint64_t start_pos;
-	int wait_for_write, dbsync;
+	int wait_for_write;
 	unsigned nbr;
 };
 
@@ -498,7 +498,7 @@ int store_get(const store st, const uuid u, void** buf, size_t* len)
 	return nbytes;
 }
 
-hstore store_begin(store st, int dbsync)
+hstore store_begin(store st)
 {
 	if (!st)
 		return 0;
@@ -512,7 +512,6 @@ hstore store_begin(store st, int dbsync)
 	atomic_inc(&st->transactions);
 	h->st = st;
 	h->wait_for_write = 1;
-	h->dbsync = dbsync;
 	return h;
 }
 
@@ -620,9 +619,6 @@ int store_cancel(hstore h)
 			free(h);
 			return 0;
 		}
-
-		if (h->dbsync)
-			fsync(h->st->fd[h->st->idx]);
 	}
 
 	atomic_dec_and_zero(&h->st->transactions, &h->st->current);
@@ -630,7 +626,7 @@ int store_cancel(hstore h)
 	return 1;
 }
 
-int store_end(hstore h)
+int store_end(hstore h, int dbsync)
 {
 	if (!h)
 		return 0;
@@ -650,7 +646,7 @@ int store_end(hstore h)
 
 		store_apply(h->st, h->nbr, h->start_pos);
 
-		if (h->dbsync)
+		if (dbsync)
 			fsync(h->st->fd[h->st->idx]);
 	}
 

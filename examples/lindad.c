@@ -47,12 +47,12 @@ static int linda_request(session s, void* param)
 	}
 
 	const int tran = 1, dbsync = 0;
-	hlinda h = linda_begin(l, tran, dbsync);
+	hlinda h = linda_begin(l, tran);
 	const char* buf = NULL;
 
 	if (!linda_rdp(h, query, &buf))
 	{
-		linda_end(h);
+		linda_end(h, dbsync);
 		httpserver_response(s, 404, "NOT FOUND", 0, NULL);
 		free(query);
 		return 1;
@@ -60,7 +60,7 @@ static int linda_request(session s, void* param)
 
 	size_t len = linda_get_length(h);
 	linda_release(h);					// release the buf
-	linda_end(h);
+	linda_end(h, dbsync);
 
 	httpserver_response(s, 200, "OK", len, APPLICATION_JSON);
 	if (g_http_debug) printf("LINDA: %s", buf);

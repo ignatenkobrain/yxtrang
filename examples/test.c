@@ -169,7 +169,7 @@ static void do_linda_out(long cnt, int tran)
 {
 	linda l = linda_open("./db", NULL);
 	const int dbsync = 0;
-	hlinda h = linda_begin(l, tran, dbsync);
+	hlinda h = linda_begin(l, tran);
 	long i;
 
 	for (i = 0; i < cnt; i++)
@@ -181,8 +181,8 @@ static void do_linda_out(long cnt, int tran)
 
 		if (tran && !(i%10))
 		{
-			linda_end(h);
-			h = linda_begin(l, tran, dbsync);
+			linda_end(h, dbsync);
+			h = linda_begin(l, tran);
 		}
 	}
 
@@ -200,14 +200,14 @@ static void do_linda_out(long cnt, int tran)
 		printf("GOT: %s=%ld => %s", LINDA_ID, i, buf);
 	}
 
-	linda_end(h);
+	linda_end(h, dbsync);
 	linda_close(l);
 }
 
 static void do_linda_in()
 {
 	linda l = linda_open("./db", NULL);
-	hlinda h = linda_begin(l, 0, 0);
+	hlinda h = linda_begin(l, 0);
 	long i;
 
 	// Return by id (indexed)...
@@ -238,7 +238,7 @@ static void do_linda_in()
 		printf("GOT2: %s => %s", tmpbuf, buf);
 	}
 
-	linda_end(h);
+	linda_end(h, 0);
 	linda_close(l);
 }
 
@@ -249,7 +249,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 	printf("Store: %ld items\n", (long)store_count(st));
 
 	printf("Writing...\n");
-	hstore h = store_begin(st, 0);
+	hstore h = store_begin(st);
 	long i;
 
 	for (i = 1; i <= cnt; i++)
@@ -263,12 +263,12 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 
 		if (tran && !(i%10))
 		{
-			store_end(h);
-			h = store_begin(st, 0);
+			store_end(h, 0);
+			h = store_begin(st);
 		}
 	}
 
-	store_end(h);
+	store_end(h, 0);
 	printf("Store: %ld items\n", (long)store_count(st));
 
 	if (vfy)
