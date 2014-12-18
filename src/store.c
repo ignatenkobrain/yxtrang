@@ -1018,31 +1018,6 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	return st;
 }
 
-store store_open(const char* path1, const char* path2, int compact)
-{
-	return store_open2(path1, path2, compact, NULL, NULL);
-}
-
-int store_close(store st)
-{
-	if (!st)
-		return 0;
-
-	while (st->idx-- > 0)
-	{
-		if (st->fd[st->idx] >= 0)
-		{
-			fsync(st->fd[st->idx]);
-			close(st->fd[st->idx]);
-		}
-	}
-
-	tree_destroy(st->tptr);
-	lock_destroy(st->lk);
-	free(st);
-	return 1;
-}
-
 static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,const uuid,const void*,int), void* p1)
 {
 	int idx = FILEIDX(pos);
@@ -1303,5 +1278,30 @@ void store_done(hreader r)
 		return;
 
 	free(r);
+}
+
+store store_open(const char* path1, const char* path2, int compact)
+{
+	return store_open2(path1, path2, compact, NULL, NULL);
+}
+
+int store_close(store st)
+{
+	if (!st)
+		return 0;
+
+	while (st->idx-- > 0)
+	{
+		if (st->fd[st->idx] >= 0)
+		{
+			fsync(st->fd[st->idx]);
+			close(st->fd[st->idx]);
+		}
+	}
+
+	tree_destroy(st->tptr);
+	lock_destroy(st->lk);
+	free(st);
+	return 1;
 }
 
