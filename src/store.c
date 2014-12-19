@@ -34,7 +34,7 @@
 #include "tree.h"
 #include "thread.h"
 
-#define MAX_LOGFILE_SIZE (8L*1024*1024*1024)
+#define MAX_LOGFILE_SIZE (1L*1024*1024*1024)
 
 #define MAX_LOGFILES 256			// 8 bits +
 #define POS_BITS 56					// 56 bits = 64 bits
