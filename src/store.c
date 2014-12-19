@@ -922,7 +922,7 @@ store store_open2(const char* path1, const char* path2, int compact, void (*f)(v
 	stat(filename, &s);
 	int do_merge = 0;
 
-	if (compact && (s.st_size >= (MAX_LOGFILE_SIZE*32)))
+	if (compact && (s.st_size >= MAX_LOGFILE_SIZE))
 	{
 		printf("store_open: compaction scheduled\n");
 		rename(filename, filename2);

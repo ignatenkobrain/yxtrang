@@ -467,7 +467,7 @@ void do_tree(long cnt, int rnd)
 
 	size_t trunks, branches, leafs;
 	tree_stats(tptr, &trunks, &branches, &leafs);
-	printf("Stats: Trunks: %ld, Branches: %ld, Leafs: %ld\n", trunks, branches, leafs);
+	printf("Stats: Trunks: %lld, Branches: %lld, Leafs: %lld\n", (long long)trunks, (long long)branches, (long long)leafs);
 
 	// Random deletes...
 
@@ -487,7 +487,7 @@ void do_tree(long cnt, int rnd)
 		}
 
 		tree_stats(tptr, &trunks, &branches, &leafs);
-		printf("Stats: Trunks: %ld, Branches: %ld, Leafs: %ld\n", trunks, branches, leafs);
+		printf("Stats: Trunks: %lld, Branches: %lld, Leafs: %lld\n", (long long)trunks, (long long)branches, (long long)leafs);
 	}
 
 	tree_destroy(tptr);
