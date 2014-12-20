@@ -97,20 +97,22 @@ static long pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 }
 #endif
 
-static void dirlist(const char* path, const char* dotted_ext, int (*f)(void*,const char*), void* p1)
+static int dirlist(const char* path, const char* dotted_ext, int (*f)(void*,const char*), void* p1)
 {
-	if (!path || !dotted_ext || !f)
-		return;
+	int cnt = 0;
+
+	if (!path || !dotted_ext)
+		return cnt;
 
 	if (strchr(dotted_ext, '\\') || strchr(dotted_ext, '/'))
-		return;
+		return cnt;
 
 	if (dotted_ext[0] != '.')
-		return;
+		return cnt;
 
 #ifdef _WIN32
 	if (strlen(path) > 256)
-		return;
+		return cnt;
 
 	HANDLE hFind;
 	WIN32_FIND_DATA FindFileData;
@@ -121,8 +123,13 @@ static void dirlist(const char* path, const char* dotted_ext, int (*f)(void*,con
 	{
 		do
 		{
-			if (!f(p1, FindFileData.cFileName))
-				break;
+			if (f)
+			{
+				if (!f(p1, FindFileData.cFileName))
+					break;
+			}
+
+			cnt++;
 		}
 		 while(FindNextFile(hFind, &FindFileData));
 
@@ -130,7 +137,7 @@ static void dirlist(const char* path, const char* dotted_ext, int (*f)(void*,con
 	}
 #else
 	DIR* dirp = opendir(path);
-	if (!dirp) return;
+	if (!dirp) return cnt;
 	struct dirent entry;
 	struct dirent* result;
 
@@ -145,12 +152,19 @@ static void dirlist(const char* path, const char* dotted_ext, int (*f)(void*,con
 		if (strcmp(tmpext, dotted_ext))
 			continue;
 
-		if (!f(p1, entry.d_name))
-			break;
+		if (f)
+		{
+			if (!f(p1, entry.d_name))
+				break;
+		}
+
+		cnt++;
 	}
 
 	closedir(dirp);
 #endif
+
+	return cnt;
 }
 
 static int prefix(char* buf, unsigned nbr, const uuid u, unsigned flags, unsigned len)
