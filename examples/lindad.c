@@ -76,7 +76,7 @@ static int http_request(session s, void* param)
 	return session_write(s, body, len);
 }
 
-int main(int ac, char** av)
+int main(int ac, char* av[])
 {
 	const char* binding = NULL;
 	unsigned short port = HTTP_DEFAULT_PORT, uncle_port = UNCLE_DEFAULT_PORT;

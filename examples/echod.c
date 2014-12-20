@@ -29,7 +29,7 @@ static int on_session(session s, void* param)
 	return session_writemsg(s, msg);       // echo it back
 }
 
-int main(int ac, char** av)
+int main(int ac, char* av[])
 {
 	printf("Usage: echod [port|12345 [tcp|1 [ssl|0 [quiet|0 [threads|0]]]]]\n");
 	const char* binding = NULL;

@@ -53,7 +53,7 @@ static int on_session(session s, void* param)
 }
 
 
-int main(int ac, char** av)
+int main(int ac, char* av[])
 {
 	printf("Usage: echo2 [host|localhost [port|12345 [tcp|1 [ssl|0 [loops|10 [quiet|0 [threads:0]]]]]]]\n");
 	const char* host = ac>1?av[1]:"localhost";

@@ -7,7 +7,7 @@
 
 // Synchronous echo client...
 
-int main(int ac, char** av)
+int main(int ac, char* av[])
 {
 	printf("Usage: echo1 [host|localhost [port|12345 [tcp|1 [ssl|0 [loops|10 [quiet|0]]]]]]\n");
 	const char* host = ac>1?av[1]:"localhost";
