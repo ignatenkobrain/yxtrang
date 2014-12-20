@@ -327,7 +327,7 @@ int httpserver_response(session s, unsigned code, const char* msg, size_t len, c
 
 	char headers[1024];
 	char* dst = headers;
-	dst += sprintf(dst, "HTTP/%s %u %s\n", session_get_stash(s, HTTP_VERSION), code, msg);
+	dst += sprintf(dst, "HTTP/%s %u %s\r\n", session_get_stash(s, HTTP_VERSION), code, msg);
 
 	if (content_type && *content_type)
 		dst += sprintf(dst, "Content-Type: %s\r\n", content_type);
