@@ -1,16 +1,7 @@
-// For illustration purposes only...
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
-#ifdef _WIN32
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-#else
-#include <strings.h>
-#endif
 
 #include <httpserver.h>
 
