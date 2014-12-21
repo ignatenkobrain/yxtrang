@@ -14,13 +14,6 @@ extern int g_http_debug;
 static int linda_request(session s, void* param)
 {
 	linda l = (linda)param;
-
-	if (!session_get_udata_flag(s, HTTP_GET))
-	{
-		httpserver_response(s, 501, "NOT IMPLEMENTED", 0, NULL);
-		return 1;
-	}
-
 	const char* ct = session_get_stash(s, "content-type");
 
 	if (!strstr(ct, APPLICATION_JSON))
@@ -37,15 +30,53 @@ static int linda_request(session s, void* param)
 		return 1;
 	}
 
-	const int tran = 1, dbsync = 0;
+	const int tran = 0, dbsync = 0;
 	hlinda h = linda_begin(l, tran);
 	const char* buf = NULL;
 
-	if (!linda_rdp(h, query, &buf))
+	if (session_get_udata_flag(s, HTTP_GET))
 	{
-		linda_end(h, dbsync);
-		httpserver_response(s, 404, "NOT FOUND", 0, NULL);
-		free(query);
+		if (!linda_rdp(h, query, &buf))
+		{
+			linda_end(h, dbsync);
+			httpserver_response(s, 404, "NOT FOUND", 0, NULL);
+			free(query);
+			return 1;
+		}
+	}
+	else if (session_get_udata_flag(s, HTTP_POST))
+	{
+		if (!linda_inp(h, query, &buf))
+		{
+			linda_end(h, dbsync);
+			httpserver_response(s, 404, "NOT FOUND", 0, NULL);
+			free(query);
+			return 1;
+		}
+	}
+	else if (session_get_udata_flag(s, HTTP_DELETE))
+	{
+		if (!linda_rm(h, query))
+		{
+			linda_end(h, dbsync);
+			httpserver_response(s, 404, "NOT FOUND", 0, NULL);
+			free(query);
+			return 1;
+		}
+	}
+	else if (session_get_udata_flag(s, HTTP_PUT))
+	{
+		if (!linda_out(h, query))
+		{
+			linda_end(h, dbsync);
+			httpserver_response(s, 404, "NOT FOUND", 0, NULL);
+			free(query);
+			return 1;
+		}
+	}
+	else
+	{
+		httpserver_response(s, 501, "NOT IMPLEMENTED", 0, NULL);
 		return 1;
 	}
 

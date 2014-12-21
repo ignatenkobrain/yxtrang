@@ -25,8 +25,7 @@ daemon:
 httpserver:
 
  Mechanism to easily write a custom HTTP handler (see examples/httpd).
- Should also serve as a template for writing any bespoke protocol
- server.
+ Should also serve as a template for any bespoke protocol.
 
 
 json:
@@ -36,7 +35,8 @@ json:
 
 jsonq:
 
- JSON quick and dirty search for named value.
+ JSON quick and dirty search for named value. Doesn't allocate any
+ memory and is useful for one-off searches.
 
 
 linda:
