@@ -32,10 +32,11 @@ static int linda_request(session s, void* param)
 
 	const int tran = 0, dbsync = 0;
 	hlinda h = linda_begin(l, tran);
-	const char* buf = NULL;
 
 	if (session_get_udata_flag(s, HTTP_GET))
 	{
+		const char* buf = NULL;
+
 		if (!linda_rdp(h, query, &buf))
 		{
 			linda_end(h, dbsync);
@@ -43,9 +44,19 @@ static int linda_request(session s, void* param)
 			free(query);
 			return 1;
 		}
+
+		size_t len = linda_get_length(h);
+		linda_release(h);					// release the buf
+		linda_end(h, dbsync);
+		httpserver_response(s, 200, "OK", len, APPLICATION_JSON);
+		if (g_http_debug) printf("LINDA: %s", buf);
+		free((void*)buf);					// now free the buf
+		session_write(s, buf, len);
 	}
 	else if (session_get_udata_flag(s, HTTP_POST))
 	{
+		const char* buf = NULL;
+
 		if (!linda_inp(h, query, &buf))
 		{
 			linda_end(h, dbsync);
@@ -53,6 +64,14 @@ static int linda_request(session s, void* param)
 			free(query);
 			return 1;
 		}
+
+		size_t len = linda_get_length(h);
+		linda_release(h);					// release the buf
+		linda_end(h, dbsync);
+		httpserver_response(s, 200, "OK", len, APPLICATION_JSON);
+		if (g_http_debug) printf("LINDA: %s", buf);
+		free((void*)buf);					// now free the buf
+		session_write(s, buf, len);
 	}
 	else if (session_get_udata_flag(s, HTTP_DELETE))
 	{
@@ -63,6 +82,9 @@ static int linda_request(session s, void* param)
 			free(query);
 			return 1;
 		}
+
+		linda_end(h, dbsync);
+		httpserver_response(s, 200, "OK", 0, APPLICATION_JSON);
 	}
 	else if (session_get_udata_flag(s, HTTP_PUT))
 	{
@@ -73,22 +95,19 @@ static int linda_request(session s, void* param)
 			free(query);
 			return 1;
 		}
+
+		linda_end(h, dbsync);
+		httpserver_response(s, 200, "OK", 0, APPLICATION_JSON);
 	}
 	else
 	{
+		linda_end(h, dbsync);
 		httpserver_response(s, 501, "NOT IMPLEMENTED", 0, NULL);
+		free(query);
 		return 1;
 	}
 
-	size_t len = linda_get_length(h);
-	linda_release(h);					// release the buf
-	linda_end(h, dbsync);
-
-	httpserver_response(s, 200, "OK", len, APPLICATION_JSON);
-	if (g_http_debug) printf("LINDA: %s", buf);
-	session_write(s, buf, len);
 	free(query);
-	free((void*)buf);					// now free the buf
 	return 1;
 }
 
