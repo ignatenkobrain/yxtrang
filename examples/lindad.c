@@ -190,21 +190,18 @@ int main(int ac, char* av[])
 		}
 		else if (!strncmp(av[i], "--path=", 7))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%s", tmpbuf);
 			tmpbuf[sizeof(tmpbuf)-1] = 0;
 			path1 = strdup(tmpbuf);
 		}
 		else if (!strncmp(av[i], "--path1=", 8))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%s", tmpbuf);
 			tmpbuf[sizeof(tmpbuf)-1] = 0;
 			path1 = strdup(tmpbuf);
 		}
 		else if (!strncmp(av[i], "--path2=", 8))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%s", tmpbuf);
 			tmpbuf[sizeof(tmpbuf)-1] = 0;
 			path2 = strdup(tmpbuf);
@@ -212,7 +209,6 @@ int main(int ac, char* av[])
 	}
 
 	printf("Usage: lindad --port=%u --ssl=%d --debug=%d --threads=%d --path=%s --uncle=%u\n", port, ssl, g_http_debug, threads, path1, uncle_port);
-	void* param = (void*)0;
 
 	handler h = handler_create(threads);
 	if (!h) return 1;
@@ -233,7 +229,7 @@ int main(int ac, char* av[])
 	{
 		{&linda_request, "linda", l},	// http://server/linda
 		{&http_request, NULL, NULL},	// ... others ...
-		0
+		{0}
 	};
 
 	httpserver http = httpserver_create2(reqs);

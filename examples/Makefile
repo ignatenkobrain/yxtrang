@@ -1,5 +1,7 @@
 CC = cc
-CFLAGS = -O2 $(DBG) -I/usr/local/include -I../src -D_REENTRANT -D_BSD_SOURCE
+CFLAGS = -O2 $(DBG) -Wall -D_BSD_SOURCE
+CFLAGS += -I/usr/local/include -D_REENTRANT    # BSDs want this
+CFLAGS += -I../src
 
 LDFLAGS = -L/usr/local/lib -lm -lpthread -lssl -lcrypto
 

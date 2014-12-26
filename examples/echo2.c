@@ -66,7 +66,6 @@ int main(int ac, char* av[])
 
 	session s = session_open(host, port, tcp, ssl);
 	if (!s) return 1;
-	int i = 0;
 
 	handler h = handler_create(threads);
 	handler_add_client(h, &on_session, NULL, s);

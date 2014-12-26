@@ -303,9 +303,6 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 
 		for (i = 1; i <= cnt; i++)
 		{
-			char tmpbuf[1024];
-			void* buf = &tmpbuf;
-			int len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
 			uuid_t u = {k, t};
 			store_rem(st, &u);

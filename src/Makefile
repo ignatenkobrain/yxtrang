@@ -1,5 +1,6 @@
 CC = cc
-CFLAGS = -O3 $(DBG) -I/usr/local/include -Wall -D_REENTRANT -D_BSD_SOURCE
+CFLAGS = -O3 $(DBG) -Wall -D_BSD_SOURCE
+CFLAGS += -I/usr/local/include -D_REENTRANT    # BSDs want this
 
 OBJECTS = base64.o daemon.o httpserver.o json.o jsonq.o \
 			linda.o network.o scriptlet.o skiplist.o \

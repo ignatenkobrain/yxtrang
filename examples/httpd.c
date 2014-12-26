@@ -79,7 +79,6 @@ int main(int ac, char* av[])
 		}
 		else if (!strncmp(av[i], "--www=", 6))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%s", tmpbuf);
 			tmpbuf[sizeof(tmpbuf)-1] = 0;
 			g_www_root = strdup(tmpbuf);
@@ -87,7 +86,6 @@ int main(int ac, char* av[])
 	}
 
 	printf("Usage: httpd --port=%u --ssl=%d --debug=%d --threads=%d --www=%s\n", port, ssl, g_http_debug, threads, g_www_root);
-	void* param = (void*)0;
 
 	handler h = handler_create(threads);
 	if (!h) return 1;
