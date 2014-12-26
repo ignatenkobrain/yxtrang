@@ -211,7 +211,7 @@ int main(int ac, char* av[])
 		}
 	}
 
-	printf("Usage: lindad --port=%u --ssl=%d --debug --threads=%d --path=%s --uncle=%u\n", port, ssl, g_http_debug, threads, path1, uncle_port);
+	printf("Usage: lindad --port=%u --ssl=%d --debug=%d --threads=%d --path=%s --uncle=%u\n", port, ssl, g_http_debug, threads, path1, uncle_port);
 	void* param = (void*)0;
 
 	handler h = handler_create(threads);

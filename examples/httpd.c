@@ -86,7 +86,7 @@ int main(int ac, char* av[])
 		}
 	}
 
-	printf("Usage: httpd --port=%u --ssl=%d --debug --threads=%d --www=%s\n", port, ssl, g_http_debug, threads, g_www_root);
+	printf("Usage: httpd --port=%u --ssl=%d --debug=%d --threads=%d --www=%s\n", port, ssl, g_http_debug, threads, g_www_root);
 	void* param = (void*)0;
 
 	handler h = handler_create(threads);
