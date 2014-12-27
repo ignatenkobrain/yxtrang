@@ -13,7 +13,7 @@ typedef struct _linda* linda;
 typedef struct _hlinda* hlinda;
 
 extern linda linda_open(const char* path1, const char* path2);
-extern hlinda linda_begin(linda l, int tran);
+extern hlinda linda_begin(linda l);
 extern int linda_out(hlinda l, const char* s);
 
 // These return a managed buffer.

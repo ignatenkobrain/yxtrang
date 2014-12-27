@@ -86,11 +86,7 @@ int linda_out(hlinda h, const char* s)
 		}
 	}
 
-	if (h->hst)
-		store_hadd(h->hst, &u, s, strlen(s));
-	else
-		store_add(h->l->st, &u, s, strlen(s));
-
+	store_hadd(h->hst, &u, s, strlen(s));
 	h->last_oid = u;
 	json_close(j);
 	return 0;
@@ -312,12 +308,7 @@ static int linda_read(hlinda h, const char* s, const char** buf, int rm, int now
 		{
 			char tmpbuf[1024];
 			int tmplen = sprintf(tmpbuf, "{\"%s\":%lld}\n", LINDA_ID, h->int_id);
-
-			if (h->hst)
-				store_hrem2(h->hst, &h->oid, tmpbuf, tmplen);
-			else
-				store_rem2(h->l->st, &h->oid, tmpbuf, tmplen);
-
+			store_hrem2(h->hst, &h->oid, tmpbuf, tmplen);
 			sl_int_uuid_erase(h->l->sl, h->int_id, &h->oid);
 		}
 		else if (is_string)
@@ -325,21 +316,12 @@ static int linda_read(hlinda h, const char* s, const char** buf, int rm, int now
 			char tmpbuf[1024], tmpbuf2[1024];
 			json_format_string(h->string_id, tmpbuf2, sizeof(tmpbuf2));
 			int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, tmpbuf2);
-
-			if (h->hst)
-				store_hrem2(h->hst, &h->oid, tmpbuf, tmplen);
-			else
-				store_rem2(h->l->st, &h->oid, tmpbuf, tmplen);
-
+			store_hrem2(h->hst, &h->oid, tmpbuf, tmplen);
 			sl_string_uuid_erase(h->l->sl, h->string_id, &h->oid);
 		}
 		else
 		{
-			if (h->hst)
-				store_hrem(h->hst, &h->oid);
-			else
-				store_rem(h->l->st, &h->oid);
-
+			store_hrem(h->hst, &h->oid);
 			sl_uuid_efface(h->l->sl, &h->oid);
 		}
 	}
@@ -439,12 +421,7 @@ int linda_rm(hlinda h, const char* s)
 	{
 		char tmpbuf[1024];
 		int tmplen = sprintf(tmpbuf, "{\"%s\":%lld}\n", LINDA_ID, int_id);
-
-		if (h->hst)
-			store_hrem2(h->hst, &u, tmpbuf, tmplen);
-		else
-			store_rem2(h->l->st, &u, tmpbuf, tmplen);
-
+		store_hrem2(h->hst, &u, tmpbuf, tmplen);
 		sl_int_uuid_erase(h->l->sl, int_id, &u);
 	}
 	else if (is_string)
@@ -452,12 +429,7 @@ int linda_rm(hlinda h, const char* s)
 		char tmpbuf[1024], tmpbuf2[1024];
 		json_format_string(string_id, tmpbuf2, sizeof(tmpbuf2));
 		int tmplen = sprintf(tmpbuf, "{\"%s\":\"%s\"}\n", LINDA_ID, tmpbuf2);
-
-		if (h->hst)
-			store_hrem2(h->hst, &u, tmpbuf, tmplen);
-		else
-			store_rem2(h->l->st, &u, tmpbuf, tmplen);
-
+		store_hrem2(h->hst, &u, tmpbuf, tmplen);
 		sl_string_uuid_erase(h->l->sl, string_id, &u);
 	}
 	else
@@ -481,17 +453,14 @@ void linda_release(hlinda h)
 	h->dst = NULL;
 }
 
-hlinda linda_begin(linda l, int tran)
+hlinda linda_begin(linda l)
 {
 	if (!l)
 		return NULL;
 
 	hlinda h = (hlinda)calloc(1, sizeof(struct _hlinda));
 	h->l = l;
-
-	if (tran)
-		h->hst = store_begin(l->st);
-
+	h->hst = store_begin(l->st);
 	return h;
 }
 
@@ -500,9 +469,7 @@ void linda_end(hlinda h, int dbsync)
 	if (!h)
 		return;
 
-	if (h->hst)
-		store_end(h->hst, dbsync);
-
+	store_end(h->hst, dbsync);
 	linda_release(h);
 	free(h);
 }
