@@ -1,6 +1,6 @@
 #ifndef PROLOG_H
 #define PROLOG_H
 
-extern void test(const char* f);
+extern void do_prolog(const char* f);
 
 #endif

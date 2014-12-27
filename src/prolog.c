@@ -51,6 +51,6 @@ char* get_line(char* src, char** buf)
 	return src;
 }
 
-void test(const char* f)
+void do_prolog(const char* f)
 {
 }
