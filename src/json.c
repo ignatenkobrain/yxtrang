@@ -13,7 +13,7 @@ typedef enum
 }
  json_type;
 
-#define NAME_SIZE 256
+#define NAME_SIZE 1024
 
 struct _json
 {
@@ -36,12 +36,25 @@ struct _json
 static long long strtoll(const char* src, char** end, int base)
 {
 	long long n = 0;
-	sscanf(src, "%lld", &n);
+
+	if (!src)
+		return n;
+
+	if (base == 16)
+		sscanf(src, "%llx", &n);
+	else if (base == 10)
+		sscanf(src, "%lld", &n);
+	else if (base == 8)
+		sscanf(src, "%llo", &n);
+	else
+		return n;
 
 	while (isdigit(*src))
 		src++;
 
-	*end = (char*)src;
+	if (end)
+		*end = (char*)src;
+
 	return n;
 }
 #endif
