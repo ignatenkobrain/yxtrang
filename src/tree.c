@@ -19,7 +19,9 @@
 
 #include "tree.h"
 
-#define DEFAULT_NODES 64
+#ifndef TREE_NODES
+#define TREE_NODES 64
+#endif
 
 typedef struct _trunk* trunk;
 typedef struct _branch* branch;
@@ -112,14 +114,14 @@ tree tree_create()
 	tptr->last = tptr->first = (trunk)calloc(1, sizeof(struct _trunk));
 	if (!tptr->last) return tptr;
 
-	size_t block_size = DEFAULT_NODES * sizeof(struct _node);
+	size_t block_size = TREE_NODES * sizeof(struct _node);
 	block_size += sizeof(struct _branch);
 
 	tptr->branches++;
 	trunk t = tptr->first;
 	t->active = (branch)calloc(1, block_size);
 	if (!t->active) return tptr;
-	t->active->max_nodes = DEFAULT_NODES;
+	t->active->max_nodes = TREE_NODES;
 	t->active->leaf = 1;
 
 	// Add in a dummy (illegal) zero key,
@@ -216,13 +218,13 @@ static void trunk_add(tree tptr, trunk t, branch save, branch b, const uuid k)
 		tptr->last = t->next = (trunk)calloc(1, sizeof(struct _trunk));
 		if (!tptr->last) return;
 
-		size_t block_size = DEFAULT_NODES * sizeof(struct _node);
+		size_t block_size = TREE_NODES * sizeof(struct _node);
 		block_size += sizeof(struct _branch);
 
 		tptr->branches++;
 		t->next->active = (branch)calloc(1, block_size);
 		if (!t->next->active) return;
-		t->next->active->max_nodes = DEFAULT_NODES;
+		t->next->active->max_nodes = TREE_NODES;
 		t->next->active->n[0].k = save->n[0].k;
 		t->next->active->n[0].b = save;
 		t->next->active->nodes++;
@@ -234,13 +236,13 @@ static void trunk_add(tree tptr, trunk t, branch save, branch b, const uuid k)
 	{
 		branch save2 = t->active;
 
-		size_t block_size = DEFAULT_NODES * sizeof(struct _node);
+		size_t block_size = TREE_NODES * sizeof(struct _node);
 		block_size += sizeof(struct _branch);
 
 		tptr->branches++;
 		t->active = (branch)calloc(1, block_size);
 		if (!t->active) return;
-		t->active->max_nodes = DEFAULT_NODES;
+		t->active->max_nodes = TREE_NODES;
 		trunk_add(tptr, t, save2, t->active, k);
 	}
 
@@ -263,13 +265,13 @@ int tree_add(tree tptr, const uuid k, unsigned long long v)
 	{
 		branch save2 = t->active;
 
-		size_t block_size = DEFAULT_NODES * sizeof(struct _node);
+		size_t block_size = TREE_NODES * sizeof(struct _node);
 		block_size += sizeof(struct _branch);
 
 		tptr->branches++;
 		t->active = (branch)calloc(1, block_size);
 		if (!t->active) return 0;
-		t->active->max_nodes = DEFAULT_NODES;
+		t->active->max_nodes = TREE_NODES;
 		t->active->leaf = 1;
 		trunk_add(tptr, t, save2, t->active, k);
 	}

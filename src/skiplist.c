@@ -37,12 +37,14 @@ struct _keyval
 	void*	val;
 };
 
-#define BUCKET_SIZE 16		// 16 seems to be about optimal
+#ifndef SKIPLIST_KEYS
+#define SKIPLIST_KEYS 16
+#endif
 
 struct _node
 {
 	int			nbr;
-	keyval_t	bkt[BUCKET_SIZE];
+	keyval_t	bkt[SKIPLIST_KEYS];
 	node		forward[1];
 };
 
@@ -254,7 +256,7 @@ int sl_add(skiplist l, const void* key, const void* value)
 	{
 		int imid = binary_search2(l, p->bkt, key, 0, p->nbr-1);
 
-		if (p->nbr < BUCKET_SIZE)
+		if (p->nbr < SKIPLIST_KEYS)
 		{
 			int j;
 
@@ -285,7 +287,7 @@ int sl_add(skiplist l, const void* key, const void* value)
 		while ((imid < p->nbr) && (l->compare(p->bkt[imid].key, key) == 0))
 			imid++;
 
-		if (imid <= BUCKET_SIZE)
+		if (imid <= SKIPLIST_KEYS)
 		{
 			//sl_dump(l);
 			//printf("SPLIT @ %d\n", imid);
