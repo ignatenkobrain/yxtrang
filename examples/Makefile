@@ -37,4 +37,5 @@ echo1.o: ../src/network.h
 echo2.o: ../src/network.h
 echod.o: ../src/network.h
 httpd.o: ../src/network.h ../src/httpserver.h
-lindad.o: ../src/network.h ../src/httpserver.h ../src/uncle.h ../src/json.h
+lindad.o: ../src/network.h ../src/httpserver.h ../src/uncle.h
+lindad.o: ../src/linda.h ../src/json.h

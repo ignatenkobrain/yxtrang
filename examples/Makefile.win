@@ -65,7 +65,7 @@ echod.obj: $*.c ..\src\network.h
 httpd.obj: $*.c ..\src\network.h ..\src\httpserver.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
-lindad.obj: $*.c ..\src\network.h ..\src\httpserver.h ..\src\uncle.h ..\src\json.h
+lindad.obj: $*.c ..\src\network.h ..\src\httpserver.h ..\src\uncle.h ..\src\json.h ..\src\linda.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
 clean:
