@@ -51,6 +51,14 @@ char* get_line(char* src, char** buf)
 	return src;
 }
 
-void do_prolog(const char* f)
+void do_prolog(const char* filename)
 {
+	FILE* f = fopen(filename, "r");
+	char* buf;
+
+	while (getline(&buf, NULL, f) > 0)
+	{
+	}
+
+	fclose(f);
 }
