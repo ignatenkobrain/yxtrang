@@ -7,9 +7,8 @@
 
 typedef enum
 {
-	type_none=0, type_null=1, type_false=2, type_true=3,
-	type_integer=4, type_real=5, type_string=6,
-	type_object=7, type_array=8
+	type_none, type_null, type_false, type_true, type_integer,
+	type_real, type_string, type_object, type_array
 }
  json_type;
 
