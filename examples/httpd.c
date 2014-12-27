@@ -34,22 +34,20 @@ int main(int ac, char* av[])
 	{
 		char tmpbuf[256];
 		tmpbuf[0] = 0;
+		unsigned tmp = 0;
 
 		if (!strncmp(av[i], "--port=", 7))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%u", &tmp);
 			port = (short)tmp;
 		}
 		else if (!strncmp(av[i], "--threads=", 10))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%u", &tmp);
 			threads = (short)tmp;
 		}
 		else if (!strncmp(av[i], "--ssl=", 6))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%u", &tmp);
 			ssl = (short)tmp;
 		}
@@ -59,7 +57,6 @@ int main(int ac, char* av[])
 		}
 		else if (!strncmp(av[i], "--tls=", 6))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%u", &tmp);
 			ssl = (short)tmp;
 		}
@@ -69,7 +66,6 @@ int main(int ac, char* av[])
 		}
 		else if (!strncmp(av[i], "--debug=", 8))
 		{
-			unsigned tmp;
 			sscanf(av[i], "%*[^=]=%u", &tmp);
 			g_http_debug = (short)tmp;
 		}
