@@ -17,7 +17,7 @@ typedef enum
 
 struct _json
 {
-	char name[NAME_SIZE];		// should be of unlimited size
+	char* name;
 	json_type type;
 	size_t cnt;
 
@@ -149,6 +149,8 @@ static void _json_open(char** str, json j, const int is_array)
 	while (isspace(*s))
 		s++;
 
+	char name[NAME_SIZE];
+
 	while (*s)
 	{
 		if ((*s == '}') || (*s == ']'))
@@ -170,7 +172,7 @@ static void _json_open(char** str, json j, const int is_array)
 			if ((*s == '\"') || (*s == '\''))
 			{
 				char quote = *s++;
-				char* dst = j->name;
+				char* dst = name;
 
 				while (*s && (*s != quote))
 				{
@@ -202,7 +204,7 @@ static void _json_open(char** str, json j, const int is_array)
 							sscanf(tmpbuf, "%X", &val);
 							dst = unicode_to_utf8(dst, val);
 
-							if ((dst-j->name) > (NAME_SIZE-4))
+							if ((dst-name) > (NAME_SIZE-4))
 								break;
 
 							continue;
@@ -211,11 +213,12 @@ static void _json_open(char** str, json j, const int is_array)
 
 					*dst++ = ch;
 
-					if ((dst-j->name) > (NAME_SIZE-1))
+					if ((dst-name) > (NAME_SIZE-1))
 						break;
 				}
 
 				*dst = 0;
+				j->name = strdup(name);
 				s++;
 			}
 
@@ -417,20 +420,18 @@ json json_array_add(json j)
 
 json json_object_add(json j, const char* name)
 {
-	if (!j)
+	if (!j || !name)
 		return NULL;
 
 	if (!j->head)
 	{
 		j = j->head = (json)calloc(1, sizeof(struct _json));
-		strncpy(j->name, name, sizeof(j->name)-1);
-		j->name[sizeof(j->name)-1] = 0;
+		j->name = strdup(name);
 		return j;
 	}
 
 	j = (json)json_add(j->head);
-	strncpy(j->name, name, sizeof(j->name)-1);
-	j->name[sizeof(j->name)-1] = 0;
+	j->name = strdup(name);
 	return j;
 }
 
@@ -461,7 +462,7 @@ int json_rem(json ptr, json ptr2)
 
 json json_create(json j, const char* name)
 {
-	if (!j)
+	if (!j || !name)
 		return NULL;
 
 	json ptr = (json)json_find(j, name);
@@ -470,8 +471,7 @@ json json_create(json j, const char* name)
 		return ptr;
 
 	ptr = (json)json_add(j);
-	strncpy(ptr->name, name, sizeof(ptr->name)-1);
-	ptr->name[sizeof(ptr->name)-1] = 0;
+	j->name = strdup(name);
 	return ptr;
 }
 
@@ -499,10 +499,13 @@ json json_get_array(json j)
 
 json json_find(json j, const char* name)
 {
-	while (j)
+	while (j && name)
 	{
-		if (!strcmp(name, j->name))
-			return j;
+		if (j->name)
+		{
+			if (!strcmp(name, j->name))
+				return j;
+		}
 
 		j = j->next;
 	}
@@ -766,6 +769,9 @@ void json_close(json j)
 		else if ((save->type == type_string) && save->str)
 			free(save->str);
 
+		if (save->name)
+			free(save->name);
+
 		free(save);
 	}
 }
@@ -778,7 +784,7 @@ size_t _json_print(char** pdst, char* dst, json j, int structure, size_t* bytes_
 	{
 		size_t i;
 
-		if (j->name[0])
+		if (j->name && j->name[0])
 		{
 			if (*max_len && (((strlen(j->name)*2)+256) > *bytes_left))
 			{
