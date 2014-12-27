@@ -50,3 +50,7 @@ char* get_line(char* src, char** buf)
 	*buf = dst;
 	return src;
 }
+
+void test(const char* f)
+{
+}
