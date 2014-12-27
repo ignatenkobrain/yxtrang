@@ -69,7 +69,9 @@ skiplist:
 
 store:
 
- Log-structured store with in-memory index by UUID.
+ Append-mode log-structured store with index by UUID. There is no
+ persistent disk index, rather it is regenerated in memory each time
+ at start.
 
 
 thread:
@@ -79,10 +81,10 @@ thread:
 
 tree:
 
- Binary tree designed primarily for append-mode in-order insertion,
- though out-of-order and delete are supported with some performance
- loss. This variant is bucketized and is extremely space-efficient:
- equal to skiplist above but twice as fast.
+ Append-mode binary tree designed primarily for in-order (or near)
+ insertion. Delete is supported with space recovery. This variant is
+ bucketized and is extremely space-efficient: equal to skiplist above
+ but twice as fast.
 
 
 uncle:
