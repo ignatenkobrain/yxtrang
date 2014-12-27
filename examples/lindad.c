@@ -30,8 +30,8 @@ static int linda_request(session s, void* param)
 		return 1;
 	}
 
-	const int tran = 0, dbsync = 0;
-	hlinda h = linda_begin(l, tran);
+	const int dbsync = 0;
+	hlinda h = linda_begin(l);
 
 	if (session_get_udata_flag(s, HTTP_GET))
 	{
