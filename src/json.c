@@ -40,14 +40,7 @@ static long long strtoll(const char* src, char** end, int base)
 	if (!src)
 		return n;
 
-	if (base == 16)
-		sscanf(src, "%llx", &n);
-	else if (base == 10)
-		sscanf(src, "%lld", &n);
-	else if (base == 8)
-		sscanf(src, "%llo", &n);
-	else
-		return n;
+	sscanf(src, "%lld", &n);
 
 	while (isdigit(*src))
 		src++;
