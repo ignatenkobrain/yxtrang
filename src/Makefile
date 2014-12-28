@@ -3,7 +3,7 @@ CFLAGS = -O3 $(DBG) -Wall -D_BSD_SOURCE
 CFLAGS += -I/usr/local/include -D_REENTRANT    # BSDs want this
 
 OBJECTS = base64.o daemon.o httpserver.o json.o jsonq.o \
-			linda.o network.o prolog.o scriptlet.o skiplist.o \
+			linda.o network.o scriptlet.o skiplist.o \
 			store.o thread.o tree.o uncle.o uuid.o
 
 all: $(OBJECTS) yxtrang.a
@@ -24,7 +24,6 @@ json.o: json.h
 jsonq.o: jsonq.h
 linda.o: linda.h skiplist.h skiplist_uuid.h store.h json.h uuid.h
 network.o: network.h skiplist.h skiplist_int.h skiplist_string.h thread.h uncle.h
-prolog.o: prolog.h
 scriptlet.o: scriptlet.h skiplist.h skiplist_string.h
 skiplist.o: skiplist.h
 store.o: store.h uuid.h tree.h thread.h

@@ -15,7 +15,6 @@
 #include <scriptlet.h>
 #include <skiplist_int.h>
 #include <uncle.h>
-#include <prolog.h>
 
 #define SERVER_PORT 6198
 
@@ -594,8 +593,8 @@ int main(int ac, char* av[])
 	int i;
 
 	srand(time(0)|1);
-	char host[256], prolog[256];
-	host[0] = prolog[0] = 0;
+	char host[256];
+	host[0] = 0;
 	sprintf(host, "localhost");
 
 	for (i = 1; i < ac; i++)
@@ -614,9 +613,6 @@ int main(int ac, char* av[])
 
 		if (!strncmp(av[i], "--name=", 7))
 			sscanf(av[i], "%*[^=]=%s", host);
-
-		if (!strncmp(av[i], "--prolog=", 9))
-			sscanf(av[i], "%*[^=]=%s", prolog);
 
 		if (!strncmp(av[i], "--uncle=", 8))
 		{
@@ -781,9 +777,6 @@ int main(int ac, char* av[])
 		do_client(loops, host, port, tcp, ssl, broadcast);
 		return 0;
 	}
-
-	if (prolog[0])
-		do_prolog(prolog);
 
 	return 0;
 }
