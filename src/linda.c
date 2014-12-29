@@ -8,14 +8,14 @@
 #include "linda.h"
 #include "skiplist_uuid.h"
 
-struct _linda
+struct linda_
 {
 	store st;
 	skiplist sl;
 	int is_int, is_string;
 };
 
-struct _hlinda
+struct hlinda_
 {
 	linda l;
 	hstore hst;
@@ -458,7 +458,7 @@ hlinda linda_begin(linda l)
 	if (!l)
 		return NULL;
 
-	hlinda h = (hlinda)calloc(1, sizeof(struct _hlinda));
+	hlinda h = (hlinda)calloc(1, sizeof(struct hlinda_));
 	h->l = l;
 	h->hst = store_begin(l->st);
 	return h;
@@ -583,7 +583,7 @@ static void linda_store_handler(void* p1, const uuid u, const void* _s, int len)
 
 linda linda_open(const char* path1, const char* path2)
 {
-	linda l = (linda)calloc(1, sizeof(struct _linda));
+	linda l = (linda)calloc(1, sizeof(struct linda_));
 	if (!l) return NULL;
 	l->st = store_open2(path1, path2, 0, &linda_store_handler, l);
 	return l;

@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-typedef struct _lock* lock;
-typedef struct _thread_pool* thread_pool;
+typedef struct lock_* lock;
+typedef struct thread_pool_* thread_pool;
 
 extern lock lock_create(void);
 extern void lock_lock(lock l);

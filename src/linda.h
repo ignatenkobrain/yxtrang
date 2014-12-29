@@ -9,8 +9,8 @@
 #define LINDA_ID "$id"
 #define LINDA_OID "$oid"
 
-typedef struct _linda* linda;
-typedef struct _hlinda* hlinda;
+typedef struct linda_* linda;
+typedef struct hlinda_* hlinda;
 
 extern linda linda_open(const char* path1, const char* path2);
 extern hlinda linda_begin(linda l);

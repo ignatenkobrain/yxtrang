@@ -17,9 +17,9 @@
 
 int g_http_debug = 0;
 
-struct _httpserver
+struct httpserver_
 {
-	struct _httpserver_reqs reqs[MAX_REQS];
+	struct httpserver_reqs_ reqs[MAX_REQS];
 	int (*f)(session,void*);
 	void* data;
 };
@@ -357,15 +357,15 @@ int httpserver_response(session s, unsigned code, const char* msg, size_t len, c
 
 httpserver httpserver_create(int (*f)(session,void*), void* p1)
 {
-	httpserver h = (httpserver)calloc(1, sizeof(struct _httpserver));
+	httpserver h = (httpserver)calloc(1, sizeof(struct httpserver_));
 	h->f = f;
 	h->data = p1;
 	return h;
 }
 
-httpserver httpserver_create2(struct _httpserver_reqs* reqs)
+httpserver httpserver_create2(struct httpserver_reqs_* reqs)
 {
-	httpserver h = (httpserver)calloc(1, sizeof(struct _httpserver));
+	httpserver h = (httpserver)calloc(1, sizeof(struct httpserver_));
 	size_t i = 0;
 
 	while (reqs->f)

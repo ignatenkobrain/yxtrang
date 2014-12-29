@@ -53,7 +53,7 @@ typedef char string[1024];
 #define ZEROTH_LOG "0.log"
 #define FIRST_LOG "1.log"
 
-struct _store
+struct store_
 {
 	tree tptr;
 	string filename[MAX_LOGFILES], path1, path2;
@@ -65,7 +65,7 @@ struct _store
 	lock lk;
 };
 
-struct _hstore
+struct hstore_
 {
 	store st;
 	uint64_t start_pos;
@@ -497,7 +497,7 @@ hstore store_begin(store st)
 	if (!st)
 		return 0;
 
-	hstore h = (hstore)calloc(1, sizeof(struct _hstore));
+	hstore h = (hstore)calloc(1, sizeof(struct hstore_));
 
 	if (!h)
 		return 0;
@@ -912,7 +912,7 @@ static int store_open_handler(void* p1, const char* name)
 
 store store_open2(const char* path1, const char* path2, int compact, void (*f)(void*,const uuid,const void*,int), void* p1)
 {
-	store st = (store)calloc(1, sizeof(struct _store));
+	store st = (store)calloc(1, sizeof(struct store_));
 	if (!st || !path1) return NULL;
 	if (!path2) path2 = path1;
 	strcpy(st->path1, path1);

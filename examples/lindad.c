@@ -220,7 +220,7 @@ int main(int ac, char* av[])
 	linda l = linda_open(path1, path2);
 	if (!l) return 3;
 
-	struct _httpserver_reqs reqs[] =
+	struct httpserver_reqs_ reqs[] =
 	{
 		{&linda_request, "linda", l},	// http://server/linda
 		{&http_request, NULL, NULL},	// ... others ...

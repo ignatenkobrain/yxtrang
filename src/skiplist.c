@@ -48,7 +48,7 @@ struct _node
 	node		forward[1];
 };
 
-struct _skiplist
+struct skiplist_
 {
 	node	header;
 	size_t	count;
@@ -84,7 +84,7 @@ skiplist sl_create2(int (*compare)(const void*, const void*), void* (*copykey)(c
 	if (compare == NULL)
 		compare = default_compare;
 
-	l = (skiplist)malloc(sizeof(struct _skiplist));
+	l = (skiplist)malloc(sizeof(struct skiplist_));
 	if (!l) return NULL;
 
 	l->level = 1;

@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-typedef struct _skiplist* skiplist;
+typedef struct skiplist_* skiplist;
 
 extern skiplist sl_create(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*));
 extern skiplist sl_create2(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*), void* (*copyval)(const void*), void (*freeval)(void*));

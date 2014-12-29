@@ -160,7 +160,7 @@ struct _item
 	int precedence, save_operands;
 };
 
-struct _scriptlet
+struct scriptlet_
 {
 	int it_codes, use_cnt;
 	struct _bytecode codes[STACK_SIZE];
@@ -175,7 +175,7 @@ struct _compiletime
 
 typedef struct _compiletime* compiletime;
 
-struct _hscriptlet
+struct hscriptlet_
 {
 	scriptlet s;
 	skiplist symtab;
@@ -235,7 +235,7 @@ static void scriptlet_unshare(scriptlet s)
 hscriptlet scriptlet_prepare(scriptlet s)
 {
 	scriptlet_share(s);
-	hscriptlet r = (hscriptlet)calloc(1, sizeof(struct _hscriptlet));
+	hscriptlet r = (hscriptlet)calloc(1, sizeof(struct hscriptlet_));
 	r->s = s;
 	r->symtab = sl_string_create();
 	scriptlet_set_int(r, "$FIRST", 1);
@@ -1932,7 +1932,7 @@ int scriptlet_run(hscriptlet r)
 
 scriptlet scriptlet_open(const char* text)
 {
-	scriptlet s = (scriptlet)calloc(1, sizeof(struct _scriptlet));
+	scriptlet s = (scriptlet)calloc(1, sizeof(struct scriptlet_));
 	if (!s) return NULL;
 
 	if (!compile(s, text))

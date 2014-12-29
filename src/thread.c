@@ -37,13 +37,13 @@ struct _thread
 
 typedef struct _thread* thread;
 
-struct _thread_pool
+struct thread_pool_
 {
 	thread threads[MAX_THREADS];
 	int cnt, last;
 };
 
-struct _lock
+struct lock_
 {
 #ifdef _WIN32
 	CRITICAL_SECTION mutex;
@@ -54,7 +54,7 @@ struct _lock
 
 lock lock_create()
 {
-	lock l = (lock)calloc(1, sizeof(struct _lock));
+	lock l = (lock)calloc(1, sizeof(struct lock_));
 
 #ifdef _WIN32
 	InitializeCriticalSection(&l->mutex);
@@ -273,7 +273,7 @@ int thread_run(int (*f)(void*), void* data)
 
 thread_pool tpool_create(int threads)
 {
-	thread_pool tp = (thread_pool)calloc(1, sizeof(struct _thread_pool));
+	thread_pool tp = (thread_pool)calloc(1, sizeof(struct thread_pool_));
 
 	if (threads > MAX_THREADS)
 		threads = MAX_THREADS;

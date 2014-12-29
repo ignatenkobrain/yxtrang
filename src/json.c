@@ -14,7 +14,7 @@ typedef enum
 
 #define NAME_SIZE 1024
 
-struct _json
+struct json_
 {
 	char* name;
 	json_type type;
@@ -144,7 +144,7 @@ static char* unicode_to_utf8(char* dst, unsigned c)
 	return dst;
 }
 
-static void _json_open(char** str, json j, const int is_array)
+static void json__open(char** str, json j, const int is_array)
 {
 	char* s = (char*)*str;
 
@@ -167,7 +167,7 @@ static void _json_open(char** str, json j, const int is_array)
 		if (*s == ',')
 		{
 			s++;
-			j->next = (json)calloc(1, sizeof(struct _json));
+			j->next = (json)calloc(1, sizeof(struct json_));
 			if (!j->next) return;
 			j = j->next;
 		}
@@ -240,18 +240,18 @@ static void _json_open(char** str, json j, const int is_array)
 		if (*s == '{')
 		{
 			j->type = type_object;
-			j->head = (json)calloc(1, sizeof(struct _json));
+			j->head = (json)calloc(1, sizeof(struct json_));
 			if (!j->head) return;
 			s++;
-			_json_open(&s, j->head, 0);
+			json__open(&s, j->head, 0);
 		}
 		else if (*s == '[')
 		{
 			j->type = type_array;
-			j->head = (json)calloc(1, sizeof(struct _json));
+			j->head = (json)calloc(1, sizeof(struct json_));
 			if (!j->head) return;
 			s++;
-			_json_open(&s, j->head, 1);
+			json__open(&s, j->head, 1);
 		}
 		else if ((*s == '\"') || (*s == '\''))
 		{
@@ -372,7 +372,7 @@ json json_open(const char* str)
 	if ((*str != '{') && (*str != '['))
 		return NULL;
 
-	json j = (json)calloc(1, sizeof(struct _json));
+	json j = (json)calloc(1, sizeof(struct json_));
 	if (!j) return NULL;
 	int is_array = *str++ == '[';
 
@@ -381,15 +381,15 @@ json json_open(const char* str)
 	else
 		json_set_object(j);
 
-	j->head = (json)calloc(1, sizeof(struct _json));
+	j->head = (json)calloc(1, sizeof(struct json_));
 	if (!j->head) { free (j); return NULL; }
-	_json_open((char**)&str, j->head, is_array);
+	json__open((char**)&str, j->head, is_array);
 	return j;
 }
 
 json json_init()
 {
-	return (json)calloc(1, sizeof(struct _json));
+	return (json)calloc(1, sizeof(struct json_));
 }
 
 static json json_add(json j)
@@ -406,7 +406,7 @@ static json json_add(json j)
 	}
 
 	last->cnt++;
-	return last->next = (json)calloc(1, sizeof(struct _json));
+	return last->next = (json)calloc(1, sizeof(struct json_));
 }
 
 json json_array_add(json j)
@@ -416,7 +416,7 @@ json json_array_add(json j)
 
 	if (!j->head)
 	{
-		j->head = (json)calloc(1, sizeof(struct _json));
+		j->head = (json)calloc(1, sizeof(struct json_));
 		return j->head;
 	}
 
@@ -430,7 +430,7 @@ json json_object_add(json j, const char* name)
 
 	if (!j->head)
 	{
-		j = j->head = (json)calloc(1, sizeof(struct _json));
+		j = j->head = (json)calloc(1, sizeof(struct json_));
 		j->name = strdup(name);
 		return j;
 	}
@@ -781,7 +781,7 @@ void json_close(json j)
 	}
 }
 
-size_t _json_print(char** pdst, char* dst, json j, int structure, size_t* bytes_left, size_t* max_len)
+size_t json__print(char** pdst, char* dst, json j, int structure, size_t* bytes_left, size_t* max_len)
 {
 	char* save_dst = dst;
 
@@ -966,7 +966,7 @@ size_t _json_print(char** pdst, char* dst, json j, int structure, size_t* bytes_
 			dst += i = sprintf(dst, "{");
 			*bytes_left -= i;
 
-			dst += i = _json_print(pdst, dst, j->head, 1, bytes_left, max_len);
+			dst += i = json__print(pdst, dst, j->head, 1, bytes_left, max_len);
 			*bytes_left -= i;
 
 			dst += i = sprintf(dst, "}");
@@ -977,7 +977,7 @@ size_t _json_print(char** pdst, char* dst, json j, int structure, size_t* bytes_
 			dst += i = sprintf(dst, "[");
 			*bytes_left -= i;
 
-			dst += i = _json_print(pdst, dst, j->head, 1, bytes_left, max_len);
+			dst += i = json__print(pdst, dst, j->head, 1, bytes_left, max_len);
 			*bytes_left -= i;
 
 			dst += i = sprintf(dst, "]");
@@ -1024,7 +1024,7 @@ size_t json_print(char** pdst, json j)
 		if (!*pdst) return 0;
 	}
 
-	return _json_print(pdst, *pdst, j, (j->type==type_object)||(j->type==type_array), &bytes_left, &max_len);
+	return json__print(pdst, *pdst, j, (j->type==type_object)||(j->type==type_array), &bytes_left, &max_len);
 }
 
 char* json_to_string(json j)

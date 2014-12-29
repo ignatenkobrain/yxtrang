@@ -9,7 +9,7 @@
 #include "jsonq.h"
 #include "skiplist_string.h"
 
-struct _uncle
+struct uncle_
 {
 	handler h;
 	skiplist db;
@@ -240,7 +240,7 @@ uncle uncle_create2(handler h, const char* binding, unsigned short port, const c
 	if (!h || !port)
 		return NULL;
 
-	uncle u = (uncle)calloc(1, sizeof(struct _uncle));
+	uncle u = (uncle)calloc(1, sizeof(struct uncle_));
 	u->db = sl_string_create2();
 	u->h = h;
 	u->l = lock_create();

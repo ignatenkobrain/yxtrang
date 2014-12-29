@@ -1,8 +1,8 @@
 #ifndef SCRIPTLET_H
 #define SCRIPTLET_H
 
-typedef struct _scriptlet* scriptlet;
-typedef struct _hscriptlet* hscriptlet;
+typedef struct scriptlet_* scriptlet;
+typedef struct hscriptlet_* hscriptlet;
 
 // Create a new scriptlet
 

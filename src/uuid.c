@@ -102,7 +102,7 @@ uuid uuid_gen(uuid u)
 
 uuid uuid_copy(const uuid v1)
 {
-	uuid v2 = (uuid)malloc(sizeof(struct _uuid));
+	uuid v2 = (uuid)malloc(sizeof(struct uuid_));
 	v2->u1 = v1->u1;
 	v2->u2 = v1->u2;
 	return v2;

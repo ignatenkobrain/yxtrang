@@ -4,7 +4,7 @@
 // This parser also accepts single quotes as
 // a convenience with certain languages.
 
-typedef struct _json* json;
+typedef struct json_* json;
 
 extern json json_open(const char* s);		// create from string, OR
 extern json json_init(void);				// create top-level object or array

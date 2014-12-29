@@ -3,7 +3,7 @@
 
 #include "uuid.h"
 
-typedef struct _tree* tree;
+typedef struct tree_* tree;
 
 extern tree tree_create(void);
 

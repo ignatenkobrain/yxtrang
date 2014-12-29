@@ -110,7 +110,7 @@ struct _server
 
 typedef struct _server* server;
 
-struct _handler
+struct handler_
 {
 	skiplist fds, badfds;
 	lock strand;
@@ -126,7 +126,7 @@ struct _handler
 	volatile int halt, use;
 };
 
-struct _session
+struct session_
 {
 	handler h;
 	skiplist stash;
@@ -519,7 +519,7 @@ session session_open(const char* host, unsigned short port, int tcp, int ssl)
 	if (fd == -1)
 		return NULL;
 
-	session s = (session)calloc(1, sizeof(struct _session));
+	session s = (session)calloc(1, sizeof(struct session_));
 	if (!s) return NULL;
 	session_share(s);
 	s->strand = lock_create();
@@ -1270,7 +1270,7 @@ static int handler_accept(handler h, server srv, session* v)
 	flag = 1;
 	setsockopt(newfd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag));
 
-	session s = (session)calloc(1, sizeof(struct _session));
+	session s = (session)calloc(1, sizeof(struct session_));
 	if (!s) return 0;
 	s->strand = lock_create();
 	session_share(s);
@@ -1373,7 +1373,7 @@ int handler_wait_kqueue(handler h)
 				}
 				else
 				{
-					struct _session dummy = {0};
+					struct session_ dummy = {0};
 					s = &dummy;
 					s->h = h;
 					s->fd = srv->fd;
@@ -1486,7 +1486,7 @@ int handler_wait_epoll(handler h)
 				}
 				else
 				{
-					struct _session dummy = {0};
+					struct session_ dummy = {0};
 					s = &dummy;
 					s->h = h;
 					s->fd = srv->fd;
@@ -1593,7 +1593,7 @@ int handler_wait_poll(handler h)
 				}
 				else
 				{
-					struct _session dummy = {0};
+					struct session_ dummy = {0};
 					s = &dummy;
 					s->h = h;
 					s->fd = srv->fd;
@@ -1786,7 +1786,7 @@ int handler_wait_select(handler h)
 			}
 			else
 			{
-				struct _session dummy = {0};
+				struct session_ dummy = {0};
 				s = &dummy;
 				s->h = h;
 				s->fd = srv->fd;
@@ -2173,7 +2173,7 @@ handler handler_create(int threads)
 	}
 #endif
 
-	handler h = (handler)calloc(1, sizeof(struct _handler));
+	handler h = (handler)calloc(1, sizeof(struct handler_));
 	if (!h) return NULL;
 	h->fds = sl_int_create();
 	h->tp = tpool_create(h->threads=threads);

@@ -50,7 +50,7 @@ struct _trunk
 	trunk next;
 };
 
-struct _tree
+struct tree_
 {
 	trunk first, last;
 	size_t trunks, branches, leafs;
@@ -108,7 +108,7 @@ static int binary_search2(struct _node n[], const uuid k, int imin, int imax)
 
 tree tree_create()
 {
-	tree tptr = (tree)calloc(1, sizeof(struct _tree));
+	tree tptr = (tree)calloc(1, sizeof(struct tree_));
 	if (!tptr) return NULL;
 	tptr->trunks++;
 	tptr->last = tptr->first = (trunk)calloc(1, sizeof(struct _trunk));

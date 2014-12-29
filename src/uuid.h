@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct _uuid { uint64_t u1, u2; } uuid_t;
+typedef struct uuid_ { uint64_t u1, u2; } uuid_t;
 typedef uuid_t* uuid;
 
 extern char* uuid_to_string(const uuid u, char* buf);

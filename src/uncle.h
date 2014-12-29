@@ -3,7 +3,7 @@
 
 #define UNCLE_DEFAULT_PORT 6199
 
-typedef struct _uncle* uncle;
+typedef struct uncle_* uncle;
 
 #define SCOPE_DEFAULT "DEFAULT"
 

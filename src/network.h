@@ -1,8 +1,8 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-typedef struct _session* session;
-typedef struct _handler* handler;
+typedef struct session_* session;
+typedef struct handler_* handler;
 
 extern const char* hostname(void);
 
