@@ -14,9 +14,9 @@
 //          list_t l;
 //			mynode* my = malloc(sizeof(struct mynode));
 //          my->val = 123456;
-//          push_back(&l, (node)my);
+//          list_push_back(&l, (node)my);
 //             ...
-//			pop_front(&l, (node*)&my);
+//			list_pop_front(&l, (node*)&my);
 //          int val = my->val;
 //          free(my);
 
@@ -29,8 +29,8 @@ typedef struct node_ node_t;
 extern void push_front(list l, node n);
 extern void push_back(list l, node n);
 
-extern int pop_front(list l, node* n);
-extern int pop_back(list l, node* n);
+extern int list_pop_front(list l, node* n);
+extern int list_pop_back(list l, node* n);
 
 extern size_t list_count(list l);
 
