@@ -3,6 +3,23 @@
 
 #include <stdlib.h>
 
+// Usage:
+//
+//          struct mynode
+//          {
+//            node_t n;     // Must come first
+//            int val;
+//          };
+//
+//          list_t l;
+//			mynode* my = malloc(sizeof(struct mynode));
+//          my->val = 123456;
+//          push_back(&l, (node)my);
+//             ...
+//			pop_front(&l, (node*)&my);
+//          int val = my->val;
+//          free(my);
+
 typedef struct node_* node;
 typedef struct list_* list;
 
