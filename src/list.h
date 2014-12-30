@@ -5,18 +5,19 @@
 
 // Usage:
 //
-//          struct mynode
+//          typedef struct mynode_
 //          {
 //            node_t n;     // Must come first
 //            int val;
-//          };
+//          }
+//           *mynode;
 //
 //          list_t l;
 //          list_init(&l);
-//			mynode* my = malloc(sizeof(struct mynode));
+//             ...
+//			mynode my = (mynode)malloc(sizeof(struct mynode_));
 //          my->val = 123456;
 //          list_push_back(&l, (node)my);
-//             ...
 //			list_pop_front(&l, (node*)&my);
 //          int val = my->val;
 //          free(my);
