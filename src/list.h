@@ -5,22 +5,33 @@
 
 // Usage:
 //
-//          typedef struct mynode_
-//          {
+//          typedef struct mynode_ {
 //            node_t n;     // Must come first
 //            int val;
-//          }
-//           *mynode;
+//          } *mynode;
+//
+//
+// Stack-based:
 //
 //          list_t l;
 //          list_init(&l);
-//             ...
 //			mynode my = (mynode)malloc(sizeof(struct mynode_));
 //          my->val = 123456;
 //          list_push_back(&l, (node)my);
 //			list_pop_front(&l, (node*)&my);
 //          int val = my->val;
 //          free(my);
+//
+// Heap-based:
+//
+//          list l = list_create();
+//			mynode my = (mynode)malloc(sizeof(struct mynode_));
+//          my->val = 123456;
+//          list_push_back(l, (node)my);
+//			list_pop_front(l, (node*)&my);
+//          int val = my->val;
+//          free(my);
+//          list_destroy(l);
 
 typedef struct node_* node;
 typedef struct list_* list;
@@ -28,7 +39,7 @@ typedef struct list_* list;
 typedef struct list_ list_t;
 typedef struct node_ node_t;
 
-extern void list_init(list l);		// Use on stack-based list only
+extern void list_init(list l);
 
 extern list list_create(void);
 extern void list_destroy(list l);
