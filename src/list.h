@@ -28,7 +28,7 @@ typedef struct list_* list;
 typedef struct list_ list_t;
 typedef struct node_ node_t;
 
-extern void list_init(list l);
+extern void list_init(list l);		// Use on stack-based list only
 
 extern list list_create(void);
 extern void list_destroy(list l);
