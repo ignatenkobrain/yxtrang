@@ -8,7 +8,7 @@ struct node_
 struct list_
 {
 	node first, last;
-	unsigned cnt;
+	size_t cnt;
 };
 
 size_t list_count(list l)
