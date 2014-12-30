@@ -26,6 +26,8 @@ void list_clear(list l)
 		free(n);
 		n = save;
 	}
+
+	l->cnt = 0;
 }
 
 void list_iter(list l, int (*f)(node,void*), void* data)
