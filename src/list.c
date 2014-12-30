@@ -37,7 +37,8 @@ void list_iter(list l, int (*f)(node,void*), void* data)
 		node save = n->next;
 
 		if (f)
-			f(n, data);
+			if (!f(n, data))
+				break;
 
 		n = save;
 	}
