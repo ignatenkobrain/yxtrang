@@ -47,7 +47,7 @@ linda:
 
 list:
 
- Simple list/stack operations.
+ Simple doubly-linked list/stack operations.
 
 
 network:
