@@ -81,6 +81,7 @@ int pop_front(list l, node* n)
 	*n = l->first;
 	l->first = l->first->next;
 	l->first->prev = NULL;
+	l->cnt--;
 	return 1;
 }
 
@@ -92,6 +93,7 @@ int pop_back(list l, node* n)
 	*n = l->last;
 	l->last = l->last->prev;
 	l->last->next = NULL;
+	l->cnt--;
 	return 1;
 }
 
