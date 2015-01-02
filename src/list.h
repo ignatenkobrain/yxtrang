@@ -1,8 +1,6 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include <string.h>
-
 // Usage:
 //
 //          typedef struct mynode_ {
@@ -32,6 +30,8 @@
 //          int val = my->val;
 //          free(my);
 //          list_destroy(l);
+
+#include <string.h>
 
 typedef struct node_* node;
 typedef struct list_* list;
