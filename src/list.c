@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "list.h"
 
 struct node_
