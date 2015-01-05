@@ -50,6 +50,9 @@ extern void list_push_back(list l, node n);
 extern int list_pop_front(list l, node* n);
 extern int list_pop_back(list l, node* n);
 
+extern int list_insert_before(list l, node n, node v);
+extern int list_insert_after(list l, node n, node v);
+
 extern size_t list_count(list l);
 
 extern void list_iter(list l, int (*)(node,void*), void* data);

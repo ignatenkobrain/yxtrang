@@ -147,3 +147,34 @@ int list_pop_back(list l, node* n)
 	return 1;
 }
 
+int list_insert_before(list l, node n, node v)
+{
+	if (!l)
+		return 0;
+
+	if (l->first == n)
+		l->first = v;
+
+	if (n->prev)
+		n->prev->next = v;
+
+	v->next = n;
+	n->prev = v;
+	return 1;
+}
+
+int list_insert_after(list l, node n, node v)
+{
+	if (!l)
+		return 0;
+
+	if (l->last == n)
+		l->last = v;
+
+	if (n->next)
+		n->next->prev = v;
+
+	v->next = n->next;
+	n->next = v;
+	return 1;
+}
