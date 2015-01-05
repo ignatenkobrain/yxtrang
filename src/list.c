@@ -185,6 +185,8 @@ int list_insert_before(list l, node n, node v)
 	if (!l || !n || !v)
 		return 0;
 
+	v->prev = v->next = NULL;
+
 	if (l->first == n)
 		l->first = v;
 
@@ -201,13 +203,15 @@ int list_insert_after(list l, node n, node v)
 	if (!l || !n || !v)
 		return 0;
 
+	v->prev = v->next = NULL;
+
 	if (l->last == n)
 		l->last = v;
 
 	if (n->next)
 		n->next->prev = v;
 
-	v->next = n->next;
+	v->prev = n;
 	n->next = v;
 	return 1;
 }
