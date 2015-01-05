@@ -10,7 +10,7 @@ struct node_
 struct list_
 {
 	node first, last;
-	size_t cnt;
+	size_t count;
 };
 
 void list_init(list l)
@@ -19,7 +19,7 @@ void list_init(list l)
 		return;
 
 	l->first = l->last = NULL;
-	l->cnt = 0;
+	l->count = 0;
 }
 
 list list_create(void)
@@ -42,7 +42,7 @@ size_t list_count(list l)
 	if (!l)
 		return 0;
 
-	return l->cnt;
+	return l->count;
 }
 
 void list_clear(list l)
@@ -59,7 +59,7 @@ void list_clear(list l)
 		n = save;
 	}
 
-	l->cnt = 0;
+	l->count = 0;
 }
 
 void list_iter(list l, int (*f)(node,void*), void* data)
@@ -86,7 +86,7 @@ void list_push_front(list l, node n)
 	if (!l)
 		return;
 
-	l->cnt++;
+	l->count++;
 
 	if (!l->first)
 	{
@@ -104,7 +104,7 @@ void list_push_back(list l, node n)
 	if (!l)
 		return;
 
-	l->cnt++;
+	l->count++;
 
 	if (!l->first)
 	{
@@ -128,7 +128,7 @@ int list_pop_front(list l, node* n)
 	*n = l->first;
 	l->first = l->first->next;
 	l->first->prev = NULL;
-	l->cnt--;
+	l->count--;
 	return 1;
 }
 
@@ -143,7 +143,7 @@ int list_pop_back(list l, node* n)
 	*n = l->last;
 	l->last = l->last->prev;
 	l->last->next = NULL;
-	l->cnt--;
+	l->count--;
 	return 1;
 }
 
