@@ -112,6 +112,7 @@ int list_push_front(list l, node n)
 		return 0;
 
 	l->count++;
+	n->prev = n->next = NULL;
 
 	if (!l->first)
 	{
@@ -131,6 +132,7 @@ int list_push_back(list l, node n)
 		return 0;
 
 	l->count++;
+	n->prev = n->next = NULL;
 
 	if (!l->first)
 	{
