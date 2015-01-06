@@ -207,7 +207,6 @@ int list_insert_before(list l, node n, node v)
 	if (!l || !n || !v)
 		return 0;
 
-	v->prev = v->next = NULL;
 	l->count++;
 
 	if (l->first == n)
@@ -216,8 +215,9 @@ int list_insert_before(list l, node n, node v)
 	if (n->prev)
 		n->prev->next = v;
 
-	n->prev = v;
+	v->prev = n->prev;
 	v->next = n;
+	n->prev = v;
 	return 1;
 }
 
@@ -226,7 +226,6 @@ int list_insert_after(list l, node n, node v)
 	if (!l || !n || !v)
 		return 0;
 
-	v->prev = v->next = NULL;
 	l->count++;
 
 	if (l->last == n)
@@ -235,7 +234,8 @@ int list_insert_after(list l, node n, node v)
 	if (n->next)
 		n->next->prev = v;
 
-	n->next = v;
+	v->next = n->next;
 	v->prev = n;
+	n->next = v;
 	return 1;
 }
