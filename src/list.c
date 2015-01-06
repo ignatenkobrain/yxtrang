@@ -75,26 +75,6 @@ node list_back(list l)
 	return l->last;
 }
 
-int list_remove(list l, node n)
-{
-	if (!l || !n)
-		return 0;
-
-	if (l->first == n)
-		l->first = n->next;
-
-	if (l->last == n)
-		l->last = n->prev;
-
-	if (n->prev)
-		n->prev->next = n->next;
-
-	if (n->next)
-		n->next->prev = n->prev;
-
-	return 1;
-}
-
 int list_iter(list l, int (*f)(node,void*), void* data)
 {
 	if (!l)
@@ -116,13 +96,34 @@ int list_iter(list l, int (*f)(node,void*), void* data)
 	return 1;
 }
 
+int list_remove(list l, node n)
+{
+	if (!l || !n)
+		return 0;
+
+	if (l->first == n)
+		l->first = n->next;
+
+	if (l->last == n)
+		l->last = n->prev;
+
+	if (n->prev)
+		n->prev->next = n->next;
+
+	if (n->next)
+		n->next->prev = n->prev;
+
+	l->count--;
+	return 1;
+}
+
 int list_push_front(list l, node n)
 {
 	if (!l || !n)
 		return 0;
 
-	l->count++;
 	n->prev = n->next = NULL;
+	l->count++;
 
 	if (!l->first)
 	{
@@ -141,8 +142,8 @@ int list_push_back(list l, node n)
 	if (!l || !n)
 		return 0;
 
-	l->count++;
 	n->prev = n->next = NULL;
+	l->count++;
 
 	if (!l->first)
 	{
@@ -196,6 +197,7 @@ int list_insert_before(list l, node n, node v)
 		return 0;
 
 	v->prev = v->next = NULL;
+	l->count++;
 
 	if (l->first == n)
 		l->first = v;
@@ -214,6 +216,7 @@ int list_insert_after(list l, node n, node v)
 		return 0;
 
 	v->prev = v->next = NULL;
+	l->count++;
 
 	if (l->last == n)
 		l->last = v;
