@@ -113,7 +113,10 @@ int list_remove(list l, node n)
 	if (n->next)
 		n->next->prev = n->prev;
 
-	l->count--;
+	if (n->prev || n->next)
+		l->count--;
+
+	n->prev = n->next = NULL;
 	return 1;
 }
 
