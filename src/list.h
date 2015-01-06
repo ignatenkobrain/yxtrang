@@ -51,6 +51,9 @@ extern int list_insert_before(list l, node n, node v);
 extern int list_insert_after(list l, node n, node v);
 extern int list_remove(list l, node n);
 
+extern node list_front(list l);
+extern node list_back(list l);
+
 extern size_t list_count(list l);
 extern int list_iter(list l, int (*)(node,void*), void* data);
 extern int list_clear(list l);

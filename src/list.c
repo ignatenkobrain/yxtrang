@@ -65,6 +65,16 @@ int list_clear(list l)
 	return 1;
 }
 
+node list_front(list l)
+{
+	return l->first;
+}
+
+node list_back(list l)
+{
+	return l->last;
+}
+
 int list_remove(list l, node n)
 {
 	if (!l || !n)
