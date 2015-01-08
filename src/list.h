@@ -9,7 +9,7 @@
 //          } *mynode;
 //
 //
-// Stack-based:
+// Static stack-based:
 //
 //          list_t l;
 //          list_init(&l);
@@ -20,7 +20,7 @@
 //          int val = my->val;
 //          free(my);
 //
-// Heap-based:
+// Dynamic heap-based:
 //
 //          list l = list_create();
 //			mynode my = (mynode)malloc(sizeof(struct mynode_));
@@ -39,9 +39,10 @@ typedef struct list_ *list;
 typedef struct list_ list_t;
 typedef struct node_ node_t;
 
-extern int list_init(list l);
-extern list list_create(void);
-extern int list_destroy(list l);
+extern int list_init(list l);		// static list
+
+extern list list_create(void);		// dynamic list
+extern int list_destroy(list l);	// ..
 
 extern int list_push_front(list l, node n);
 extern int list_push_back(list l, node n);
