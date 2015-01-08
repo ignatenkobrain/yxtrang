@@ -4,11 +4,11 @@
 
 #include "jsonq.h"
 
-const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
+const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 {
-	const char* src = s;
+	const char *src = s;
 	char token[256];
-	char* dst = token;
+	char *dst = token;
 	int found = 0, quoted = 0, level = 0, lhs = 1;
 	char quote = 0, ch;
 
@@ -141,7 +141,7 @@ const char* jsonq(const char* s, const char* name, char* dstbuf, int dstlen)
 	return dstbuf;
 }
 
-long long jsonq_int(const char* s, const char* name)
+long long jsonq_int(const char *s, const char *name)
 {
 	char tmpbuf[1024];
 	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
@@ -150,7 +150,7 @@ long long jsonq_int(const char* s, const char* name)
 	return v;
 }
 
-double jsonq_real(const char* s, const char* name)
+double jsonq_real(const char *s, const char *name)
 {
 	char tmpbuf[1024];
 	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
@@ -159,14 +159,14 @@ double jsonq_real(const char* s, const char* name)
 	return v;
 }
 
-int jsonq_bool(const char* s, const char* name)
+int jsonq_bool(const char *s, const char *name)
 {
 	char tmpbuf[1024];
 	jsonq(s, name, tmpbuf, sizeof(tmpbuf));
 	return !strcmp(tmpbuf, "true");
 }
 
-int jsonq_null(const char* s, const char* name)
+int jsonq_null(const char *s, const char *name)
 {
 	char tmpbuf[1024];
 

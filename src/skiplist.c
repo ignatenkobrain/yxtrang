@@ -1,24 +1,24 @@
 /*
- * "Skip Lists are a probabilistic alternative to balanced trees, as
- * described in the June 1990 issue of CACM and were invented by
- * William Pugh in 1987"
+  *"Skip Lists are a probabilistic alternative to balanced trees, as
+  *described in the June 1990 issue of CACM and were invented by
+  *William Pugh in 1987"
  *
- * Modifed: Andrew G Davison 2014 (Infradig Systems)...
+  *Modifed: Andrew G Davison 2014 (Infradig Systems)...
  *
- * This version is unique (as far as I know) in that it adds 'buckets'
- * with binary search within. This allows many more keys to be stored:
- * about 400M 64-bit keys (bucket size 16) on an 8GB system vs 150M
- * with the original. A pathological case exists whereby keys are added
- * in descending order and it reverts to one key per bucket, as per the
- * original. Since buckets are fixed in size, this is bad. The case
- * though is unlikely and can be planned around. For both in-order and
- * random insertion space usage is optimal.
+  *This version is unique (as far as I know) in that it adds 'buckets'
+  *with binary search within. This allows many more keys to be stored:
+  *about 400M 64-bit keys (bucket size 16) on an 8GB system vs 150M
+  *with the original. A pathological case exists whereby keys are added
+  *in descending order and it reverts to one key per bucket, as per the
+  *original. Since buckets are fixed in size, this is bad. The case
+  *though is unlikely and can be planned around. For both in-order and
+  *random insertion space usage is optimal.
  *
- * Future enhancement: allocate variable sized buckets (requires
- * storing bucket allocation size in node).
+  *Future enhancement: allocate variable sized buckets (requires
+  *storing bucket allocation size in node).
  *
- * Follow-on enhancement: when deleting from a bucket, if the number
- * drops below half the bucket size, reallocate bucket at half size.
+  *Follow-on enhancement: when deleting from a bucket, if the number
+  *drops below half the bucket size, reallocate bucket at half size.
  *
  */
 
@@ -29,7 +29,7 @@
 #include "skiplist.h"
 
 typedef struct _keyval keyval_t;
-typedef struct _node* node;
+typedef struct _node *node;
 
 struct _keyval
 {
@@ -66,7 +66,7 @@ struct skiplist_
 
 // Allows using integer values as keys...
 
-static int default_compare(const void* k1, const void* k2)
+static int default_compare(const void *k1, const void *k2)
 {
 	if ((size_t)k1 < (size_t)k2)
 		return -1;
@@ -76,7 +76,7 @@ static int default_compare(const void* k1, const void* k2)
 		return 1;
 }
 
-skiplist sl_create2(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*), void* (*copyval)(const void*), void (*freeval)(void*))
+skiplist sl_create2(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*), void *(*copyval)(const void*), void (*freeval)(void*))
 {
 	skiplist l;
 	int i;
@@ -110,7 +110,7 @@ skiplist sl_create2(int (*compare)(const void*, const void*), void* (*copykey)(c
 	return l;
 }
 
-skiplist sl_create(int (*compare)(const void*, const void*), void* (*copykey)(const void*), void (*freekey)(void*))
+skiplist sl_create(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*))
 {
 	return sl_create2(compare, copykey, freekey, NULL, NULL);
 }
@@ -181,7 +181,7 @@ void sl_dump(const skiplist l)
 	printf("\n");
 }
 
-static int binary_search(const skiplist l, const keyval_t n[], const void* key, int imin, int imax)
+static int binary_search(const skiplist l, const keyval_t n[], const void *key, int imin, int imax)
 {
 	int imid = 0;
 
@@ -202,7 +202,7 @@ static int binary_search(const skiplist l, const keyval_t n[], const void* key, 
 
 // Modified binary search: return position where it is or ought to be
 
-static int binary_search2(const skiplist l, const keyval_t n[], const void* key, int imin, int imax)
+static int binary_search2(const skiplist l, const keyval_t n[], const void *key, int imin, int imax)
 {
 	int imid = 0;
 
@@ -231,7 +231,7 @@ static int RandomLevelskiplist()
     return lvl < MaxLevel ? lvl : MaxLevel;
 }
 
-int sl_add(skiplist l, const void* key, const void* value)
+int sl_add(skiplist l, const void *key, const void *value)
 {
 	if (!l || !key)
 		return 0;
@@ -349,7 +349,7 @@ int sl_add(skiplist l, const void* key, const void* value)
 	return 1;
 }
 
-int sl_get(const skiplist l, const void* key, const void** value)
+int sl_get(const skiplist l, const void *key, const void **value)
 {
 	if (!l || !key)
 		return 0;
@@ -378,7 +378,7 @@ int sl_get(const skiplist l, const void* key, const void** value)
 	return 1;
 }
 
-int sl_rem(skiplist l, const void* key)
+int sl_rem(skiplist l, const void *key)
 {
 	if (!l || !key)
 		return 0;
@@ -453,7 +453,7 @@ int sl_rem(skiplist l, const void* key)
 	return 1;
 }
 
-int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(const void*,const void*))
+int sl_erase(skiplist l, const void *key, const void *value, int (*compare)(const void*,const void*))
 {
 	if (!l)
 		return 0;
@@ -539,7 +539,7 @@ int sl_erase(skiplist l, const void* key, const void* value, int (*compare)(cons
 	return 1;
 }
 
-int sl_efface(skiplist l, const void* value, int (*compare)(const void*,const void*))
+int sl_efface(skiplist l, const void *value, int (*compare)(const void*,const void*))
 {
 	if (!l)
 		return 0;
@@ -629,7 +629,7 @@ int sl_efface(skiplist l, const void* value, int (*compare)(const void*,const vo
 	return 1;
 }
 
-void sl_iter(const skiplist l, int (*f)(void*,void*,void*), void* p1)
+void sl_iter(const skiplist l, int (*f)(void*,void*,void*), void *p1)
 {
 	if (!l)
 		return;
@@ -656,7 +656,7 @@ void sl_iter(const skiplist l, int (*f)(void*,void*,void*), void* p1)
 	}
 }
 
-void sl_find(const skiplist l, const void* key, int (*f)(void*,void*,void*), void* p1)
+void sl_find(const skiplist l, const void *key, int (*f)(void*,void*,void*), void *p1)
 {
 	if (!l)
 		return;

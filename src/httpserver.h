@@ -10,7 +10,7 @@
 //
 // is retrieved by:
 //
-//    const char* filename = session_get_stash(s, HTTP_RESOURCE)
+//    const char *filename = session_get_stash(s, HTTP_RESOURCE)
 //    long id = session_get_stash(s, "_id")
 //
 // Other content associated with a request is left unread and should
@@ -37,22 +37,22 @@ enum {	HTTP_READY, HTTP_HEAD, HTTP_GET, HTTP_POST,
 		HTTP_PERSIST
 };
 
-typedef struct httpserver_* httpserver;
+typedef struct httpserver_ *httpserver;
 
 struct httpserver_reqs_
 {
-	int (*f)(session s, void* param);
-	const char* path;
-	void* data;
+	int (*f)(session s, void *param);
+	const char *path;
+	void *data;
 };
 
-extern httpserver httpserver_create(int (*)(session,void*), void* p1);
+extern httpserver httpserver_create(int (*)(session,void*), void *p1);
 extern httpserver httpserver_create2(struct httpserver_reqs_ reqs[]);
 
-extern void* httpserver_get_content(session s);	// MUST free after use
+extern void *httpserver_get_content(session s);	// MUST free after use
 
-extern const char* httpserver_value(session s, const char* name);
-extern int httpserver_response(session s, unsigned code, const char* msg, size_t len, const char* content_type);
+extern const char *httpserver_value(session s, const char *name);
+extern int httpserver_response(session s, unsigned code, const char *msg, size_t len, const char *content_type);
 extern void httpserver_destroy(httpserver h);
 
 // This does all the heavy lifting...

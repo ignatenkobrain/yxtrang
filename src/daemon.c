@@ -19,7 +19,7 @@
 volatile int g_stopping = 0;
 
 #ifdef _WIN32
-int daemonize(int argc, char* argv[], int watchdog)
+int daemonize(int argc, char *argv[], int watchdog)
 {
 	char cmd[1024], args[1024];
 	args[0] = 0;

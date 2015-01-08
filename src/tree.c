@@ -1,16 +1,16 @@
 
 /*
- * Like a b-tree, but optimized for indexing timestamped logfiles.
- * A key value of zero is not allowed.
- * In-order adds are extremely quick (effectively an append)
- * Out-of-order inserts not so much.
+  *Like a b-tree, but optimized for indexing timestamped logfiles.
+  *A key value of zero is not allowed.
+  *In-order adds are extremely quick (effectively an append)
+  *Out-of-order inserts not so much.
  *
- * Thread-safe for a single writer and readers.
+  *Thread-safe for a single writer and readers.
  *
- * Future enhancement: if nbr of nodes in a branch drops below half,
- * then reallocate the branch at half the size. But only if
- * the number is above a certain minimum. This way we can  garbage
- * collect wasted space.
+  *Future enhancement: if nbr of nodes in a branch drops below half,
+  *then reallocate the branch at half the size. But only if
+  *the number is above a certain minimum. This way we can  garbage
+  *collect wasted space.
  *
  */
 
@@ -23,9 +23,9 @@
 #define TREE_NODES 64
 #endif
 
-typedef struct _trunk* trunk;
-typedef struct _branch* branch;
-typedef struct _node* node;
+typedef struct _trunk *trunk;
+typedef struct _branch *branch;
+typedef struct _node *node;
 
 struct _node
 {
@@ -114,7 +114,7 @@ tree tree_create()
 	tptr->last = tptr->first = (trunk)calloc(1, sizeof(struct _trunk));
 	if (!tptr->last) return tptr;
 
-	size_t block_size = TREE_NODES * sizeof(struct _node);
+	size_t block_size = TREE_NODES  *sizeof(struct _node);
 	block_size += sizeof(struct _branch);
 
 	tptr->branches++;
@@ -138,7 +138,7 @@ size_t tree_count(const tree tptr)
 	return tptr->leafs;
 }
 
-static int branch_insert(tree tptr, branch* b2, const uuid k, unsigned long long v)
+static int branch_insert(tree tptr, branch *b2, const uuid k, unsigned long long v)
 {
 	branch b = *b2;
 
@@ -154,7 +154,7 @@ static int branch_insert(tree tptr, branch* b2, const uuid k, unsigned long long
 		if (b->nodes == b->max_nodes)
 		{
 			b->max_nodes += 1;
-			size_t block_size = b->max_nodes * sizeof(struct _node);
+			size_t block_size = b->max_nodes  *sizeof(struct _node);
 			block_size += sizeof(struct _branch);
 			b = (branch)realloc(b, block_size);
 			if (!b) return 0;
@@ -179,7 +179,7 @@ static int branch_insert(tree tptr, branch* b2, const uuid k, unsigned long long
 		return 1;
 	}
 
-	branch* last = 0;
+	branch *last = 0;
 	node n = b->n;
 	int i;
 
@@ -218,7 +218,7 @@ static void trunk_add(tree tptr, trunk t, branch save, branch b, const uuid k)
 		tptr->last = t->next = (trunk)calloc(1, sizeof(struct _trunk));
 		if (!tptr->last) return;
 
-		size_t block_size = TREE_NODES * sizeof(struct _node);
+		size_t block_size = TREE_NODES  *sizeof(struct _node);
 		block_size += sizeof(struct _branch);
 
 		tptr->branches++;
@@ -236,7 +236,7 @@ static void trunk_add(tree tptr, trunk t, branch save, branch b, const uuid k)
 	{
 		branch save2 = t->active;
 
-		size_t block_size = TREE_NODES * sizeof(struct _node);
+		size_t block_size = TREE_NODES  *sizeof(struct _node);
 		block_size += sizeof(struct _branch);
 
 		tptr->branches++;
@@ -265,7 +265,7 @@ int tree_add(tree tptr, const uuid k, unsigned long long v)
 	{
 		branch save2 = t->active;
 
-		size_t block_size = TREE_NODES * sizeof(struct _node);
+		size_t block_size = TREE_NODES  *sizeof(struct _node);
 		block_size += sizeof(struct _branch);
 
 		tptr->branches++;
@@ -370,7 +370,7 @@ int tree_del(tree tptr, const uuid k)
 	return branch_del(tptr, tptr->last->active, k);
 }
 
-static int branch_get(const tree tptr, const branch b, const uuid k, unsigned long long* v)
+static int branch_get(const tree tptr, const branch b, const uuid k, unsigned long long *v)
 {
 	if (b->leaf)
 	{
@@ -403,7 +403,7 @@ static int branch_get(const tree tptr, const branch b, const uuid k, unsigned lo
 	return branch_get(tptr, last, k, v);
 }
 
-int tree_get(const tree tptr, const uuid k, unsigned long long* v)
+int tree_get(const tree tptr, const uuid k, unsigned long long *v)
 {
 	if (!tptr || !k)
 		return 0;
@@ -452,7 +452,7 @@ int tree_set(const tree tptr, const uuid k, unsigned long long v)
 	return branch_set(tptr, tptr->last->active, k, v);
 }
 
-static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, int (*f)(void*,const uuid,unsigned long long*))
+static int branch_iter(const tree tptr, size_t *cnt, const branch b, void *h, int (*f)(void*,const uuid,unsigned long long*))
 {
 	int i;
 
@@ -479,7 +479,7 @@ static int branch_iter(const tree tptr, size_t* cnt, const branch b, void* h, in
 	return 1;
 }
 
-size_t tree_iter(const tree tptr, void* h, int (*f)(void*,const uuid,unsigned long long*))
+size_t tree_iter(const tree tptr, void *h, int (*f)(void*,const uuid,unsigned long long*))
 {
 	if (!tptr)
 		return 0;
@@ -490,7 +490,7 @@ size_t tree_iter(const tree tptr, void* h, int (*f)(void*,const uuid,unsigned lo
 	return cnt;
 }
 
-int tree_stats(const tree tptr, size_t* trunks, size_t* branches, size_t* leafs)
+int tree_stats(const tree tptr, size_t *trunks, size_t *branches, size_t *leafs)
 {
 	if (!tptr)
 		return 0;

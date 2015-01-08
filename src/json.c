@@ -16,14 +16,14 @@ typedef enum
 
 struct json_
 {
-	char* name;
+	char *name;
 	json_type type;
 	size_t cnt;
 
 	union
 	{
 		json head;
-		char* str;
+		char *str;
 		long long integer;
 		double real;
 	};
@@ -32,7 +32,7 @@ struct json_
 };
 
 #ifdef _WIN32
-static long long strtoll(const char* src, char** end, int base)
+static long long strtoll(const char *src, char **end, int base)
 {
 	long long n = 0;
 
@@ -51,9 +51,9 @@ static long long strtoll(const char* src, char** end, int base)
 }
 #endif
 
-const char* json_format_string(const char* src, char* buf, size_t buflen)
+const char *json_format_string(const char *src, char *buf, size_t buflen)
 {
-	char* dst = buf;
+	char *dst = buf;
 
 	while (*src && (buflen > 3))
 	{
@@ -116,7 +116,7 @@ const char* json_format_string(const char* src, char* buf, size_t buflen)
 	return buf;
 }
 
-static char* unicode_to_utf8(char* dst, unsigned c)
+static char *unicode_to_utf8(char *dst, unsigned c)
 {
 	if (c < 0x80)
 		*dst++ = c;
@@ -144,9 +144,9 @@ static char* unicode_to_utf8(char* dst, unsigned c)
 	return dst;
 }
 
-static void json__open(char** str, json j, const int is_array)
+static void json__open(char **str, json j, const int is_array)
 {
-	char* s = (char*)*str;
+	char *s = (char*)*str;
 
 	if (!*s)
 		return;
@@ -177,7 +177,7 @@ static void json__open(char** str, json j, const int is_array)
 			if ((*s == '\"') || (*s == '\''))
 			{
 				char quote = *s++;
-				char* dst = name;
+				char *dst = name;
 
 				while (*s && (*s != quote))
 				{
@@ -260,7 +260,7 @@ static void json__open(char** str, json j, const int is_array)
 			size_t max_bytes = 32;
 			j->str = (char*)malloc(max_bytes+4);
 			if (!j->str) return;
-			char* dst = j->str;
+			char *dst = j->str;
 			size_t len = 0;
 
 			while (*s && (*s != quote))
@@ -291,7 +291,7 @@ static void json__open(char** str, json j, const int is_array)
 						tmpbuf[4] = 0;
 						unsigned val = 0;
 						sscanf(tmpbuf, "%X", &val);
-						char* tmp_dst = unicode_to_utf8(dst, val);
+						char *tmp_dst = unicode_to_utf8(dst, val);
 						len += tmp_dst - dst;
 						dst = tmp_dst;
 
@@ -337,7 +337,7 @@ static void json__open(char** str, json j, const int is_array)
 		}
 		else
 		{
-			const char* save_s = s;
+			const char *save_s = s;
 			int any = 0;
 
 			while (isdigit(*s) || (*s == '.') || (*s == 'E') || (*s == 'e'))
@@ -367,7 +367,7 @@ static void json__open(char** str, json j, const int is_array)
 	*str = s;
 }
 
-json json_open(const char* str)
+json json_open(const char *str)
 {
 	if ((*str != '{') && (*str != '['))
 		return NULL;
@@ -423,7 +423,7 @@ json json_array_add(json j)
 	return json_add(j->head);
 }
 
-json json_object_add(json j, const char* name)
+json json_object_add(json j, const char *name)
 {
 	if (!j || !name)
 		return NULL;
@@ -445,7 +445,7 @@ int json_rem(json ptr, json ptr2)
 	if (!ptr || !ptr2)
 		return 0;
 
-	json* last = &ptr->head;
+	json *last = &ptr->head;
 	json j = ptr->head;
 
 	while (j)
@@ -465,7 +465,7 @@ int json_rem(json ptr, json ptr2)
 	return 0;
 }
 
-json json_create(json j, const char* name)
+json json_create(json j, const char *name)
 {
 	if (!j || !name)
 		return NULL;
@@ -502,7 +502,7 @@ json json_get_array(json j)
 	return j->head;
 }
 
-json json_find(json j, const char* name)
+json json_find(json j, const char *name)
 {
 	while (j && name)
 	{
@@ -574,7 +574,7 @@ int json_set_real(json j, double value)
 	return 1;
 }
 
-int json_set_string(json j, const char* value)
+int json_set_string(json j, const char *value)
 {
 	if (!j || !value)
 		return 0;
@@ -683,7 +683,7 @@ double json_get_real(const json j)
 	return 0.0;
 }
 
-const char* json_get_string(const json j)
+const char *json_get_string(const json j)
 {
 	if (!j)
 		return NULL;
@@ -781,9 +781,9 @@ void json_close(json j)
 	}
 }
 
-size_t json__print(char** pdst, char* dst, json j, int structure, size_t* bytes_left, size_t* max_len)
+size_t json__print(char **pdst, char *dst, json j, int structure, size_t *bytes_left, size_t *max_len)
 {
-	char* save_dst = dst;
+	char *save_dst = dst;
 
 	while (j)
 	{
@@ -805,7 +805,7 @@ size_t json__print(char** pdst, char* dst, json j, int structure, size_t* bytes_
 
 			dst += i = sprintf(dst, "\"");
 			*bytes_left -= i;
-			const char* src = j->name;
+			const char *src = j->name;
 			int i;
 
 			for (i = 0; i < strlen(j->name); i++)
@@ -904,7 +904,7 @@ size_t json__print(char** pdst, char* dst, json j, int structure, size_t* bytes_
 
 			dst += i = sprintf(dst, "\"");
 			*bytes_left -= i;
-			const char* src = j->str;
+			const char *src = j->str;
 			int i;
 
 			for (i = 0; i < strlen(j->str); i++)
@@ -1012,7 +1012,7 @@ size_t json__print(char** pdst, char* dst, json j, int structure, size_t* bytes_
 	return dst - save_dst;
 }
 
-size_t json_print(char** pdst, json j)
+size_t json_print(char **pdst, json j)
 {
 	if (!pdst || !j) return 0;
 
@@ -1027,9 +1027,9 @@ size_t json_print(char** pdst, json j)
 	return json__print(pdst, *pdst, j, (j->type==type_object)||(j->type==type_array), &bytes_left, &max_len);
 }
 
-char* json_to_string(json j)
+char *json_to_string(json j)
 {
-	char* dst = 0;
+	char *dst = 0;
 	json_print(&dst, j);
 	return dst;
 }

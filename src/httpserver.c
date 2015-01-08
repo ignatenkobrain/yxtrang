@@ -21,15 +21,15 @@ struct httpserver_
 {
 	struct httpserver_reqs_ reqs[MAX_REQS];
 	int (*f)(session,void*);
-	void* data;
+	void *data;
 };
 
-static char* strstri(const char* src, const char* s)
+static char *strstri(const char *src, const char *s)
 {
 	while (*src)
 	{
-		const char* c1 = src;
-		const char* c2 = s;
+		const char *c1 = src;
+		const char *c2 = s;
 
 		while (tolower(*c1) == tolower(*c2))
 		{
@@ -45,9 +45,9 @@ static char* strstri(const char* src, const char* s)
 	return 0;
 }
 
-static const char* url_decode(const char* src, char* dst)
+static const char *url_decode(const char *src, char *dst)
 {
-	const char* save_dst = dst;
+	const char *save_dst = dst;
 
 	while (*src)
 	{
@@ -76,9 +76,9 @@ static const char* url_decode(const char* src, char* dst)
 	return save_dst;
 }
 
-static char* lower(char* src)
+static char *lower(char *src)
 {
-	char* save_src = src;
+	char *save_src = src;
 
 	while (*src)
 	{
@@ -89,13 +89,13 @@ static char* lower(char* src)
 	return save_src;
 }
 
-static void decode_data(session s, const char* str)
+static void decode_data(session s, const char *str)
 {
-	const char* src = str;
+	const char *src = str;
 	char tmpbuf2[1024], tmpbuf3[8192], tmpbuf5[8192];
 	char tmpbuf4[1024*2];
 	char tmpbuf[1024];
-	char* dst = tmpbuf;
+	char *dst = tmpbuf;
 
 	while (*src)
 	{
@@ -124,11 +124,11 @@ static void decode_data(session s, const char* str)
 	session_set_stash(s, tmpbuf4, url_decode(tmpbuf3, tmpbuf5));
 }
 
-void* httpserver_get_content(session s)
+void *httpserver_get_content(session s)
 {
 	long len = atol(session_get_stash(s, "content-length"));
 	if (!len) return NULL;
-	char* data = (char*)malloc(len+1);
+	char *data = (char*)malloc(len+1);
 
 	if (!session_read(s, data, len))
 	{
@@ -142,18 +142,18 @@ void* httpserver_get_content(session s)
 
 static int get_postdata(session s)
 {
-	const char* ct = session_get_stash(s, "content-type");
+	const char *ct = session_get_stash(s, "content-type");
 
 	if (!strstri(ct, "application/x-www-form-urlencoded"))
 		return 0;
 
-	char* query = (char*)httpserver_get_content(s);
+	char *query = (char*)httpserver_get_content(s);
 	decode_data(s, query);
 	free(s);
 	return 1;
 }
 
-int httpserver_handler(session s, void* p1)
+int httpserver_handler(session s, void *p1)
 {
 	if (!s)
 		return 0;
@@ -171,7 +171,7 @@ int httpserver_handler(session s, void* p1)
 		return 0;
 	}
 
-	char* msg;
+	char *msg;
 
 	if (!session_readmsg(s, &msg))
 		return 0;
@@ -225,7 +225,7 @@ int httpserver_handler(session s, void* p1)
 
 	// Process headers...
 
-	const char* src = msg;
+	const char *src = msg;
 
 	if (*src == '\r')
 		src++;
@@ -267,7 +267,7 @@ int httpserver_handler(session s, void* p1)
 
 	if (!h->f)
 	{
-		const char* filename = session_get_stash(s, HTTP_RESOURCE);
+		const char *filename = session_get_stash(s, HTTP_RESOURCE);
 
 		size_t i = 0;
 
@@ -309,7 +309,7 @@ int httpserver_handler(session s, void* p1)
 	return 1;
 }
 
-const char* httpserver_value(session s, const char* name)
+const char *httpserver_value(session s, const char *name)
 {
 	if (!s)
 		return NULL;
@@ -320,13 +320,13 @@ const char* httpserver_value(session s, const char* name)
 	return session_get_stash(s, tmpbuf);
 }
 
-int httpserver_response(session s, unsigned code, const char* msg, size_t len, const char* content_type)
+int httpserver_response(session s, unsigned code, const char *msg, size_t len, const char *content_type)
 {
 	if (!s || !msg)
 		return 0;
 
 	char headers[1024];
-	char* dst = headers;
+	char *dst = headers;
 	dst += sprintf(dst, "HTTP/%s %u %s\r\n", session_get_stash(s, HTTP_VERSION), code, msg);
 
 	if (content_type && *content_type)
@@ -355,7 +355,7 @@ int httpserver_response(session s, unsigned code, const char* msg, size_t len, c
 	return 1;
 }
 
-httpserver httpserver_create(int (*f)(session,void*), void* p1)
+httpserver httpserver_create(int (*f)(session,void*), void *p1)
 {
 	httpserver h = (httpserver)calloc(1, sizeof(struct httpserver_));
 	h->f = f;
@@ -363,7 +363,7 @@ httpserver httpserver_create(int (*f)(session,void*), void* p1)
 	return h;
 }
 
-httpserver httpserver_create2(struct httpserver_reqs_* reqs)
+httpserver httpserver_create2(struct httpserver_reqs_ *reqs)
 {
 	httpserver h = (httpserver)calloc(1, sizeof(struct httpserver_));
 	size_t i = 0;

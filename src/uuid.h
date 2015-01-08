@@ -4,9 +4,9 @@
 #include <stdint.h>
 
 typedef struct uuid_ { uint64_t u1, u2; } uuid_t;
-typedef uuid_t* uuid;
+typedef uuid_t *uuid;
 
-extern char* uuid_to_string(const uuid u, char* buf);
+extern char *uuid_to_string(const uuid u, char *buf);
 extern uuid uuid_from_string(const char*, uuid u);
 extern uint64_t uuid_ts(const uuid u);
 extern void uuid_seed(uint64_t v);		// unique 48-bits eg. MAC-address or rand

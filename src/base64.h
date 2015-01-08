@@ -7,7 +7,7 @@
 // a buffer will be allocated which must subsequently be freed by the
 // caller...
 
-void format_base64(const char* src, size_t nbytes, char** pdst, int line_breaks, int cr);
-void parse_base64(const char* src, size_t nbytes, char** pdst);
+void format_base64(const char *src, size_t nbytes, char **pdst, int line_breaks, int cr);
+void parse_base64(const char *src, size_t nbytes, char **pdst);
 
 #endif

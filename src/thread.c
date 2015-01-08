@@ -23,9 +23,9 @@
 
 struct _thread
 {
-	void* id;
+	void *id;
 	int (*f)(void*);
-	void* data;
+	void *data;
 	int cnt;
 	volatile int running, busy;
 
@@ -35,7 +35,7 @@ struct _thread
 #endif
 };
 
-typedef struct _thread* thread;
+typedef struct _thread *thread;
 
 struct thread_pool_
 {
@@ -103,7 +103,7 @@ void lock_destroy(lock l)
 
 static lock g_lock = NULL;
 
-uint64_t atomic_addu64(uint64_t* v, int n)
+uint64_t atomic_addu64(uint64_t *v, int n)
 {
 	if (!g_lock)
 		g_lock = lock_create();
@@ -115,7 +115,7 @@ uint64_t atomic_addu64(uint64_t* v, int n)
 	return tmp;
 }
 
-int64_t atomic_add64(int64_t* v, int n)
+int64_t atomic_add64(int64_t *v, int n)
 {
 	if (!g_lock)
 		g_lock = lock_create();
@@ -127,7 +127,7 @@ int64_t atomic_add64(int64_t* v, int n)
 	return tmp;
 }
 
-int atomic_inc(int* v)
+int atomic_inc(int *v)
 {
 	if (!g_lock)
 		g_lock = lock_create();
@@ -138,7 +138,7 @@ int atomic_inc(int* v)
 	return tmp;
 }
 
-int atomic_dec(int* v)
+int atomic_dec(int *v)
 {
 	if (!g_lock)
 		g_lock = lock_create();
@@ -149,7 +149,7 @@ int atomic_dec(int* v)
 	return tmp;
 }
 
-int atomic_dec_and_zero(int* v, int* v2)
+int atomic_dec_and_zero(int *v, int *v2)
 {
 	if (!g_lock)
 		g_lock = lock_create();
@@ -182,7 +182,7 @@ static void thread_pause(thread t)
 	t->data = NULL;
 }
 
-static int thread_resume(thread t, int (*f)(void*), void* data)
+static int thread_resume(thread t, int (*f)(void*), void *data)
 {
 #ifdef _WIN32
 	ResumeThread((HANDLE)t->id);
@@ -194,7 +194,7 @@ static int thread_resume(thread t, int (*f)(void*), void* data)
 	return 1;
 }
 
-static void* start_routine(void* data)
+static void *start_routine(void *data)
 {
 	thread t = (thread)data;
 
@@ -204,7 +204,7 @@ static void* start_routine(void* data)
 	return 0;
 }
 
-static void* thread_start(thread t)
+static void *thread_start(thread t)
 {
 	t->running = 1;
 	t->busy = 1;
@@ -218,7 +218,7 @@ static void* thread_start(thread t)
 	t->id = (void*)_beginthreadex(&sa, 0, (start_routine_t)start_routine, (LPVOID)t, 0, NULL);
 	return (void*)t->id;
 #else
-	typedef void* (*start_routine_t)(void*);
+	typedef void *(*start_routine_t)(void*);
 	pthread_attr_t sa;
 	pthread_attr_init(&sa);
 	pthread_attr_setdetachstate(&sa, PTHREAD_CREATE_DETACHED);
@@ -250,7 +250,7 @@ static void thread_destroy(thread t)
 	free(t);
 }
 
-int thread_run(int (*f)(void*), void* data)
+int thread_run(int (*f)(void*), void *data)
 {
 #ifdef _WIN32
 	SECURITY_ATTRIBUTES sa = {0};
@@ -261,7 +261,7 @@ int thread_run(int (*f)(void*), void* data)
 	int id = _beginthreadex(&sa, 0, (start_routine_t)f, (LPVOID)data, 0, NULL);
 	return id != 0;
 #else
-	typedef void* (*start_routine_t)(void*);
+	typedef void *(*start_routine_t)(void*);
 	pthread_attr_t sa;
 	pthread_attr_init(&sa);
 	pthread_attr_setdetachstate(&sa, PTHREAD_CREATE_DETACHED);
@@ -290,7 +290,7 @@ thread_pool tpool_create(int threads)
 	return tp;
 }
 
-int tpool_start(thread_pool tp, int (*f)(void*), void* data)
+int tpool_start(thread_pool tp, int (*f)(void*), void *data)
 {
 	if (!tp || !f)
 		return 0;

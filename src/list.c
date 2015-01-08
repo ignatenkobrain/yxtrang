@@ -75,7 +75,7 @@ node list_back(list l)
 	return l->last;
 }
 
-int list_iter(list l, int (*f)(node,void*), void* data)
+int list_iter(list l, int (*f)(node,void*), void *data)
 {
 	if (!l)
 		return 0;
@@ -162,7 +162,7 @@ int list_push_back(list l, node n)
 	return 1;
 }
 
-int list_pop_front(list l, node* n)
+int list_pop_front(list l, node *n)
 {
 	if (!l)
 		return 0;
@@ -183,7 +183,7 @@ int list_pop_front(list l, node* n)
 	return 1;
 }
 
-int list_pop_back(list l, node* n)
+int list_pop_back(list l, node *n)
 {
 	if (!l)
 		return 0;

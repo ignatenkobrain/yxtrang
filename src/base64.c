@@ -4,7 +4,7 @@
 
 #include "base64.h"
 
-static size_t encode_base64(char* ostr, unsigned char* inbuf, int* inbuf_size, int* line_len, int line_breaks, int cr)
+static size_t encode_base64(char *ostr, unsigned char *inbuf, int *inbuf_size, int *line_len, int line_breaks, int cr)
 {
 	static const unsigned char vec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	static const char padding = '=';
@@ -36,7 +36,7 @@ static size_t encode_base64(char* ostr, unsigned char* inbuf, int* inbuf_size, i
 	return len;
 }
 
-void format_base64(const char* s, size_t nbytes, char** pdst, int line_breaks, int cr)
+void format_base64(const char *s, size_t nbytes, char **pdst, int line_breaks, int cr)
 {
 	if (!pdst) return;
 	size_t max_len = 0, bytes_left = 0;
@@ -47,7 +47,7 @@ void format_base64(const char* s, size_t nbytes, char** pdst, int line_breaks, i
 		if (!*pdst) return;
 	}
 
-	char* dst = *pdst;
+	char *dst = *pdst;
 	int inbuf_size = 0, line_len = 0;
 	unsigned char inbuf[3];
 	int i;
@@ -87,7 +87,7 @@ void format_base64(const char* s, size_t nbytes, char** pdst, int line_breaks, i
 	 *dst = 0;
 }
 
-static size_t decode_base64(char* ostr, const unsigned char* inbuf, int* inbuf_size)
+static size_t decode_base64(char *ostr, const unsigned char *inbuf, int *inbuf_size)
 {
 	unsigned char out;
 	size_t len = 0;
@@ -134,7 +134,7 @@ static int conv_to_number(unsigned char inbyte)
 	return -1;
 }
 
-void parse_base64(const char* s, size_t nbytes, char** pdst)
+void parse_base64(const char *s, size_t nbytes, char **pdst)
 {
 	if (!pdst) return;
 	size_t max_len = 0, bytes_left = 0;
@@ -145,7 +145,7 @@ void parse_base64(const char* s, size_t nbytes, char** pdst)
 		if (!*pdst) return;
 	}
 
-	char* dst = *pdst;
+	char *dst = *pdst;
 	unsigned char inbuf[4];
 	int inbuf_size = 0;
 	int i;

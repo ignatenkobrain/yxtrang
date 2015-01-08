@@ -21,7 +21,7 @@ typedef char token[TOKEN_SIZE];
 
 static const struct _precedence_table
 {
-	const char* op;
+	const char *op;
 	const int precedence;
 }
 	ptable[] =
@@ -152,7 +152,7 @@ struct _bytecode
 	};
 };
 
-typedef struct _bytecode* bytecode;
+typedef struct _bytecode *bytecode;
 
 struct _item
 {
@@ -173,7 +173,7 @@ struct _compiletime
 	struct _item operands[STACK_SIZE], ops[STACK_SIZE];
 };
 
-typedef struct _compiletime* compiletime;
+typedef struct _compiletime *compiletime;
 
 struct hscriptlet_
 {
@@ -189,9 +189,9 @@ static int juliandate(int year, int month, int day)
 {
 	year -= 1700 + (month < 3);
 
-	return (365L * (year + (month < 3)) + year / 4 - year / 100 +
-		(year + 100) / 400 + (305 * (month - 1) - (month > 2) * 20 +
-			(month > 7) * 5 + 5) / 10 + day + 2341972L);
+	return (365L  *(year + (month < 3)) + year / 4 - year / 100 +
+		(year + 100) / 400 + (305  *(month - 1) - (month > 2)  *20 +
+			(month > 7)  *5 + 5) / 10 + day + 2341972L);
 }
 
 /* 1 = Mon, 2 = Tue etc...  7 = Sun */
@@ -201,7 +201,7 @@ static int dayofweek(int jdate)
 	return (jdate % 7) + 1;
 }
 
-static int ends_with(const char* str, const char* suffix)
+static int ends_with(const char *str, const char *suffix)
 {
     if (!str || !suffix)
         return 0;
@@ -251,7 +251,7 @@ int scriptlet_done(hscriptlet r)
 	return 1;
 }
 
-int scriptlet_set_int(hscriptlet r, const char* k, long long value)
+int scriptlet_set_int(hscriptlet r, const char *k, long long value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = int_tc;
@@ -261,7 +261,7 @@ int scriptlet_set_int(hscriptlet r, const char* k, long long value)
 	return 1;
 }
 
-int scriptlet_set_real(hscriptlet r, const char* k, double value)
+int scriptlet_set_real(hscriptlet r, const char *k, double value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = real_tc;
@@ -271,7 +271,7 @@ int scriptlet_set_real(hscriptlet r, const char* k, double value)
 	return 1;
 }
 
-int scriptlet_set_string(hscriptlet r, const char* k, const char* value)
+int scriptlet_set_string(hscriptlet r, const char *k, const char *value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = string_tc;
@@ -291,7 +291,7 @@ static bytecode substitute(const hscriptlet r, const bytecode v)
 	return code;
 }
 
-int scriptlet_get_int(hscriptlet r, const char* k, long long* value)
+int scriptlet_get_int(hscriptlet r, const char *k, long long *value)
 {
 	bytecode code = NULL;
 
@@ -308,7 +308,7 @@ int scriptlet_get_int(hscriptlet r, const char* k, long long* value)
 	return 1;
 }
 
-int scriptlet_get_real(hscriptlet r, const char* k, double* value)
+int scriptlet_get_real(hscriptlet r, const char *k, double *value)
 {
 	bytecode code = NULL;
 
@@ -325,7 +325,7 @@ int scriptlet_get_real(hscriptlet r, const char* k, double* value)
 	return 1;
 }
 
-int scriptlet_get_string(hscriptlet r, const char* k, const char** value)
+int scriptlet_get_string(hscriptlet r, const char *k, const char **value)
 {
 	bytecode code = NULL;
 
@@ -340,9 +340,9 @@ int scriptlet_get_string(hscriptlet r, const char* k, const char** value)
 	return 1;
 }
 
-static int get_precedence(const char* tok)
+static int get_precedence(const char *tok)
 {
-	const struct _precedence_table* ptr = ptable;
+	const struct _precedence_table *ptr = ptable;
 
 	while (ptr->op)
 	{
@@ -355,14 +355,14 @@ static int get_precedence(const char* tok)
 	return 0;
 }
 
-static void push_operand(compiletime c, const char* tok)
+static void push_operand(compiletime c, const char *tok)
 {
 	strcpy(c->operands[c->it_operands].tok, tok);
 	c->operands[c->it_operands].precedence = 0;
 	c->it_operands++;
 }
 
-static const char* pop_operand(compiletime c)
+static const char *pop_operand(compiletime c)
 {
 	if (!c->it_operands)
 		return NULL;
@@ -372,7 +372,7 @@ static const char* pop_operand(compiletime c)
 }
 
 
-static void push_operator(compiletime c, const char* tok, int precedence)
+static void push_operator(compiletime c, const char *tok, int precedence)
 {
 	strcpy(c->ops[c->it_ops].tok, tok);
 	c->ops[c->it_ops].precedence = precedence;
@@ -380,7 +380,7 @@ static void push_operator(compiletime c, const char* tok, int precedence)
 	c->it_ops++;
 }
 
-static const char* head_operator(compiletime c, int* precedence, int* empty)
+static const char *head_operator(compiletime c, int *precedence, int *empty)
 {
 	if (!c->it_ops)
 	{
@@ -393,7 +393,7 @@ static const char* head_operator(compiletime c, int* precedence, int* empty)
 	return c->ops[c->it_ops-1].tok;
 }
 
-static const char* pop_operator(compiletime c, int* operand_count)
+static const char *pop_operator(compiletime c, int *operand_count)
 {
 	if (!c->it_ops)
 		return NULL;
@@ -403,9 +403,9 @@ static const char* pop_operator(compiletime c, int* operand_count)
 	return c->ops[c->it_ops].tok;
 }
 
-static typecode get_typecode(const char* tok)
+static typecode get_typecode(const char *tok)
 {
-	const char* src = tok;
+	const char *src = tok;
 	int is_numeric = 1;
 	int is_real = 0;
 	int is_exponent = 0;
@@ -445,7 +445,7 @@ static void emit_code(compiletime c, typecode tc, int nbr_params)
 	code->tc = tc;
 }
 
-static void emit_value(compiletime c, const char* v)
+static void emit_value(compiletime c, const char *v)
 {
 	bytecode code = &c->s->codes[c->s->it_codes++];
 	code->level = c->level;
@@ -469,13 +469,13 @@ static void emit1(compiletime c, typecode tc)
 	emit_code(c, tc, 0);
 }
 
-static void emit2(compiletime c, typecode tc, const char* v1)
+static void emit2(compiletime c, typecode tc, const char *v1)
 {
 	emit_code(c, tc, 1);
 	emit_value(c, v1);
 }
 
-static void emit3(compiletime c, typecode tc, const char* v1, const char* v2)
+static void emit3(compiletime c, typecode tc, const char *v1, const char *v2)
 {
 	emit_code(c, tc, 2);
 	emit_value(c, v1);
@@ -486,40 +486,40 @@ static int compile_operator(compiletime c)
 {
 	int operand_count = 0;
 
-	const char* op = pop_operator(c, &operand_count);
+	const char *op = pop_operator(c, &operand_count);
 
 	if (!strcmp(op, "*"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, multiply_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "**"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, power_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "/"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, divide_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "%"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, modulo_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "="))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, assign_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
@@ -528,7 +528,7 @@ static int compile_operator(compiletime c)
 	}
 	else if (!strcmp(op, "if"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, if_tc, val1);
 		DEBUG printf("emit '%s' %s\n", val1, op);
 		c->level++;
@@ -548,162 +548,162 @@ static int compile_operator(compiletime c)
 	}
 	else if (!strcmp(op, "!"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, not_tc, val1);
 		DEBUG printf("emit '%s' %s\n", val1, op);
 	}
 	else if (!strcmp(op, "+"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, add_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "-"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, subtract_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, ">"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, gt_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, ">="))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, geq_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "<="))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, leq_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "<"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, lt_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "&&"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, and_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "||"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, or_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "^^"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, xor_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "&"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, bit_and_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "|"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, bit_or_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "^"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, bit_xor_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "~"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, bit_negate_tc, val1);
 		DEBUG printf("emit %s %s\n", val1, op);
 	}
 	else if (!strcmp(op, "<<"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, shift_left_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, ">>"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, shift_right_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, ">>>"))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, logical_shift_right_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "=="))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, eq_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "!="))
 	{
-		const char* val2 = pop_operand(c);
-		const char* val1 = pop_operand(c);
+		const char *val2 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit3(c, neq_tc, val1, val2);
 		DEBUG printf("emit %s %s %s\n", val1, op, val2);
 	}
 	else if (!strcmp(op, "fold-case"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_fold_case_tc, val1);
 		DEBUG printf("emit %s %s\n", op, val1);
 	}
 	else if (!strcmp(op, "size"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_size_tc, val1);
 		DEBUG printf("emit %s %s\n", op, val1);
 	}
 	else if (!strcmp(op, "print"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_print_tc, val1);
 		DEBUG printf("emit %s %s\n", op, val1);
 	}
 	else if (!strcmp(op, "jday"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_jday_tc, val1);
 		DEBUG printf("emit %s %s\n", op, val1);
 	}
 	else if (!strcmp(op, "dow"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_dow_tc, val1);
 		DEBUG printf("emit %s %s\n", op, val1);
 	}
@@ -713,7 +713,7 @@ static int compile_operator(compiletime c)
 
 		while (operand_count--)
 		{
-			const char* val1 = pop_operand(c);
+			const char *val1 = pop_operand(c);
 			emit_value(c, val1);
 			DEBUG printf("emit %s '%s'\n", op, val1);
 		}
@@ -724,7 +724,7 @@ static int compile_operator(compiletime c)
 
 		while (operand_count--)
 		{
-			const char* val1 = pop_operand(c);
+			const char *val1 = pop_operand(c);
 			emit_value(c, val1);
 			DEBUG printf("emit %s '%s'\n", op, val1);
 		}
@@ -735,7 +735,7 @@ static int compile_operator(compiletime c)
 
 		while (operand_count--)
 		{
-			const char* val1 = pop_operand(c);
+			const char *val1 = pop_operand(c);
 			emit_value(c, val1);
 			DEBUG printf("emit %s '%s'\n", op, val1);
 		}
@@ -746,32 +746,32 @@ static int compile_operator(compiletime c)
 
 		while (operand_count--)
 		{
-			const char* val1 = pop_operand(c);
+			const char *val1 = pop_operand(c);
 			emit_value(c, val1);
 			DEBUG printf("emit %s '%s'\n", op, val1);
 		}
 	}
 	else if (!strcmp(op, "int"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_is_int_tc, val1);
 		DEBUG printf("emit %s '%s'\n", op, val1);
 	}
 	else if (!strcmp(op, "real"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_is_real_tc, val1);
 		DEBUG printf("emit %s '%s'\n", op, val1);
 	}
 	else if (!strcmp(op, "nan"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_is_nan_tc, val1);
 		DEBUG printf("emit %s '%s'\n", op, val1);
 	}
 	else if (!strcmp(op, "string"))
 	{
-		const char* val1 = pop_operand(c);
+		const char *val1 = pop_operand(c);
 		emit2(c, func_is_string_tc, val1);
 		DEBUG printf("emit %s '%s'\n", op, val1);
 	}
@@ -793,9 +793,9 @@ static int compile_operator(compiletime c)
 	return 1;
 }
 
-static const char* get_token(const char* src, char* tok)
+static const char *get_token(const char *src, char *tok)
 {
-	char* dst = tok;
+	char *dst = tok;
 	*dst = 0;
 	char quoted = 0;
 
@@ -846,7 +846,7 @@ static const char* get_token(const char* src, char* tok)
 
 	if ((tok[0] == '0') && tok[1] && (tok[1] != '.'))
 	{
-		const char* src = tok+1;
+		const char *src = tok+1;
 
 		if (*src == 'x')
 		{
@@ -868,7 +868,7 @@ static const char* get_token(const char* src, char* tok)
 	return src;
 }
 
-static int compile(scriptlet s, const char* src)
+static int compile(scriptlet s, const char *src)
 {
 	compiletime c = (compiletime)calloc(1, sizeof(struct _compiletime));
 	c->s = s;
@@ -901,7 +901,7 @@ static int compile(scriptlet s, const char* src)
 		}
 
 		int top_precedence, discard = 0, empty_list;
-		const char* top_op;
+		const char *top_op;
 
 		while ((top_op = head_operator(c, &top_precedence, &empty_list)), !empty_list)
 		{
@@ -933,7 +933,7 @@ static int compile(scriptlet s, const char* src)
 	}
 
 	int top_precedence, empty_list;
-	const char* top_op;
+	const char *top_op;
 
 	while ((top_op = head_operator(c, &top_precedence, &empty_list)), !empty_list )
 	{
@@ -950,7 +950,7 @@ static int compile(scriptlet s, const char* src)
 	return 1;
 }
 
-static int pop_stack(hscriptlet r, bytecode* value)
+static int pop_stack(hscriptlet r, bytecode *value)
 {
 	if (!r->it_stack)
 		return empty_tc;
@@ -981,14 +981,14 @@ static void push_stack_real(hscriptlet r, double value)
 	code->real_val = value;
 }
 
-static void push_stack_string(hscriptlet r, const char* value)
+static void push_stack_string(hscriptlet r, const char *value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = string_tc;
 	strcpy(code->str_val, value);
 }
 
-static int peek_bytecode(hscriptlet r, int* level)
+static int peek_bytecode(hscriptlet r, int *level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -1006,7 +1006,7 @@ static void skip_bytecode(hscriptlet r)
 	r->it++;
 }
 
-static int next_bytecode(hscriptlet r, bytecode* value, int* nbr_params, int* level)
+static int next_bytecode(hscriptlet r, bytecode *value, int *nbr_params, int *level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -1189,8 +1189,8 @@ int scriptlet_run(hscriptlet r)
 				}
 				else if (type2 == string_tc)
 				{
-					const char* v2 = val2->str_val;
-					void* v3 = NULL;
+					const char *v2 = val2->str_val;
+					void *v3 = NULL;
 
 					if (sl_string_get(r->symtab, v2, &v3))
 						sl_string_add(r->symtab, val1->str_val, v3);
@@ -1276,8 +1276,8 @@ int scriptlet_run(hscriptlet r)
 				}
 				else
 				{
-					const char* v1 = val1->str_val;
-					const char* v2 = val2->str_val;
+					const char *v1 = val1->str_val;
+					const char *v2 = val2->str_val;
 					push_stack_int(r, !strcmp(v1,v2));
 					DEBUG printf("run '%s' %s '%s' = %g\n", val1->str_val, "==", val2->str_val, result);
 				}
@@ -1303,8 +1303,8 @@ int scriptlet_run(hscriptlet r)
 				}
 				else
 				{
-					const char* v1 = val1->str_val;
-					const char* v2 = val2->str_val;
+					const char *v1 = val1->str_val;
+					const char *v2 = val2->str_val;
 					push_stack_int(r, strcmp(v1,v2));
 					DEBUG printf("run '%s' %s '%s' = %g\n", val1->str_val, "!=", val2->str_val, result);
 				}
@@ -1724,8 +1724,8 @@ int scriptlet_run(hscriptlet r)
 
 			case func_fold_case_tc:
 			{
-				const char* v1 = val1->str_val;
-				const char* rv = v1;
+				const char *v1 = val1->str_val;
+				const char *rv = v1;
 				push_stack_string(r, rv); result = 1.0;
 				DEBUG printf("run %s '%s' = '%s'\n", "fold-case", val1->str_val, rv);
 				break;
@@ -1733,7 +1733,7 @@ int scriptlet_run(hscriptlet r)
 
 			case func_jday_tc:
 			{
-				const char* v1 = val1->str_val;
+				const char *v1 = val1->str_val;
 				int dd = 0, mm = 0, yy = 0;
 				sscanf(v1, "%d/%d/%d", &dd, &mm, &yy);
 				int jday = juliandate(yy, mm, dd);
@@ -1744,7 +1744,7 @@ int scriptlet_run(hscriptlet r)
 
 			case func_dow_tc:
 			{
-				const char* v1 = val1->str_val;
+				const char *v1 = val1->str_val;
 				int dd = 0, mm = 0, yy = 0;
 				sscanf(v1, "%d/%d/%d", &dd, &mm, &yy);
 				int jdate = juliandate(yy, mm, dd);
@@ -1803,8 +1803,8 @@ int scriptlet_run(hscriptlet r)
 					}
 					else if (type1 == string_tc)
 					{
-						const char* v1 = val1->str_val;
-						const char* v2 = val2->str_val;
+						const char *v1 = val1->str_val;
+						const char *v2 = val2->str_val;
 						int this_result;
 						result += this_result = !strcmp(v1, v2);
 						DEBUG printf("run %s '%s' '%s' = %g\n", "equals", v1, v2, (double)this_result);
@@ -1834,8 +1834,8 @@ int scriptlet_run(hscriptlet r)
 				{
 					if (type1 == string_tc)
 					{
-						const char* v1 = val1->str_val;
-						const char* v2 = val2->str_val;
+						const char *v1 = val1->str_val;
+						const char *v2 = val2->str_val;
 						int this_result;
 						result += this_result = strstr(v1, v2) != 0;
 						DEBUG printf("run %s '%s' '%s' = %g\n", "contains", v1, v2, (double)this_result);
@@ -1865,8 +1865,8 @@ int scriptlet_run(hscriptlet r)
 				{
 					if (type1 == string_tc)
 					{
-						const char* v1 = val1->str_val;
-						const char* v2 = val2->str_val;
+						const char *v1 = val1->str_val;
+						const char *v2 = val2->str_val;
 						int this_result;
 						result += this_result = !strncmp(v1, v2, strlen(v2));
 						DEBUG printf("run %s '%s' '%s' = %g\n", "begins-with", v1, v2, (double)this_result);
@@ -1896,8 +1896,8 @@ int scriptlet_run(hscriptlet r)
 				{
 					if (type1 == string_tc)
 					{
-						const char* v1 = val1->str_val;
-						const char* v2 = val2->str_val;
+						const char *v1 = val1->str_val;
+						const char *v2 = val2->str_val;
 						int this_result;
 						result += this_result = ends_with(v1, v2);
 						DEBUG printf("run %s '%s' '%s' = %g\n", "ends-with", v1, v2, (double)this_result);
@@ -1930,7 +1930,7 @@ int scriptlet_run(hscriptlet r)
 	return 1;
 }
 
-scriptlet scriptlet_open(const char* text)
+scriptlet scriptlet_open(const char *text)
 {
 	scriptlet s = (scriptlet)calloc(1, sizeof(struct scriptlet_));
 	if (!s) return NULL;

@@ -8,8 +8,8 @@
 // sl_string_create - string key, int value
 // sl_string_create2 - string key, string value
 
-#define sl_string_create() sl_create((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free)
-#define sl_string_create2() sl_create2((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free, (void* (*)(const void*))&strdup, &free)
+#define sl_string_create() sl_create((int (*)(const void*, const void*))&strcmp, (void *(*)(const void*))&strdup, &free)
+#define sl_string_create2() sl_create2((int (*)(const void*, const void*))&strcmp, (void *(*)(const void*))&strdup, &free, (void *(*)(const void*))&strdup, &free)
 #define sl_string_add(s,k,v) sl_add(s, (const void*)k, (const void*)v)
 #define sl_string_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
 #define sl_string_rem(s,k) sl_rem(s, (const void*)k)

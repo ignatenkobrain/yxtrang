@@ -29,7 +29,7 @@ uint64_t uuid_ts(const uuid u)
 	return u->u1;
 }
 
-char* uuid_to_string(const uuid u, char* buf)
+char *uuid_to_string(const uuid u, char *buf)
 {
 	sprintf(buf, "%016llX:%04llX:%012llX",
 		(unsigned long long)u->u1, (unsigned long long)(u->u2 >> BITS_48),
@@ -38,7 +38,7 @@ char* uuid_to_string(const uuid u, char* buf)
 	return buf;
 }
 
-uuid uuid_from_string(const char* s, uuid u)
+uuid uuid_from_string(const char *s, uuid u)
 {
 	if (!s) return u;
 	unsigned long long p1 = 0, p2 = 0, p3 = 0;
@@ -55,7 +55,7 @@ void uuid_seed(uint64_t v)
 }
 
 #ifdef _WIN32
-static int gettimeofday(struct timeval* tv, struct timezone*)
+static int gettimeofday(struct timeval *tv, struct timezone*)
 {
 	static const uint64_t epoch = 116444736000000000ULL;
 

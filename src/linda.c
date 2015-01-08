@@ -19,15 +19,15 @@ struct hlinda_
 {
 	linda l;
 	hstore hst;
-	char* dst;
+	char *dst;
 	json jquery;
 	uuid_t oid, last_oid;
 	long long int_id;
-	const char* string_id;
+	const char *string_id;
 	size_t len;
 };
 
-int linda_out(hlinda h, const char* s)
+int linda_out(hlinda h, const char *s)
 {
 	if (!h)
 		return 0;
@@ -68,7 +68,7 @@ int linda_out(hlinda h, const char* s)
 		}
 		else if (json_is_string(jid))
 		{
-			const char* k = json_get_string(jid);
+			const char *k = json_get_string(jid);
 
 			if (h->l->sl && !h->l->is_string)
 			{
@@ -116,7 +116,7 @@ const uuid linda_last_oid(hlinda h)
 	return &h->last_oid;
 }
 
-static int read_handler(void* arg, void* k, void* v)
+static int read_handler(void *arg, void *k, void *v)
 {
 	hlinda h = (hlinda)arg;
 	uuid u = (uuid)v;
@@ -133,7 +133,7 @@ static int read_handler(void* arg, void* k, void* v)
 	for (i = 0; i < cnt; i++)
 	{
 		json j1it = json_index(j1, i);
-		const char* name = json_get_string(j1it);
+		const char *name = json_get_string(j1it);
 
 		if (name[0] == '$')
 			continue;
@@ -224,7 +224,7 @@ static int read_handler(void* arg, void* k, void* v)
 	return 0;
 }
 
-static int read_int_handler(void* arg,  int64_t k, uuid v)
+static int read_int_handler(void *arg,  int64_t k, uuid v)
 {
 	hlinda h = (hlinda)arg;
 
@@ -234,7 +234,7 @@ static int read_int_handler(void* arg,  int64_t k, uuid v)
 	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int read_string_handler(void* arg, const char* k, uuid v)
+static int read_string_handler(void *arg, const char *k, uuid v)
 {
 	hlinda h = (hlinda)arg;
 
@@ -244,7 +244,7 @@ static int read_string_handler(void* arg, const char* k, uuid v)
 	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int linda_read(hlinda h, const char* s, const char** buf, int rm, int nowait)
+static int linda_read(hlinda h, const char *s, const char **buf, int rm, int nowait)
 {
 	json j = json_open(s);
 	json j1 = json_get_object(j);
@@ -330,7 +330,7 @@ static int linda_read(hlinda h, const char* s, const char** buf, int rm, int now
 	return 1;
 }
 
-int linda_rd(hlinda h, const char* s, const char** buf)
+int linda_rd(hlinda h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -338,7 +338,7 @@ int linda_rd(hlinda h, const char* s, const char** buf)
 	return linda_read(h, s, buf, 0, 0);
 }
 
-int linda_rdp(hlinda h, const char* s, const char** buf)
+int linda_rdp(hlinda h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -346,7 +346,7 @@ int linda_rdp(hlinda h, const char* s, const char** buf)
 	return linda_read(h, s, buf, 0, 1);
 }
 
-int linda_in(hlinda h, const char* s, const char** buf)
+int linda_in(hlinda h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -354,7 +354,7 @@ int linda_in(hlinda h, const char* s, const char** buf)
 	return linda_read(h, s, buf, 1, 0);
 }
 
-int linda_inp(hlinda h, const char* s, const char** buf)
+int linda_inp(hlinda h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -362,12 +362,12 @@ int linda_inp(hlinda h, const char* s, const char** buf)
 	return linda_read(h, s, buf, 1, 1);
 }
 
-int linda_rm(hlinda h, const char* s)
+int linda_rm(hlinda h, const char *s)
 {
 	json j = json_open(s);
 	json j1 = json_get_object(j);
 	int is_int = 0, is_string = 0;
-	const char* string_id = NULL;
+	const char *string_id = NULL;
 	long long int_id = 0;
 	uuid_t u;
 
@@ -474,10 +474,10 @@ void linda_end(hlinda h, int dbsync)
 	free(h);
 }
 
-static void linda_store_handler(void* p1, const uuid u, const void* _s, int len)
+static void linda_store_handler(void *p1, const uuid u, const void *_s, int len)
 {
 	linda l = (linda)p1;
-	const char* s = (const char*)_s;
+	const char *s = (const char*)_s;
 
 	if (len > 0)							// add
 	{
@@ -508,7 +508,7 @@ static void linda_store_handler(void* p1, const uuid u, const void* _s, int len)
 		}
 		else if (json_is_string(jid))
 		{
-			const char* k = json_get_string(jid);
+			const char *k = json_get_string(jid);
 
 			if (l->sl && !l->is_string)
 			{
@@ -556,7 +556,7 @@ static void linda_store_handler(void* p1, const uuid u, const void* _s, int len)
 		}
 		else if (json_is_string(jid))
 		{
-			const char* k = json_get_string(jid);
+			const char *k = json_get_string(jid);
 
 			if (l->sl && !l->is_string)
 			{
@@ -581,7 +581,7 @@ static void linda_store_handler(void* p1, const uuid u, const void* _s, int len)
 	}
 }
 
-linda linda_open(const char* path1, const char* path2)
+linda linda_open(const char *path1, const char *path2)
 {
 	linda l = (linda)calloc(1, sizeof(struct linda_));
 	if (!l) return NULL;

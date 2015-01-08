@@ -9,7 +9,7 @@
 // sl_int_uuid_create2 - int key, uuid value
 
 #define sl_int_uuid_create() sl_create(NULL, NULL, NULL)
-#define sl_int_uuid_create2() sl_create2(NULL, NULL, NULL, (void* (*)(const void*))&uuid_copy, &free)
+#define sl_int_uuid_create2() sl_create2(NULL, NULL, NULL, (void *(*)(const void*))&uuid_copy, &free)
 #define sl_int_uuid_add(s,k,v) sl_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
 #define sl_int_uuid_get(s,k,v) sl_get(s, (const void*)(size_t)k, (const void**)v)
 #define sl_int_uuid_rem(s,k) sl_rem(s, (const void*)(size_t)k)
@@ -25,8 +25,8 @@
 // sl_string_uuid_create - string key, uuid value
 // sl_string_uuid_create2 - string key, uuid value
 
-#define sl_string_uuid_create() sl_create((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free)
-#define sl_string_uuid_create2() sl_create2((int (*)(const void*, const void*))&strcmp, (void* (*)(const void*))&strdup, &free, (void* (*)(const void*))&uuid_copy, &free)
+#define sl_string_uuid_create() sl_create((int (*)(const void*, const void*))&strcmp, (void *(*)(const void*))&strdup, &free)
+#define sl_string_uuid_create2() sl_create2((int (*)(const void*, const void*))&strcmp, (void *(*)(const void*))&strdup, &free, (void *(*)(const void*))&uuid_copy, &free)
 #define sl_string_uuid_add(s,k,v) sl_add(s, (const void*)k, (const void*)v)
 #define sl_string_uuid_get(s,k,v) sl_get(s, (const void*)k, (const void**)v)
 #define sl_string_uuid_rem(s,k) sl_rem(s, (const void*)k)

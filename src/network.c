@@ -104,11 +104,11 @@ static const int g_debug = 0;
 struct _server
 {
 	int (*f)(session, void*);
-	void* v;
+	void *v;
 	int fd, port, tcp, ssl, ipv4;
 };
 
-typedef struct _server* server;
+typedef struct _server *server;
 
 struct handler_
 {
@@ -121,7 +121,7 @@ struct handler_
 #if defined(POLLIN) && WANT_POLL
 	struct pollfd rpollfds[FD_POLLSIZE];
 #endif
-	void* ctx;
+	void *ctx;
 	int cnt, hi, fd, threads, uncs;
 	volatile int halt, use;
 };
@@ -130,20 +130,20 @@ struct session_
 {
 	handler h;
 	skiplist stash;
-	char* remote;
+	char *remote;
 	char srcbuf[BUFLEN];
-	const char* src;
-	char* dstbuf;
-	char* dst;
+	const char *src;
+	char *dstbuf;
+	char *dst;
 	lock strand;
 	uint64_t udata_flags;
 	unsigned long long udata_int;
 	int connected, disconnected, len, busy;
 	int fd, port, tcp, is_ssl, ipv4, idx, use_cnt;
 	int (*f)(session, void*);
-	void* ssl;
-	void* ctx;
-	void* v;
+	void *ssl;
+	void *ctx;
+	void *v;
 
 	union
 	{
@@ -158,26 +158,26 @@ struct session_
 /* ----BEGIN GENERATED SECTION-------- */
 
 /*
-** Diffie-Hellman-Parameters: (512 bit)
-**     prime:
-**         00:d4:bc:d5:24:06:f6:9b:35:99:4b:88:de:5d:b8:
-**         96:82:c8:15:7f:62:d8:f3:36:33:ee:57:72:f1:1f:
-**         05:ab:22:d6:b5:14:5b:9f:24:1e:5a:cc:31:ff:09:
-**         0a:4b:c7:11:48:97:6f:76:79:50:94:e7:1e:79:03:
-**         52:9f:5a:82:4b
-**     generator: 2 (0x2)
-** Diffie-Hellman-Parameters: (1024 bit)
-**     prime:
-**         00:e6:96:9d:3d:49:5b:e3:2c:7c:f1:80:c3:bd:d4:
-**         79:8e:91:b7:81:82:51:bb:05:5e:2a:20:64:90:4a:
-**         79:a7:70:fa:15:a2:59:cb:d5:23:a6:a6:ef:09:c4:
-**         30:48:d5:a2:2f:97:1f:3c:20:12:9b:48:00:0e:6e:
-**         dd:06:1c:bc:05:3e:37:1d:79:4e:53:27:df:61:1e:
-**         bb:be:1b:ac:9b:5c:60:44:cf:02:3d:76:e0:5e:ea:
-**         9b:ad:99:1b:13:a6:3c:97:4e:9e:f1:83:9e:b5:db:
-**         12:51:36:f7:26:2e:56:a8:87:15:38:df:d8:23:c6:
-**         50:50:85:e2:1f:0d:d5:c8:6b
-**     generator: 2 (0x2)
+ **Diffie-Hellman-Parameters: (512 bit)
+ * *   prime:
+ * *       00:d4:bc:d5:24:06:f6:9b:35:99:4b:88:de:5d:b8:
+ * *       96:82:c8:15:7f:62:d8:f3:36:33:ee:57:72:f1:1f:
+ * *       05:ab:22:d6:b5:14:5b:9f:24:1e:5a:cc:31:ff:09:
+ * *       0a:4b:c7:11:48:97:6f:76:79:50:94:e7:1e:79:03:
+ * *       52:9f:5a:82:4b
+ * *   generator: 2 (0x2)
+ **Diffie-Hellman-Parameters: (1024 bit)
+ * *   prime:
+ * *       00:e6:96:9d:3d:49:5b:e3:2c:7c:f1:80:c3:bd:d4:
+ * *       79:8e:91:b7:81:82:51:bb:05:5e:2a:20:64:90:4a:
+ * *       79:a7:70:fa:15:a2:59:cb:d5:23:a6:a6:ef:09:c4:
+ * *       30:48:d5:a2:2f:97:1f:3c:20:12:9b:48:00:0e:6e:
+ * *       dd:06:1c:bc:05:3e:37:1d:79:4e:53:27:df:61:1e:
+ * *       bb:be:1b:ac:9b:5c:60:44:cf:02:3d:76:e0:5e:ea:
+ * *       9b:ad:99:1b:13:a6:3c:97:4e:9e:f1:83:9e:b5:db:
+ * *       12:51:36:f7:26:2e:56:a8:87:15:38:df:d8:23:c6:
+ * *       50:50:85:e2:1f:0d:d5:c8:6b
+ * *   generator: 2 (0x2)
 */
 
 static unsigned char dh512_p[] =
@@ -253,7 +253,7 @@ static DH *ssl_dh_GetTmpParam(int nKeyLen)
 }
 
 /*
- * Hand out the already generated DH parameters...
+  *Hand out the already generated DH parameters...
  */
 
 static DH *ssl_callback_TmpDH(SSL *pSSL, int nExport, int nKeyLen)
@@ -263,47 +263,47 @@ static DH *ssl_callback_TmpDH(SSL *pSSL, int nExport, int nKeyLen)
 
 /*  _________________________________________________________________
 **
-**  OpenSSL Callback Functions
-**  _________________________________________________________________
+ * *OpenSSL Callback Functions
+ * *_________________________________________________________________
 */
 
 /*
- * Hand out temporary RSA private keys on demand
+  *Hand out temporary RSA private keys on demand
  *
- * The background of this as the TLSv1 standard explains it:
+  *The background of this as the TLSv1 standard explains it:
  *
- * | D.1. Temporary RSA keys
- * |
- * |    US Export restrictions limit RSA keys used for encryption to 512
- * |    bits, but do not place any limit on lengths of RSA keys used for
- * |    signing operations. Certificates often need to be larger than 512
- * |    bits, since 512-bit RSA keys are not secure enough for high-value
- * |    transactions or for applications requiring long-term security. Some
- * |    certificates are also designated signing-only, in which case they
- * |    cannot be used for key exchange.
- * |
- * |    When the public key in the certificate cannot be used for encryption,
- * |    the server signs a temporary RSA key, which is then exchanged. In
- * |    exportable applications, the temporary RSA key should be the maximum
- * |    allowable length (i.e., 512 bits). Because 512-bit RSA keys are
- * |    relatively insecure, they should be changed often. For typical
- * |    electronic commerce applications, it is suggested that keys be
- * |    changed daily or every 500 transactions, and more often if possible.
- * |    Note that while it is acceptable to use the same temporary key for
- * |    multiple transactions, it must be signed each time it is used.
- * |
- * |    RSA key generation is a time-consuming process. In many cases, a
- * |    low-priority process can be assigned the task of key generation.
- * |    Whenever a new key is completed, the existing temporary key can be
- * |    replaced with the new one.
+  *| D.1. Temporary RSA keys
+  *|
+  *|    US Export restrictions limit RSA keys used for encryption to 512
+  *|    bits, but do not place any limit on lengths of RSA keys used for
+  *|    signing operations. Certificates often need to be larger than 512
+  *|    bits, since 512-bit RSA keys are not secure enough for high-value
+  *|    transactions or for applications requiring long-term security. Some
+  *|    certificates are also designated signing-only, in which case they
+  *|    cannot be used for key exchange.
+  *|
+  *|    When the public key in the certificate cannot be used for encryption,
+  *|    the server signs a temporary RSA key, which is then exchanged. In
+  *|    exportable applications, the temporary RSA key should be the maximum
+  *|    allowable length (i.e., 512 bits). Because 512-bit RSA keys are
+  *|    relatively insecure, they should be changed often. For typical
+  *|    electronic commerce applications, it is suggested that keys be
+  *|    changed daily or every 500 transactions, and more often if possible.
+  *|    Note that while it is acceptable to use the same temporary key for
+  *|    multiple transactions, it must be signed each time it is used.
+  *|
+  *|    RSA key generation is a time-consuming process. In many cases, a
+  *|    low-priority process can be assigned the task of key generation.
+  *|    Whenever a new key is completed, the existing temporary key can be
+  *|    replaced with the new one.
  *
- * So we generated 512 and 1024 bit temporary keys on startup
- * which we now just hand out on demand....
+  *So we generated 512 and 1024 bit temporary keys on startup
+  *which we now just hand out on demand....
  *
  */
 
-static RSA* tmprsakey512 = 0;
-static RSA* tmprsakey1024 = 0;
+static RSA *tmprsakey512 = 0;
+static RSA *tmprsakey1024 = 0;
 
 static RSA *ssl_callback_TmpRSA(SSL *pSSL, int nExport, int nKeyLen)
 {
@@ -329,7 +329,7 @@ static int SSL_smart_shutdown(SSL *ssl)
 }
 #endif
 
-const char* hostname(void)
+const char *hostname(void)
 {
 	static char tmpbuf[256] = {0};
 
@@ -342,19 +342,19 @@ const char* hostname(void)
 		return "LOCALHOST.LOCALDOMAIN";
 }
 
-static int _parse_addr4(const char* host, struct sockaddr_in* addr4, int numeric)
+static int _parse_addr4(const char *host, struct sockaddr_in *addr4, int numeric)
 {
     struct addrinfo hints = {0};
     hints.ai_family = AF_INET;
 	hints.ai_flags = (numeric?AI_NUMERICHOST:0) | (host?0:AI_PASSIVE);
 
-	struct addrinfo* AddrInfo;
+	struct addrinfo *AddrInfo;
 	int status;
 
 	if ((status = getaddrinfo(host, 0, &hints, &AddrInfo)) != 0)
 		return 0;
 
-	struct addrinfo* AI;
+	struct addrinfo *AI;
 	int i = 0;
 
 	for (AI = AddrInfo; AI != 0; AI = AI->ai_next)
@@ -370,7 +370,7 @@ static int _parse_addr4(const char* host, struct sockaddr_in* addr4, int numeric
 	return i;
 }
 
-static int parse_addr4(const char* host, struct sockaddr_in* addr4)
+static int parse_addr4(const char *host, struct sockaddr_in *addr4)
 {
 	if (_parse_addr4(host, addr4, 0) || _parse_addr4(host, addr4, 1))
 		return 1;
@@ -378,19 +378,19 @@ static int parse_addr4(const char* host, struct sockaddr_in* addr4)
 		return 0;
 }
 
-static int _parse_addr6(const char* host, struct sockaddr_in6* addr6, int numeric)
+static int _parse_addr6(const char *host, struct sockaddr_in6 *addr6, int numeric)
 {
     struct addrinfo hints = {0};
     hints.ai_family = AF_INET6;
 	hints.ai_flags = (numeric?AI_NUMERICHOST:0) | (host?0:AI_PASSIVE);
 
-	struct addrinfo* AddrInfo;
+	struct addrinfo *AddrInfo;
 	int status;
 
 	if ((status = getaddrinfo(host, 0, &hints, &AddrInfo)) != 0)
 		return 0;
 
-	struct addrinfo* AI;
+	struct addrinfo *AI;
 	int i = 0;
 
 	for (AI = AddrInfo; AI != 0; AI = AI->ai_next)
@@ -406,7 +406,7 @@ static int _parse_addr6(const char* host, struct sockaddr_in6* addr6, int numeri
 	return i;
 }
 
-static int parse_addr6(const char* host, struct sockaddr_in6* addr6)
+static int parse_addr6(const char *host, struct sockaddr_in6 *addr6)
 {
 	if (_parse_addr6(host, addr6, 0) || _parse_addr6(host, addr6, 1))
 		return 1;
@@ -414,7 +414,7 @@ static int parse_addr6(const char* host, struct sockaddr_in6* addr6)
 		return 0;
 }
 
-session session_open(const char* host, unsigned short port, int tcp, int ssl)
+session session_open(const char *host, unsigned short port, int tcp, int ssl)
 {
 	if (!host || (port == 0))
 		return 0;
@@ -571,7 +571,7 @@ session session_open(const char* host, unsigned short port, int tcp, int ssl)
 	return s;
 }
 
-int session_enable_tls(session s, const char* certfile, int level)
+int session_enable_tls(session s, const char *certfile, int level)
 {
 	if (!s || s->is_ssl)
 		return 0;
@@ -639,17 +639,17 @@ int session_enable_tls(session s, const char* certfile, int level)
 	cipher[255] = 0;
 	//printf("CIPHER: %s\n", cipher);
 
-	X509* server_cert = SSL_get_peer_certificate((SSL*)s->ssl);
+	X509 *server_cert = SSL_get_peer_certificate((SSL*)s->ssl);
 
 	if (server_cert)
 	{
 		char buf[1024];
-		//char* str;
+		//char *str;
 		//buf[0] = 0;
 		//str = X509_NAME_oneline(X509_get_subject_name(server_cert), buf, sizeof(buf));
 		buf[0] = 0;
 		X509_NAME_oneline(X509_get_issuer_name(server_cert), buf, sizeof(buf));
-		const char* ptr = strstr(buf, "/CN=");
+		const char *ptr = strstr(buf, "/CN=");
 		char common_name[256];
 		common_name[0] = 0;
 		if (ptr) sscanf(ptr+4, "%255[^/]", common_name);
@@ -704,7 +704,7 @@ void session_unlock(session s)
 }
 
 #ifdef _WIN32
-const char* inet_ntop(int family, void* address, char* buffer, socklen_t len)
+const char *inet_ntop(int family, void *address, char *buffer, socklen_t len)
 {
 	DWORD buflen = 256;
 
@@ -799,7 +799,7 @@ void session_clr_stash(session s)
 	s->stash = 0;
 }
 
-void session_set_stash(session s, const char* key, const char* value)
+void session_set_stash(session s, const char *key, const char *value)
 {
 	if (!s)
 		return;
@@ -813,7 +813,7 @@ void session_set_stash(session s, const char* key, const char* value)
 	sl_string_add(s->stash, key, value);
 }
 
-void session_del_stash(session s, const char* key)
+void session_del_stash(session s, const char *key)
 {
 	if (!s)
 		return;
@@ -824,7 +824,7 @@ void session_del_stash(session s, const char* key)
 	sl_string_rem(s->stash, key);
 }
 
-const char* session_get_stash(session s, const char* key)
+const char *session_get_stash(session s, const char *key)
 {
 	if (!s)
 		return NULL;
@@ -832,7 +832,7 @@ const char* session_get_stash(session s, const char* key)
 	if (!s->stash)
 		return NULL;
 
-	void* v = NULL;
+	void *v = NULL;
 	sl_string_get(s->stash, key, &v);
 	return (const char*)v;
 }
@@ -891,7 +891,7 @@ int session_set_rcvbuffer(session s, int bufsize)
 	return 1;
 }
 
-const char* session_get_remote_host(session s, int resolve)
+const char *session_get_remote_host(session s, int resolve)
 {
 	if (!s)
 		return "";
@@ -928,9 +928,9 @@ const char* session_get_remote_host(session s, int resolve)
 	return "";
 }
 
-int session_write(session s, const void* _buf, size_t len)
+int session_write(session s, const void *_buf, size_t len)
 {
-	const char* buf = (const char*)_buf;
+	const char *buf = (const char*)_buf;
 
 	if (!s || !buf || !len)
 		return 0;
@@ -1002,12 +1002,12 @@ int session_write(session s, const void* _buf, size_t len)
 	return 1;
 }
 
-int session_writemsg(session s, const char* buf)
+int session_writemsg(session s, const char *buf)
 {
 	return session_write(s, buf, strlen(buf));
 }
 
-int session_bcast(session s, const void* buf, size_t len)
+int session_bcast(session s, const void *buf, size_t len)
 {
 	if (!s || !buf || !len)
 		return 0;
@@ -1024,12 +1024,12 @@ int session_bcast(session s, const void* buf, size_t len)
 	return wlen > 0;
 }
 
-int session_bcastmsg(session s, const char* buf)
+int session_bcastmsg(session s, const char *buf)
 {
 	return session_bcast(s, buf, strlen(buf));
 }
 
-int session_read(session s, void* buf, size_t len)
+int session_read(session s, void *buf, size_t len)
 {
 	if (!s || !buf || !len)
 		return 0;
@@ -1076,7 +1076,7 @@ int session_read(session s, void* buf, size_t len)
 	return rlen > 0;
 }
 
-int session_readmsg(session s, char** buf)
+int session_readmsg(session s, char **buf)
 {
 	if (!s || !buf)
 		return 0;
@@ -1242,13 +1242,13 @@ int session_close(session s)
 	return 1;
 }
 
-static int handler_force_drop(void* _h, int fd, void* _s)
+static int handler_force_drop(void *_h, int fd, void *_s)
 {
 	session_close((session)_s);
 	return 1;
 }
 
-static int handler_accept(handler h, server srv, session* v)
+static int handler_accept(handler h, server srv, session *v)
 {
 	if (h->halt)
 		return -1;
@@ -1305,7 +1305,7 @@ static int handler_accept(handler h, server srv, session* v)
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__)
 
-static int kqueue_accept(void* data)
+static int kqueue_accept(void *data)
 {
 	session s = (session)data;
 	s->f(s, s->v);
@@ -1315,7 +1315,7 @@ static int kqueue_accept(void* data)
 	return 1;
 }
 
-static int kqueue_run(void* data)
+static int kqueue_run(void *data)
 {
 	session s = (session)data;
 	lock_lock(s->strand);
@@ -1417,7 +1417,7 @@ int handler_wait_kqueue(handler h)
 
 #if defined(__linux__)
 
-static int epoll_accept(void* data)
+static int epoll_accept(void *data)
 {
 	session s = (session)data;
 	s->f(s, s->v);
@@ -1428,7 +1428,7 @@ static int epoll_accept(void* data)
 	return 1;
 }
 
-static int epoll_run(void* data)
+static int epoll_run(void *data)
 {
 	session s = (session)data;
 	lock_lock(s->strand);
@@ -1529,7 +1529,7 @@ int handler_wait_epoll(handler h)
 
 #if defined(POLLIN) && WANT_POLL
 
-static int poll_accept(void* data)
+static int poll_accept(void *data)
 {
 	session s = (session)data;
 	s->f(s, s->v);
@@ -1539,7 +1539,7 @@ static int poll_accept(void* data)
 	return 1;
 }
 
-static int poll_run(void* data)
+static int poll_run(void *data)
 {
 	session s = (session)data;
 	lock_lock(s->strand);
@@ -1660,7 +1660,7 @@ int handler_wait_poll(handler h)
 
 #endif
 
-static int handler_select_set(void* _h, int fd, void* _s)
+static int handler_select_set(void *_h, int fd, void *_s)
 {
 	if (fd == -1)
 		return 1;
@@ -1674,14 +1674,14 @@ static int handler_select_set(void* _h, int fd, void* _s)
 	return 1;
 }
 
-static int select_accept(void* data)
+static int select_accept(void *data)
 {
 	session s = (session)data;
 	s->f(s, s->v);
 	return 1;
 }
 
-static int select_run(void* data)
+static int select_run(void *data)
 {
 	session s = (session)data;
 	lock_lock(s->strand);
@@ -1696,7 +1696,7 @@ static int select_run(void* data)
 	return 1;
 }
 
-static int handler_select_check(void* _h, int fd, void* _s)
+static int handler_select_check(void *_h, int fd, void *_s)
 {
 	handler h = (handler)_h;
 	session s = (session)_s;
@@ -1730,7 +1730,7 @@ static int handler_select_check(void* _h, int fd, void* _s)
 	return 1;
 }
 
-static int handler_select_bads(void* _h, int fd, void* _s)
+static int handler_select_bads(void *_h, int fd, void *_s)
 {
 	handler h = (handler)_h;
 	session s = (session)_s;
@@ -1831,7 +1831,7 @@ int handler_wait(handler h)
 #endif
 }
 
-int handler_set_tls(handler h, const char* keyfile)
+int handler_set_tls(handler h, const char *keyfile)
 {
 #if USE_SSL
 	static int init = 0;
@@ -1888,7 +1888,7 @@ int handler_set_tls(handler h, const char* keyfile)
 #endif
 }
 
-static int join_multicast(int fd6, int fd4, const char* addr)
+static int join_multicast(int fd6, int fd4, const char *addr)
 {
 	if (!addr)
 		return 0;
@@ -1927,7 +1927,7 @@ static int join_multicast(int fd6, int fd4, const char* addr)
 }
 
 #if 0
-static int leave_multicast(int fd6, int fd4, const char* addr)
+static int leave_multicast(int fd6, int fd4, const char *addr)
 {
 	if (!addr)
 		return 0;
@@ -1966,16 +1966,16 @@ static int leave_multicast(int fd6, int fd4, const char* addr)
 }
 #endif
 
-int handler_add_uncle(handler h, const char* binding, unsigned short port, const char* scope)
+int handler_add_uncle(handler h, const char *binding, unsigned short port, const char *scope)
 {
-	extern uncle uncle_create2(handler h, const char* binding, unsigned short port, const char* scope);
+	extern uncle uncle_create2(handler h, const char *binding, unsigned short port, const char *scope);
 	uncle u = uncle_create2(h, binding, port, scope);
 	if (!u) return 0;
 	h->u[h->uncs++] = u;
 	return 1;
 }
 
-uncle handler_get_uncle(handler h, const char* scope)
+uncle handler_get_uncle(handler h, const char *scope)
 {
 	int i;
 
@@ -1988,7 +1988,7 @@ uncle handler_get_uncle(handler h, const char* scope)
 	return NULL;
 }
 
-static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* maddr6, const char* maddr4, const char* name)
+static int handler_add_server2(handler h, int (*f)(session, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *maddr6, const char *maddr4, const char *name)
 {
 	int fd6 = socket(AF_INET6, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
 
@@ -2125,12 +2125,12 @@ static int handler_add_server2(handler h, int (*f)(session, void* v), void* v, c
 	return 1;
 }
 
-int handler_add_server(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, int tcp, int ssl, const char* name)
+int handler_add_server(handler h, int (*f)(session, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *name)
 {
 	return handler_add_server2(h, f, v, binding, port, tcp, ssl, NULL, NULL, name);
 }
 
-int handler_add_client(handler h, int (*f)(session, void* data), void* data, session s)
+int handler_add_client(handler h, int (*f)(session, void *data), void *data, session s)
 {
 	session_share(s);
 	s->h = h;
@@ -2198,7 +2198,7 @@ handler handler_create(int threads)
 	return h;
 }
 
-int handler_add_multicast(handler h, int (*f)(session, void* v), void* v, const char* binding, unsigned short port, const char* addr6, const char* addr4, const char* name)
+int handler_add_multicast(handler h, int (*f)(session, void *v), void *v, const char *binding, unsigned short port, const char *addr6, const char *addr4, const char *name)
 {
 	return handler_add_server2(h, f, v, binding, port, 0, 0, addr6, addr4, name);
 }
