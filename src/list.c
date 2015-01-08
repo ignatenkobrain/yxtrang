@@ -23,6 +23,14 @@ int list_init(list l)
 	return 1;
 }
 
+size_t list_count(list l)
+{
+	if (!l)
+		return 0;
+
+	return l->count;
+}
+
 list list_create(void)
 {
 	list l = (list)calloc(1, sizeof(struct list_));
@@ -39,14 +47,6 @@ int list_destroy(list l)
 	return 1;
 }
 
-size_t list_count(list l)
-{
-	if (!l)
-		return 0;
-
-	return l->count;
-}
-
 int list_clear(list l)
 {
 	if (!l)
@@ -56,9 +56,9 @@ int list_clear(list l)
 
 	while (n)
 	{
-		node save = n->next;
-		free(n);
-		n = save;
+		node save = n;
+		n = n->next;
+		free(save);
 	}
 
 	l->count = 0;
@@ -84,13 +84,12 @@ int list_iter(list l, int (*f)(node,void*), void *data)
 
 	while (n)
 	{
-		node save = n->next;
+		node save = n;
+		n = n->next;
 
 		if (f)
-			if (!f(n, data))
+			if (!f(save, data))
 				break;
-
-		n = save;
 	}
 
 	return 1;
