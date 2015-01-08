@@ -10,9 +10,9 @@
 static int g_quiet = 0;
 static int g_loops = 10;
 
-static const char* hello = "thequickbrownfoxjumpedoverthelazydog\n";
+static const char *hello = "thequickbrownfoxjumpedoverthelazydog\n";
 
-static int on_session(session s, void* param)
+static int on_session(session s, void *param)
 {
 	if (session_on_connect(s))
 	{
@@ -26,7 +26,7 @@ static int on_session(session s, void* param)
 		return 0;
 	}
 
-	char* msg;
+	char *msg;
 
 	if (!session_readmsg(s, &msg))         // read the echo
 		return 0;
@@ -53,10 +53,10 @@ static int on_session(session s, void* param)
 }
 
 
-int main(int ac, char* av[])
+int main(int ac, char *av[])
 {
 	printf("Usage: echo2 [host|localhost [port|12345 [tcp|1 [ssl|0 [loops|10 [quiet|0 [threads:0]]]]]]]\n");
-	const char* host = ac>1?av[1]:"localhost";
+	const char *host = ac>1?av[1]:"localhost";
 	unsigned short port = (short)(ac>2?atoi(av[2]):12345);
 	int tcp = (ac>3?atoi(av[3]):1);
 	int ssl = (ac>4?atoi(av[4]):0);

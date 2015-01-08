@@ -6,11 +6,11 @@
 #include <httpserver.h>
 
 extern int g_http_debug;
-static const char* g_www_root = "/var/www";
+static const char *g_www_root = "/var/www";
 
-static int http_request(session s, void* param)
+static int http_request(session s, void *param)
 {
-	const char* filename = session_get_stash(s, HTTP_RESOURCE);
+	const char *filename = session_get_stash(s, HTTP_RESOURCE);
 	char body[1024];
 	const size_t len =
 		sprintf(body,
@@ -23,9 +23,9 @@ static int http_request(session s, void* param)
 	return session_write(s, body, len);
 }
 
-int main(int ac, char* av[])
+int main(int ac, char *av[])
 {
-	const char* binding = NULL;
+	const char *binding = NULL;
 	unsigned short port = HTTP_DEFAULT_PORT;
 	int ssl = 0, threads = 0;
 	int i;

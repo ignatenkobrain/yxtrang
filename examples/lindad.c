@@ -11,10 +11,10 @@
 
 extern int g_http_debug;
 
-static int linda_request(session s, void* param)
+static int linda_request(session s, void *param)
 {
 	linda l = (linda)param;
-	const char* ct = session_get_stash(s, "content-type");
+	const char *ct = session_get_stash(s, "content-type");
 
 	if (!strstr(ct, APPLICATION_JSON))
 	{
@@ -22,7 +22,7 @@ static int linda_request(session s, void* param)
 		return 1;
 	}
 
-	char* query = (char*)httpserver_get_content(s);
+	char *query = (char*)httpserver_get_content(s);
 
 	if (!query)
 	{
@@ -35,7 +35,7 @@ static int linda_request(session s, void* param)
 
 	if (session_get_udata_flag(s, HTTP_GET))
 	{
-		const char* buf = NULL;
+		const char *buf = NULL;
 
 		if (!linda_rdp(h, query, &buf))
 		{
@@ -55,7 +55,7 @@ static int linda_request(session s, void* param)
 	}
 	else if (session_get_udata_flag(s, HTTP_POST))
 	{
-		const char* buf = NULL;
+		const char *buf = NULL;
 
 		if (!linda_inp(h, query, &buf))
 		{
@@ -111,9 +111,9 @@ static int linda_request(session s, void* param)
 	return 1;
 }
 
-static int http_request(session s, void* param)
+static int http_request(session s, void *param)
 {
-	const char* filename = session_get_stash(s, HTTP_RESOURCE);
+	const char *filename = session_get_stash(s, HTTP_RESOURCE);
 	char body[1024];
 	const size_t len =
 		sprintf(body,
@@ -126,13 +126,13 @@ static int http_request(session s, void* param)
 	return session_write(s, body, len);
 }
 
-int main(int ac, char* av[])
+int main(int ac, char *av[])
 {
-	const char* binding = NULL;
+	const char *binding = NULL;
 	unsigned short port = HTTP_DEFAULT_PORT, uncle_port = UNCLE_DEFAULT_PORT;
 	int ssl = 0, threads = 0;
-	const char* path1 = "./db";
-	const char* path2 = NULL;
+	const char *path1 = "./db";
+	const char *path2 = NULL;
 	int i;
 
 	for (i = 1; i < ac; i++)

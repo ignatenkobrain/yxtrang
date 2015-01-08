@@ -26,10 +26,10 @@
 
 static int g_debug = 0, g_quiet = 1;
 static unsigned short g_uncle = UNCLE_DEFAULT_PORT;
-static const char* g_service = "TEST";
-static const char* qbf = "the quick brown fox jumped over the lazy dog";
+static const char *g_service = "TEST";
+static const char *qbf = "the quick brown fox jumped over the lazy dog";
 
-static int on_server_session(session s, void* v)
+static int on_server_session(session s, void *v)
 {
 	if (session_on_connect(s))
 	{
@@ -43,7 +43,7 @@ static int on_server_session(session s, void* v)
 		return 0;
 	}
 
-	char* buf = 0;
+	char *buf = 0;
 
 	if (!session_readmsg(s, &buf))
 		return 0;
@@ -75,7 +75,7 @@ static void do_server(unsigned short port, int tcp, int ssl, int threads)
 	handler_destroy(h);
 }
 
-static void do_client(long cnt, const char* host, unsigned short port, int tcp, int ssl, int broadcast)
+static void do_client(long cnt, const char *host, unsigned short port, int tcp, int ssl, int broadcast)
 {
 	session s = session_open(host, port, tcp, ssl);
 	if (!s) { printf("CLIENT: session failed\n"); return; }
@@ -104,7 +104,7 @@ static void do_client(long cnt, const char* host, unsigned short port, int tcp, 
 
 		// Get 'em back...
 
-		char* buf = 0;
+		char *buf = 0;
 
 		if (!session_readmsg(s, &buf))
 		{
@@ -140,7 +140,7 @@ static void do_client(long cnt, const char* host, unsigned short port, int tcp, 
 
 static void do_script(long cnt)
 {
-	const char* text = "\n\tX = 3.14159265358979323846;\n\tY = X ** 2;\n\tprint Y;";
+	const char *text = "\n\tX = 3.14159265358979323846;\n\tY = X  **2;\n\tprint Y;";
 
 	printf("Scriptlet compile: '%s'\n", text);
 	scriptlet s = scriptlet_open(text);
@@ -191,7 +191,7 @@ static void do_linda_out(long cnt)
 
 	for (i = 0; i < 100; i++)
 	{
-		const char* buf = NULL;
+		const char *buf = NULL;
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%ld}\n", LINDA_ID, i);
 
@@ -215,7 +215,7 @@ static void do_linda_in()
 
 	for (i = 0; i < 10; i++)
 	{
-		const char* buf = NULL;
+		const char *buf = NULL;
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"%s\":%ld}\n", LINDA_ID, i);
 
@@ -229,7 +229,7 @@ static void do_linda_in()
 
 	for (i = 0; i < 10; i++)
 	{
-		const char* buf;
+		const char *buf;
 		char tmpbuf[1024];
 		sprintf(tmpbuf, "{\"nbr\":%d}\n", rand()%1000);
 
@@ -287,7 +287,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 		for (i = 1; i <= cnt; i++)
 		{
 			char tmpbuf[1024];
-			void* buf = &tmpbuf;
+			void *buf = &tmpbuf;
 			size_t len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
 			uuid_t u = {k, t};
@@ -318,7 +318,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 		for (i = 1; i <= cnt; i++)
 		{
 			char tmpbuf[1024];
-			void* buf = &tmpbuf;
+			void *buf = &tmpbuf;
 			size_t len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
 			uuid_t u = {k, t};
@@ -493,11 +493,11 @@ void do_tree(long cnt, int rnd)
 
 static void do_base64()
 {
-	const char* s = qbf;
+	const char *s = qbf;
 	printf("%s =>\n", s);
 
 	char dst[1024];
-	char* pdst = dst;
+	char *pdst = dst;
 	format_base64(s, strlen(s), &	pdst, 0, 0);
 	printf("%s =>\n", dst);
 
@@ -509,7 +509,7 @@ static void do_base64()
 
 static void do_json()
 {
-	const char* s = "{'a':1,'b':2.2,"
+	const char *s = "{'a':1,'b':2.2,"
 		"'c':'the quick brown fox jumped over the lazy dog',"
 		"'d':true,'e':false,'f':null,"
 		"'g':[11,22],"
@@ -517,7 +517,7 @@ static void do_json()
 		"}";
 
 	printf("ORIG: %s\n", s);
-	char* pdst;
+	char *pdst;
 
 	// Parse and reformat...
 
@@ -562,9 +562,9 @@ static void do_json()
 	json_close(j);
 }
 
-static void do_jsonq(const char* name)
+static void do_jsonq(const char *name)
 {
-	const char* s = "{"
+	const char *s = "{"
 		"'a':1,"
 		"'b':2.2,"
 		"'c':'the quick brown \\\"fox\\\" jumped over the lazy dog',"
@@ -581,7 +581,7 @@ static void do_jsonq(const char* name)
 	printf("%s = %s\n", name, jsonq(s, name, tmp, sizeof(tmp)));
 }
 
-int main(int ac, char* av[])
+int main(int ac, char *av[])
 {
 	int loops = 10000, loops2 = 10, test_tree = 0, test_store = 0;
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
