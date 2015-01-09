@@ -4,16 +4,16 @@
 
 struct node_
 {
-	node prev, next;
+	node *prev, *next;
 };
 
 struct list_
 {
-	node first, last;
+	node *first, *last;
 	size_t count;
 };
 
-int list_init(list l)
+int list_init(list *l)
 {
 	if (!l)
 		return 0;
@@ -23,7 +23,7 @@ int list_init(list l)
 	return 1;
 }
 
-size_t list_count(list l)
+size_t list_count(list *l)
 {
 	if (!l)
 		return 0;
@@ -31,13 +31,13 @@ size_t list_count(list l)
 	return l->count;
 }
 
-list list_create(void)
+list *list_create(void)
 {
-	list l = (list)calloc(1, sizeof(struct list_));
+	list *l = (list*)calloc(1, sizeof(list));
 	return l;
 }
 
-int list_destroy(list l)
+int list_destroy(list *l)
 {
 	if (!l)
 		return 0;
@@ -47,16 +47,16 @@ int list_destroy(list l)
 	return 1;
 }
 
-int list_clear(list l)
+int list_clear(list *l)
 {
 	if (!l)
 		return 0;
 
-	node n = l->first;
+	node *n = l->first;
 
 	while (n)
 	{
-		node save = n;
+		node *save = n;
 		n = n->next;
 		free(save);
 	}
@@ -65,26 +65,26 @@ int list_clear(list l)
 	return 1;
 }
 
-node list_front(list l)
+node *list_front(list *l)
 {
 	return l->first;
 }
 
-node list_back(list l)
+node *list_back(list *l)
 {
 	return l->last;
 }
 
-int list_iter(list l, int (*f)(node,void*), void *data)
+int list_iter(list *l, int (*f)(node*,void*), void *data)
 {
 	if (!l)
 		return 0;
 
-	node n = l->first;
+	node *n = l->first;
 
 	while (n)
 	{
-		node save = n;
+		node *save = n;
 		n = n->next;
 
 		if (f)
@@ -95,7 +95,7 @@ int list_iter(list l, int (*f)(node,void*), void *data)
 	return 1;
 }
 
-int list_remove(list l, node n)
+int list_remove(list *l, node *n)
 {
 	if (!l || !n)
 		return 0;
@@ -119,7 +119,7 @@ int list_remove(list l, node n)
 	return 1;
 }
 
-int list_push_front(list l, node n)
+int list_push_front(list *l, node *n)
 {
 	if (!l || !n)
 		return 0;
@@ -140,7 +140,7 @@ int list_push_front(list l, node n)
 	return 1;
 }
 
-int list_push_back(list l, node n)
+int list_push_back(list *l, node *n)
 {
 	if (!l || !n)
 		return 0;
@@ -161,7 +161,7 @@ int list_push_back(list l, node n)
 	return 1;
 }
 
-int list_pop_front(list l, node *n)
+int list_pop_front(list *l, node **n)
 {
 	if (!l)
 		return 0;
@@ -182,7 +182,7 @@ int list_pop_front(list l, node *n)
 	return 1;
 }
 
-int list_pop_back(list l, node *n)
+int list_pop_back(list *l, node **n)
 {
 	if (!l)
 		return 0;
@@ -203,7 +203,7 @@ int list_pop_back(list l, node *n)
 	return 1;
 }
 
-int list_insert_before(list l, node n, node v)
+int list_insert_before(list *l, node *n, node *v)
 {
 	if (!l || !n || !v)
 		return 0;
@@ -222,7 +222,7 @@ int list_insert_before(list l, node n, node v)
 	return 1;
 }
 
-int list_insert_after(list l, node n, node v)
+int list_insert_after(list *l, node *n, node *v)
 {
 	if (!l || !n || !v)
 		return 0;
