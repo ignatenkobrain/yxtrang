@@ -67,11 +67,17 @@ int list_clear(list *l)
 
 node *list_front(list *l)
 {
+	if (!l)
+		return NULL;
+
 	return l->first;
 }
 
 node *list_back(list *l)
 {
+	if (!l)
+		return NULL;
+
 	return l->last;
 }
 
