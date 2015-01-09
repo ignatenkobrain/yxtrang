@@ -55,7 +55,7 @@ typedef char string[1024];
 
 struct store_
 {
-	tree tptr;
+	tree *tptr;
 	string filename[MAX_LOGFILES], path1, path2;
 	void (*f)(void*,const uuid,const void*,int);
 	void *p1;

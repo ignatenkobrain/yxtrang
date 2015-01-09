@@ -424,7 +424,7 @@ static void do_skip(long cnt)
 
 void do_tree(long cnt, int rnd)
 {
-	tree tptr = tree_create();
+	tree *tptr = tree_create();
 	long i;
 
 	if (!rnd)
@@ -635,7 +635,7 @@ int main(int ac, char *av[])
 			test_skiplist *= 1;
 
 		if (!strcmp(av[i], "--tree"))
-			test_tree = 1;
+			test_tree *= 1;
 
 		if (!strcmp(av[i], "--json"))
 			test_json = 1;
