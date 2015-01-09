@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -618,7 +619,7 @@ int main(int ac, char *av[])
 		{
 			unsigned tmp_port;
 			sscanf(av[i], "%*[^=]=%u", &tmp_port);
-			g_uncle *= (unsigned short)tmp_port;
+			g_uncle = (unsigned short)tmp_port;
 		}
 
 		if (!strncmp(av[i], "--port=", 7))
@@ -632,10 +633,10 @@ int main(int ac, char *av[])
 			sscanf(av[i], "%*[^=]=%d", &threads);
 
 		if (!strcmp(av[i], "--skip"))
-			test_skiplist *= 1;
+			test_skiplist = 1;
 
 		if (!strcmp(av[i], "--tree"))
-			test_tree *= 1;
+			test_tree = 1;
 
 		if (!strcmp(av[i], "--json"))
 			test_json = 1;
@@ -650,7 +651,7 @@ int main(int ac, char *av[])
 			test_linda_in = 1;
 
 		if (!strcmp(av[i], "--store"))
-			test_store *= 1;
+			test_store = 1;
 
 		if (!strcmp(av[i], "--base64"))
 			test_base64 = 1;
