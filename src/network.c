@@ -112,9 +112,9 @@ typedef struct _server server;
 
 struct handler_
 {
-	skiplist fds, badfds;
+	skiplist *fds, *badfds;
 	lock *strand;
-	thread_pool **tp;
+	thread_pool *tp;
 	uncle *u[MAX_SERVERS];
 	fd_set rfds;
 	server srvs[MAX_SERVERS];
@@ -129,7 +129,7 @@ struct handler_
 struct session_
 {
 	handler *h;
-	skiplist stash;
+	skiplist *stash;
 	char *remote;
 	char srcbuf[BUFLEN];
 	const char *src;

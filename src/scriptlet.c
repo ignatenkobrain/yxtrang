@@ -22,7 +22,7 @@ typedef char token[TOKEN_SIZE];
 static const struct _precedence_table
 {
 	const char *op;
-	const int precedence;
+	int precedence;
 }
 	ptable[] =
 {
@@ -168,7 +168,7 @@ struct scriptlet_
 
 struct _compiletime
 {
-	scriptlet s;
+	scriptlet *s;
 	int it_operands, it_ops, level;
 	struct _item operands[STACK_SIZE], ops[STACK_SIZE];
 };
@@ -177,8 +177,8 @@ typedef struct _compiletime *compiletime;
 
 struct hscriptlet_
 {
-	scriptlet s;
-	skiplist symtab;
+	scriptlet *s;
+	skiplist *symtab;
 	struct _bytecode stack[STACK_SIZE], syms[STACK_SIZE];
 	int it_stack, it_syms, it_syms_save, it, level;
 };
@@ -215,7 +215,7 @@ static int ends_with(const char *str, const char *suffix)
     return !strcmp(str+lenstr-lensuffix, suffix);
 }
 
-static void scriptlet_share(scriptlet s)
+static void scriptlet_share(scriptlet *s)
 {
 	if (!s)
 		return;
@@ -223,7 +223,7 @@ static void scriptlet_share(scriptlet s)
 	atomic_inc(&s->use_cnt);
 }
 
-static void scriptlet_unshare(scriptlet s)
+static void scriptlet_unshare(scriptlet *s)
 {
 	if (!s)
 		return;
@@ -232,10 +232,10 @@ static void scriptlet_unshare(scriptlet s)
 		free(s);
 }
 
-hscriptlet scriptlet_prepare(scriptlet s)
+hscriptlet *scriptlet_prepare(scriptlet *s)
 {
 	scriptlet_share(s);
-	hscriptlet r = (hscriptlet)calloc(1, sizeof(struct hscriptlet_));
+	hscriptlet *r = (hscriptlet*)calloc(1, sizeof(struct hscriptlet_));
 	r->s = s;
 	r->symtab = sl_string_create();
 	scriptlet_set_int(r, "$FIRST", 1);
@@ -243,7 +243,7 @@ hscriptlet scriptlet_prepare(scriptlet s)
 	return r;
 }
 
-int scriptlet_done(hscriptlet r)
+int scriptlet_done(hscriptlet *r)
 {
 	scriptlet_unshare(r->s);
 	sl_string_destroy(r->symtab);
@@ -251,7 +251,7 @@ int scriptlet_done(hscriptlet r)
 	return 1;
 }
 
-int scriptlet_set_int(hscriptlet r, const char *k, long long value)
+int scriptlet_set_int(hscriptlet *r, const char *k, long long value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = int_tc;
@@ -261,7 +261,7 @@ int scriptlet_set_int(hscriptlet r, const char *k, long long value)
 	return 1;
 }
 
-int scriptlet_set_real(hscriptlet r, const char *k, double value)
+int scriptlet_set_real(hscriptlet *r, const char *k, double value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = real_tc;
@@ -271,7 +271,7 @@ int scriptlet_set_real(hscriptlet r, const char *k, double value)
 	return 1;
 }
 
-int scriptlet_set_string(hscriptlet r, const char *k, const char *value)
+int scriptlet_set_string(hscriptlet *r, const char *k, const char *value)
 {
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = string_tc;
@@ -281,7 +281,7 @@ int scriptlet_set_string(hscriptlet r, const char *k, const char *value)
 	return 1;
 }
 
-static bytecode substitute(const hscriptlet r, const bytecode v)
+static bytecode substitute(const hscriptlet *r, const bytecode v)
 {
 	bytecode code = v;
 
@@ -291,7 +291,7 @@ static bytecode substitute(const hscriptlet r, const bytecode v)
 	return code;
 }
 
-int scriptlet_get_int(hscriptlet r, const char *k, long long *value)
+int scriptlet_get_int(hscriptlet *r, const char *k, long long *value)
 {
 	bytecode code = NULL;
 
@@ -308,7 +308,7 @@ int scriptlet_get_int(hscriptlet r, const char *k, long long *value)
 	return 1;
 }
 
-int scriptlet_get_real(hscriptlet r, const char *k, double *value)
+int scriptlet_get_real(hscriptlet *r, const char *k, double *value)
 {
 	bytecode code = NULL;
 
@@ -325,7 +325,7 @@ int scriptlet_get_real(hscriptlet r, const char *k, double *value)
 	return 1;
 }
 
-int scriptlet_get_string(hscriptlet r, const char *k, const char **value)
+int scriptlet_get_string(hscriptlet *r, const char *k, const char **value)
 {
 	bytecode code = NULL;
 
@@ -868,7 +868,7 @@ static const char *get_token(const char *src, char *tok)
 	return src;
 }
 
-static int compile(scriptlet s, const char *src)
+static int compile(scriptlet *s, const char *src)
 {
 	compiletime c = (compiletime)calloc(1, sizeof(struct _compiletime));
 	c->s = s;
@@ -950,7 +950,7 @@ static int compile(scriptlet s, const char *src)
 	return 1;
 }
 
-static int pop_stack(hscriptlet r, bytecode *value)
+static int pop_stack(hscriptlet *r, bytecode *value)
 {
 	if (!r->it_stack)
 		return empty_tc;
@@ -967,28 +967,28 @@ static int pop_stack(hscriptlet r, bytecode *value)
 	return code->tc;
 }
 
-static void push_stack_int(hscriptlet r, long long value)
+static void push_stack_int(hscriptlet *r, long long value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = int_tc;
 	code->int_val = value;
 }
 
-static void push_stack_real(hscriptlet r, double value)
+static void push_stack_real(hscriptlet *r, double value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = real_tc;
 	code->real_val = value;
 }
 
-static void push_stack_string(hscriptlet r, const char *value)
+static void push_stack_string(hscriptlet *r, const char *value)
 {
 	bytecode code = &r->stack[r->it_stack++];
 	code->tc = string_tc;
 	strcpy(code->str_val, value);
 }
 
-static int peek_bytecode(hscriptlet r, int *level)
+static int peek_bytecode(hscriptlet *r, int *level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -998,7 +998,7 @@ static int peek_bytecode(hscriptlet r, int *level)
 	return code->tc;
 }
 
-static void skip_bytecode(hscriptlet r)
+static void skip_bytecode(hscriptlet *r)
 {
 	if (r->it == r->s->it_codes)
 		return;
@@ -1006,7 +1006,7 @@ static void skip_bytecode(hscriptlet r)
 	r->it++;
 }
 
-static int next_bytecode(hscriptlet r, bytecode *value, int *nbr_params, int *level)
+static int next_bytecode(hscriptlet *r, bytecode *value, int *nbr_params, int *level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -1028,7 +1028,7 @@ static int next_bytecode(hscriptlet r, bytecode *value, int *nbr_params, int *le
 	return bc;
 }
 
-int scriptlet_run(hscriptlet r)
+int scriptlet_run(hscriptlet *r)
 {
 	r->it_stack = 0;
 	r->it_syms = r->it_syms_save;
@@ -1930,9 +1930,9 @@ int scriptlet_run(hscriptlet r)
 	return 1;
 }
 
-scriptlet scriptlet_open(const char *text)
+scriptlet *scriptlet_open(const char *text)
 {
-	scriptlet s = (scriptlet)calloc(1, sizeof(struct scriptlet_));
+	scriptlet *s = (scriptlet*)calloc(1, sizeof(struct scriptlet_));
 	if (!s) return NULL;
 
 	if (!compile(s, text))
@@ -1945,7 +1945,7 @@ scriptlet scriptlet_open(const char *text)
 	return s;
 }
 
-int scriptlet_close(scriptlet s)
+int scriptlet_close(scriptlet *s)
 {
 	if (!s)
 		return 0;

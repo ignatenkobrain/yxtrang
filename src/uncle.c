@@ -12,7 +12,7 @@
 struct uncle_
 {
 	handler *h;
-	skiplist db;
+	skiplist *db;
 	lock *l;
 	session *s;				// used to broadcast on
 	char scope[256];

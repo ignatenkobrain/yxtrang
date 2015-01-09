@@ -76,15 +76,15 @@ static int default_compare(const void *k1, const void *k2)
 		return 1;
 }
 
-skiplist sl_create2(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*), void *(*copyval)(const void*), void (*freeval)(void*))
+skiplist *sl_create2(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*), void *(*copyval)(const void*), void (*freeval)(void*))
 {
-	skiplist l;
+	skiplist *l;
 	int i;
 
 	if (compare == NULL)
 		compare = default_compare;
 
-	l = (skiplist)malloc(sizeof(struct skiplist_));
+	l = (skiplist*)malloc(sizeof(struct skiplist_));
 	if (!l) return NULL;
 
 	l->level = 1;
@@ -110,12 +110,12 @@ skiplist sl_create2(int (*compare)(const void*, const void*), void *(*copykey)(c
 	return l;
 }
 
-skiplist sl_create(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*))
+skiplist *sl_create(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*))
 {
 	return sl_create2(compare, copykey, freekey, NULL, NULL);
 }
 
-void sl_destroy(skiplist l)
+void sl_destroy(skiplist *l)
 {
 	node p, q;
 
@@ -149,12 +149,12 @@ void sl_destroy(skiplist l)
 	free(l);
 }
 
-unsigned long sl_count(const skiplist l)
+unsigned long sl_count(const skiplist *l)
 {
 	return l->count;
 }
 
-void sl_dump(const skiplist l)
+void sl_dump(const skiplist *l)
 {
 	node p, q;
 
@@ -181,7 +181,7 @@ void sl_dump(const skiplist l)
 	printf("\n");
 }
 
-static int binary_search(const skiplist l, const keyval_t n[], const void *key, int imin, int imax)
+static int binary_search(const skiplist *l, const keyval_t n[], const void *key, int imin, int imax)
 {
 	int imid = 0;
 
@@ -202,7 +202,7 @@ static int binary_search(const skiplist l, const keyval_t n[], const void *key, 
 
 // Modified binary search: return position where it is or ought to be
 
-static int binary_search2(const skiplist l, const keyval_t n[], const void *key, int imin, int imax)
+static int binary_search2(const skiplist *l, const keyval_t n[], const void *key, int imin, int imax)
 {
 	int imid = 0;
 
@@ -231,7 +231,7 @@ static int RandomLevelskiplist()
     return lvl < MaxLevel ? lvl : MaxLevel;
 }
 
-int sl_add(skiplist l, const void *key, const void *value)
+int sl_add(skiplist *l, const void *key, const void *value)
 {
 	if (!l || !key)
 		return 0;
@@ -349,7 +349,7 @@ int sl_add(skiplist l, const void *key, const void *value)
 	return 1;
 }
 
-int sl_get(const skiplist l, const void *key, const void **value)
+int sl_get(const skiplist *l, const void *key, const void **value)
 {
 	if (!l || !key)
 		return 0;
@@ -378,7 +378,7 @@ int sl_get(const skiplist l, const void *key, const void **value)
 	return 1;
 }
 
-int sl_rem(skiplist l, const void *key)
+int sl_rem(skiplist *l, const void *key)
 {
 	if (!l || !key)
 		return 0;
@@ -453,7 +453,7 @@ int sl_rem(skiplist l, const void *key)
 	return 1;
 }
 
-int sl_erase(skiplist l, const void *key, const void *value, int (*compare)(const void*,const void*))
+int sl_erase(skiplist *l, const void *key, const void *value, int (*compare)(const void*,const void*))
 {
 	if (!l)
 		return 0;
@@ -539,7 +539,7 @@ int sl_erase(skiplist l, const void *key, const void *value, int (*compare)(cons
 	return 1;
 }
 
-int sl_efface(skiplist l, const void *value, int (*compare)(const void*,const void*))
+int sl_efface(skiplist *l, const void *value, int (*compare)(const void*,const void*))
 {
 	if (!l)
 		return 0;
@@ -629,7 +629,7 @@ int sl_efface(skiplist l, const void *value, int (*compare)(const void*,const vo
 	return 1;
 }
 
-void sl_iter(const skiplist l, int (*f)(void*,void*,void*), void *p1)
+void sl_iter(const skiplist *l, int (*f)(void*,void*,void*), void *p1)
 {
 	if (!l)
 		return;
@@ -656,7 +656,7 @@ void sl_iter(const skiplist l, int (*f)(void*,void*,void*), void *p1)
 	}
 }
 
-void sl_find(const skiplist l, const void *key, int (*f)(void*,void*,void*), void *p1)
+void sl_find(const skiplist *l, const void *key, int (*f)(void*,void*,void*), void *p1)
 {
 	if (!l)
 		return;

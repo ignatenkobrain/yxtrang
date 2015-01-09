@@ -143,10 +143,10 @@ static void do_script(long cnt)
 	const char *text = "\n\tX = 3.14159265358979323846;\n\tY = X  **2;\n\tprint Y;";
 
 	printf("Scriptlet compile: '%s'\n", text);
-	scriptlet s = scriptlet_open(text);
+	scriptlet *s = scriptlet_open(text);
 
 	printf("Scriptlet run\n");
-	hscriptlet r = scriptlet_prepare(s);
+	hscriptlet *r = scriptlet_prepare(s);
 	scriptlet_run(r);
 	double v = 0.0;
 
@@ -333,8 +333,8 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 
 static void do_skip(long cnt)
 {
-	extern void sl_dump(const skiplist sptr);
-	skiplist sl = sl_int_create();
+	extern void sl_dump(const skiplist *sptr);
+	skiplist *sl = sl_int_create();
 	long i;
 
 	printf("Writing...\n");
@@ -632,7 +632,7 @@ int main(int ac, char *av[])
 			sscanf(av[i], "%*[^=]=%d", &threads);
 
 		if (!strcmp(av[i], "--skip"))
-			test_skiplist = 1;
+			test_skiplist *= 1;
 
 		if (!strcmp(av[i], "--tree"))
 			test_tree = 1;

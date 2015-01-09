@@ -11,7 +11,7 @@
 struct linda_
 {
 	store *st;
-	skiplist sl;
+	skiplist *sl;
 	int is_int, is_string;
 };
 
