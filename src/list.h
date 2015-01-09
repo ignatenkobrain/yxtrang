@@ -3,8 +3,8 @@
 
 // Usage:
 //
-//          typedef struct mynode_ {
-//            node n;     // Must come first
+//          typedef struct {
+//            node n;     		// Must come first
 //            int val;
 //          } mynode;
 //
