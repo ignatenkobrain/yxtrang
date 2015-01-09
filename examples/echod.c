@@ -6,7 +6,7 @@
 
 static int g_quiet = 0;
 
-static int on_session(session s, void *param)
+static int on_session(session *s, void *param)
 {
 	if (session_on_connect(s))
 	{
@@ -40,7 +40,7 @@ int main(int ac, char *av[])
 	int threads = (ac>5?atoi(av[5]):0);
 	void *param = (void*)0;
 
-	handler h = handler_create(threads);
+	handler *h = handler_create(threads);
 
 	if (ssl)
 		handler_set_tls(h, "server.pem");

@@ -11,7 +11,7 @@
 
 extern int g_http_debug;
 
-static int linda_request(session s, void *param)
+static int linda_request(session *s, void *param)
 {
 	linda *l = (linda*)param;
 	const char *ct = session_get_stash(s, "content-type");
@@ -111,7 +111,7 @@ static int linda_request(session s, void *param)
 	return 1;
 }
 
-static int http_request(session s, void *param)
+static int http_request(session *s, void *param)
 {
 	const char *filename = session_get_stash(s, HTTP_RESOURCE);
 	char body[1024];
@@ -205,7 +205,7 @@ int main(int ac, char *av[])
 
 	printf("Usage: lindad --port=%u --ssl=%d --debug=%d --threads=%d --path=%s --uncle=%u\n", port, ssl, g_http_debug, threads, path1, uncle_port);
 
-	handler h = handler_create(threads);
+	handler *h = handler_create(threads);
 	if (!h) return 1;
 
 	if (ssl)

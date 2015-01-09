@@ -8,7 +8,7 @@
 extern int g_http_debug;
 static const char *g_www_root = "/var/www";
 
-static int http_request(session s, void *param)
+static int http_request(session *s, void *param)
 {
 	const char *filename = session_get_stash(s, HTTP_RESOURCE);
 	char body[1024];
@@ -83,7 +83,7 @@ int main(int ac, char *av[])
 
 	printf("Usage: httpd --port=%u --ssl=%d --debug=%d --threads=%d --www=%s\n", port, ssl, g_http_debug, threads, g_www_root);
 
-	handler h = handler_create(threads);
+	handler *h = handler_create(threads);
 	if (!h) return 1;
 
 	if (ssl)

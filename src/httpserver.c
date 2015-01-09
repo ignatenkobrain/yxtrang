@@ -20,7 +20,7 @@ int g_http_debug = 0;
 struct httpserver_
 {
 	struct httpserver_reqs_ reqs[MAX_REQS];
-	int (*f)(session,void*);
+	int (*f)(session*,void*);
 	void *data;
 };
 
@@ -89,7 +89,7 @@ static char *lower(char *src)
 	return save_src;
 }
 
-static void decode_data(session s, const char *str)
+static void decode_data(session *s, const char *str)
 {
 	const char *src = str;
 	char tmpbuf2[1024], tmpbuf3[8192], tmpbuf5[8192];
@@ -124,7 +124,7 @@ static void decode_data(session s, const char *str)
 	session_set_stash(s, tmpbuf4, url_decode(tmpbuf3, tmpbuf5));
 }
 
-void *httpserver_get_content(session s)
+void *httpserver_get_content(session *s)
 {
 	long len = atol(session_get_stash(s, "content-length"));
 	if (!len) return NULL;
@@ -140,7 +140,7 @@ void *httpserver_get_content(session s)
 	return data;
 }
 
-static int get_postdata(session s)
+static int get_postdata(session *s)
 {
 	const char *ct = session_get_stash(s, "content-type");
 
@@ -153,7 +153,7 @@ static int get_postdata(session s)
 	return 1;
 }
 
-int httpserver_handler(session s, void *p1)
+int httpserver_handler(session *s, void *p1)
 {
 	if (!s)
 		return 0;
@@ -309,7 +309,7 @@ int httpserver_handler(session s, void *p1)
 	return 1;
 }
 
-const char *httpserver_value(session s, const char *name)
+const char *httpserver_value(session *s, const char *name)
 {
 	if (!s)
 		return NULL;
@@ -320,7 +320,7 @@ const char *httpserver_value(session s, const char *name)
 	return session_get_stash(s, tmpbuf);
 }
 
-int httpserver_response(session s, unsigned code, const char *msg, size_t len, const char *content_type)
+int httpserver_response(session *s, unsigned code, const char *msg, size_t len, const char *content_type)
 {
 	if (!s || !msg)
 		return 0;
@@ -355,7 +355,7 @@ int httpserver_response(session s, unsigned code, const char *msg, size_t len, c
 	return 1;
 }
 
-httpserver *httpserver_create(int (*f)(session,void*), void *p1)
+httpserver *httpserver_create(int (*f)(session*,void*), void *p1)
 {
 	httpserver *h = (httpserver*)calloc(1, sizeof(struct httpserver_));
 	h->f = f;

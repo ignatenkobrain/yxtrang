@@ -19,7 +19,7 @@ int main(int ac, char *av[])
 
 	static const char *hello = "thequickbrownfoxjumpedoverthelazydog\n";
 	int hello_len = strlen(hello);
-	session s = session_open(host, port, tcp, ssl);
+	session *s = session_open(host, port, tcp, ssl);
 	if (!s) return 1;
 	int i = 0;
 

@@ -1,4 +1,4 @@
-// The handler will select the optimal mechanism for the platform:
+// The handler *will select the optimal mechanism for the platform:
 //
 //		BSD				- kqueue
 //		Linux 			- epoll
@@ -103,21 +103,21 @@ static const int g_debug = 0;
 
 struct _server
 {
-	int (*f)(session, void*);
+	int (*f)(session*, void*);
 	void *v;
 	int fd, port, tcp, ssl, ipv4;
 };
 
-typedef struct _server *server;
+typedef struct _server server;
 
 struct handler_
 {
 	skiplist fds, badfds;
 	lock strand;
 	thread_pool tp;
-	uncle u[MAX_SERVERS];
+	uncle *u[MAX_SERVERS];
 	fd_set rfds;
-	struct _server srvs[MAX_SERVERS];
+	server srvs[MAX_SERVERS];
 #if defined(POLLIN) && WANT_POLL
 	struct pollfd rpollfds[FD_POLLSIZE];
 #endif
@@ -128,7 +128,7 @@ struct handler_
 
 struct session_
 {
-	handler h;
+	handler *h;
 	skiplist stash;
 	char *remote;
 	char srcbuf[BUFLEN];
@@ -140,7 +140,7 @@ struct session_
 	unsigned long long udata_int;
 	int connected, disconnected, len, busy;
 	int fd, port, tcp, is_ssl, ipv4, idx, use_cnt;
-	int (*f)(session, void*);
+	int (*f)(session*, void*);
 	void *ssl;
 	void *ctx;
 	void *v;
@@ -414,7 +414,7 @@ static int parse_addr6(const char *host, struct sockaddr_in6 *addr6)
 		return 0;
 }
 
-session session_open(const char *host, unsigned short port, int tcp, int ssl)
+session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 {
 	if (!host || (port == 0))
 		return 0;
@@ -519,7 +519,7 @@ session session_open(const char *host, unsigned short port, int tcp, int ssl)
 	if (fd == -1)
 		return NULL;
 
-	session s = (session)calloc(1, sizeof(struct session_));
+	session *s = (session*)calloc(1, sizeof(struct session_));
 	if (!s) return NULL;
 	session_share(s);
 	s->strand = lock_create();
@@ -571,7 +571,7 @@ session session_open(const char *host, unsigned short port, int tcp, int ssl)
 	return s;
 }
 
-int session_enable_tls(session s, const char *certfile, int level)
+int session_enable_tls(session *s, const char *certfile, int level)
 {
 	if (!s || s->is_ssl)
 		return 0;
@@ -671,7 +671,7 @@ int session_enable_tls(session s, const char *certfile, int level)
 #endif
 }
 
-int session_on_connect(session s)
+int session_on_connect(session *s)
 {
 	if (!s)
 		return 0;
@@ -685,7 +685,7 @@ int session_on_connect(session s)
 	return 0;
 }
 
-int session_on_disconnect(session s)
+int session_on_disconnect(session *s)
 {
 	if (!s)
 		return 0;
@@ -693,12 +693,12 @@ int session_on_disconnect(session s)
 	return s->disconnected;
 }
 
-void session_lock(session s)
+void session_lock(session *s)
 {
 	lock_lock(s->h->strand);
 }
 
-void session_unlock(session s)
+void session_unlock(session *s)
 {
 	lock_unlock(s->h->strand);
 }
@@ -739,7 +739,7 @@ const char *inet_ntop(int family, void *address, char *buffer, socklen_t len)
 }
 #endif
 
-void session_set_udata_flag(session s, int flag)
+void session_set_udata_flag(session *s, int flag)
 {
 	if (!s || (flag < 0) || (flag > 63))
 		return;
@@ -747,7 +747,7 @@ void session_set_udata_flag(session s, int flag)
 	s->udata_flags |= ((uint64_t)1) << flag;
 }
 
-void session_clr_udata_flag(session s, int flag)
+void session_clr_udata_flag(session *s, int flag)
 {
 	if (!s || (flag < 0) || (flag > 63))
 		return;
@@ -755,7 +755,7 @@ void session_clr_udata_flag(session s, int flag)
 	s->udata_flags &= ~(((uint64_t)1) << flag);
 }
 
-void session_clr_udata_flags(session s)
+void session_clr_udata_flags(session *s)
 {
 	if (!s)
 		return;
@@ -763,7 +763,7 @@ void session_clr_udata_flags(session s)
 	s->udata_flags = 0;
 }
 
-int session_get_udata_flag(session s, int flag)
+int session_get_udata_flag(session *s, int flag)
 {
 	if (!s || (flag < 0) || (flag > 63))
 		return 0;
@@ -771,7 +771,7 @@ int session_get_udata_flag(session s, int flag)
 	return s->udata_flags & (((uint64_t)1) << flag);
 }
 
-void session_set_udata_int(session s, unsigned long long data)
+void session_set_udata_int(session *s, unsigned long long data)
 {
 	if (!s)
 		return;
@@ -779,7 +779,7 @@ void session_set_udata_int(session s, unsigned long long data)
 	s->udata_int = data;
 }
 
-unsigned long long session_get_udata_int(session s)
+unsigned long long session_get_udata_int(session *s)
 {
 	if (!s)
 		return 0;
@@ -787,7 +787,7 @@ unsigned long long session_get_udata_int(session s)
 	return s->udata_int;
 }
 
-void session_clr_stash(session s)
+void session_clr_stash(session *s)
 {
 	if (!s)
 		return;
@@ -799,7 +799,7 @@ void session_clr_stash(session s)
 	s->stash = 0;
 }
 
-void session_set_stash(session s, const char *key, const char *value)
+void session_set_stash(session *s, const char *key, const char *value)
 {
 	if (!s)
 		return;
@@ -813,7 +813,7 @@ void session_set_stash(session s, const char *key, const char *value)
 	sl_string_add(s->stash, key, value);
 }
 
-void session_del_stash(session s, const char *key)
+void session_del_stash(session *s, const char *key)
 {
 	if (!s)
 		return;
@@ -824,7 +824,7 @@ void session_del_stash(session s, const char *key)
 	sl_string_rem(s->stash, key);
 }
 
-const char *session_get_stash(session s, const char *key)
+const char *session_get_stash(session *s, const char *key)
 {
 	if (!s)
 		return NULL;
@@ -837,7 +837,7 @@ const char *session_get_stash(session s, const char *key)
 	return (const char*)v;
 }
 
-int session_enable_broadcast(session s)
+int session_enable_broadcast(session *s)
 {
 	if (!s)
 		return 0;
@@ -849,7 +849,7 @@ int session_enable_broadcast(session s)
 	return setsockopt(s->fd, SOL_SOCKET, SO_BROADCAST, (char*)&flag, sizeof(flag));
 }
 
-int session_enable_multicast(session s, int loop, int hops)
+int session_enable_multicast(session *s, int loop, int hops)
 {
 	if (!s)
 		return 0;
@@ -873,7 +873,7 @@ int session_enable_multicast(session s, int loop, int hops)
 	return status;
 }
 
-int session_set_sndbuffer(session s, int bufsize)
+int session_set_sndbuffer(session *s, int bufsize)
 {
 	if (!s)
 		return 0;
@@ -882,7 +882,7 @@ int session_set_sndbuffer(session s, int bufsize)
 	return 1;
 }
 
-int session_set_rcvbuffer(session s, int bufsize)
+int session_set_rcvbuffer(session *s, int bufsize)
 {
 	if (!s)
 		return 0;
@@ -891,7 +891,7 @@ int session_set_rcvbuffer(session s, int bufsize)
 	return 1;
 }
 
-const char *session_get_remote_host(session s, int resolve)
+const char *session_get_remote_host(session *s, int resolve)
 {
 	if (!s)
 		return "";
@@ -928,7 +928,7 @@ const char *session_get_remote_host(session s, int resolve)
 	return "";
 }
 
-int session_write(session s, const void *_buf, size_t len)
+int session_write(session *s, const void *_buf, size_t len)
 {
 	const char *buf = (const char*)_buf;
 
@@ -1002,12 +1002,12 @@ int session_write(session s, const void *_buf, size_t len)
 	return 1;
 }
 
-int session_writemsg(session s, const char *buf)
+int session_writemsg(session *s, const char *buf)
 {
 	return session_write(s, buf, strlen(buf));
 }
 
-int session_bcast(session s, const void *buf, size_t len)
+int session_bcast(session *s, const void *buf, size_t len)
 {
 	if (!s || !buf || !len)
 		return 0;
@@ -1024,12 +1024,12 @@ int session_bcast(session s, const void *buf, size_t len)
 	return wlen > 0;
 }
 
-int session_bcastmsg(session s, const char *buf)
+int session_bcastmsg(session *s, const char *buf)
 {
 	return session_bcast(s, buf, strlen(buf));
 }
 
-int session_read(session s, void *buf, size_t len)
+int session_read(session *s, void *buf, size_t len)
 {
 	if (!s || !buf || !len)
 		return 0;
@@ -1076,7 +1076,7 @@ int session_read(session s, void *buf, size_t len)
 	return rlen > 0;
 }
 
-int session_readmsg(session s, char **buf)
+int session_readmsg(session *s, char **buf)
 {
 	if (!s || !buf)
 		return 0;
@@ -1171,7 +1171,7 @@ int session_readmsg(session s, char **buf)
 	return session_readmsg(s, buf);
 }
 
-int session_shutdown(session s)
+int session_shutdown(session *s)
 {
 	if (!s)
 		return 0;
@@ -1187,7 +1187,7 @@ int session_shutdown(session s)
 	return 1;
 }
 
-static int session_free(session s)
+static int session_free(session *s)
 {
 	if (s->dstbuf)
 		free(s->dstbuf);
@@ -1207,7 +1207,7 @@ static int session_free(session s)
 	return 1;
 }
 
-void session_share(session s)
+void session_share(session *s)
 {
 	if (!s)
 		return;
@@ -1215,7 +1215,7 @@ void session_share(session s)
 	atomic_inc(&s->use_cnt);
 }
 
-void session_unshare(session s)
+void session_unshare(session *s)
 {
 	if (!s)
 		return;
@@ -1227,7 +1227,7 @@ void session_unshare(session s)
 	session_free(s);
 }
 
-int session_close(session s)
+int session_close(session *s)
 {
 	if (!s)
 		return 0;
@@ -1244,11 +1244,11 @@ int session_close(session s)
 
 static int handler_force_drop(void *_h, int fd, void *_s)
 {
-	session_close((session)_s);
+	session_close((session*)_s);
 	return 1;
 }
 
-static int handler_accept(handler h, server srv, session *v)
+static int handler_accept(handler *h, server *srv, session **v)
 {
 	if (h->halt)
 		return -1;
@@ -1270,7 +1270,7 @@ static int handler_accept(handler h, server srv, session *v)
 	flag = 1;
 	setsockopt(newfd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag));
 
-	session s = (session)calloc(1, sizeof(struct session_));
+	session *s = (session*)calloc(1, sizeof(struct session_));
 	if (!s) return 0;
 	s->strand = lock_create();
 	session_share(s);
@@ -1307,7 +1307,7 @@ static int handler_accept(handler h, server srv, session *v)
 
 static int kqueue_accept(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	s->f(s, s->v);
 	struct kevent ev = {0};
 	EV_SET(&ev, s->fd, EVFILT_READ, EV_ADD|EV_CLEAR, 0, 0, s);
@@ -1317,7 +1317,7 @@ static int kqueue_accept(void *data)
 
 static int kqueue_run(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	lock_lock(s->strand);
 
 	// Running edge-triggered,
@@ -1330,7 +1330,7 @@ static int kqueue_run(void *data)
 	return 1;
 }
 
-int handler_wait_kqueue(handler h)
+int handler_wait_kqueue(handler *h)
 {
 	if (g_debug) printf("USING KQUEUE\n");
 	struct kevent ev = {0}, events[MAX_EVENTS];
@@ -1338,7 +1338,7 @@ int handler_wait_kqueue(handler h)
 
 	for (i = 0; i < h->cnt; i++)
 	{
-		server srv = &h->srvs[i];
+		server *srv = &h->srvs[i];
 
 		if (!srv->tcp)
 			EV_SET(&ev, srv->fd, EVFILT_READ, EV_ADD|EV_CLEAR, 0, 0, (void*)(size_t)i);
@@ -1355,12 +1355,12 @@ int handler_wait_kqueue(handler h)
 
 		for (i = 0; i < n; i++)
 		{
-			session s = 0;
+			session *s = 0;
 
 			if ((int)events[i].udata < h->cnt)
 			{
 				int idx = (int)events[i].udata;
-				server srv = &h->srvs[idx];
+				server *srv = &h->srvs[idx];
 
 				if (srv->tcp)
 				{
@@ -1388,7 +1388,7 @@ int handler_wait_kqueue(handler h)
 				continue;
 			}
 
-			s = (session)events[i].udata;
+			s = (session*)events[i].udata;
 
 			if (events[i].flags & EV_EOF)
 				s->disconnected = 1;
@@ -1419,7 +1419,7 @@ int handler_wait_kqueue(handler h)
 
 static int epoll_accept(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	s->f(s, s->v);
 	struct epoll_event ev = {0};
 	ev.events = EPOLLIN|EPOLLET|EPOLLRDHUP;
@@ -1430,7 +1430,7 @@ static int epoll_accept(void *data)
 
 static int epoll_run(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	lock_lock(s->strand);
 
 	// Running edge-triggered,
@@ -1443,7 +1443,7 @@ static int epoll_run(void *data)
 	return 1;
 }
 
-int handler_wait_epoll(handler h)
+int handler_wait_epoll(handler *h)
 {
 	if (g_debug) printf("USING EPOLL\n");
 	struct epoll_event ev = {0}, events[MAX_EVENTS];
@@ -1452,7 +1452,7 @@ int handler_wait_epoll(handler h)
 	for (i = 0; i < h->cnt; i++)
 	{
 
-		server srv = &h->srvs[i];
+		server *srv = &h->srvs[i];
 		ev.events = EPOLLIN;
 
 		if (!srv->tcp)
@@ -1468,12 +1468,12 @@ int handler_wait_epoll(handler h)
 
 		for (i = 0; i < n; i++)
 		{
-			session s = 0;
+			session *s = 0;
 
 			if (events[i].data.u64 < h->cnt)
 			{
 				int idx = events[i].data.u64;
-				server srv = &h->srvs[idx];
+				server *srv = &h->srvs[idx];
 
 				if (srv->tcp)
 				{
@@ -1501,7 +1501,7 @@ int handler_wait_epoll(handler h)
 				continue;
 			}
 
-			s = (session)events[i].data.ptr;
+			s = (session*)events[i].data.ptr;
 
 			if (events[i].events & EPOLLRDHUP)
 				s->disconnected = 1;
@@ -1531,7 +1531,7 @@ int handler_wait_epoll(handler h)
 
 static int poll_accept(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	s->f(s, s->v);
 	h->rpollfds[s->idx].fd = -1;
 	h->rpollfds[s->idx].events = POLLIN|POLLRDHUP;
@@ -1541,7 +1541,7 @@ static int poll_accept(void *data)
 
 static int poll_run(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	lock_lock(s->strand);
 
 	while (s->f(s, s->v))
@@ -1552,7 +1552,7 @@ static int poll_run(void *data)
 	return 1;
 }
 
-int handler_wait_poll(handler h)
+int handler_wait_poll(handler *h)
 {
 	if (g_debug) printf("USING POLL\n");
 	int i;
@@ -1572,14 +1572,14 @@ int handler_wait_poll(handler h)
 
 		for (i = 0; (i < cnt) && n; i++)
 		{
-			session s = 0;
+			session *s = 0;
 
 			int fd = h->rpollfds[i].fd;
 			if (fd == -1) continue;
 
 			if ((i < h->cnt) && (h->rpollfds[i].revents & POLLIN))
 			{
-				server srv = &h->srvs[i];
+				server *srv = &h->srvs[i];
 
 				if (srv->tcp)
 				{
@@ -1665,7 +1665,7 @@ static int handler_select_set(void *_h, int fd, void *_s)
 	if (fd == -1)
 		return 1;
 
-	handler h = (handler)_h;
+	handler *h = (handler*)_h;
 	FD_SET(fd, &h->rfds);
 
 	if (fd > h->hi)
@@ -1676,14 +1676,14 @@ static int handler_select_set(void *_h, int fd, void *_s)
 
 static int select_accept(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	s->f(s, s->v);
 	return 1;
 }
 
 static int select_run(void *data)
 {
-	session s = (session)data;
+	session *s = (session*)data;
 	lock_lock(s->strand);
 
 	while (s->f(s, s->v))
@@ -1698,8 +1698,8 @@ static int select_run(void *data)
 
 static int handler_select_check(void *_h, int fd, void *_s)
 {
-	handler h = (handler)_h;
-	session s = (session)_s;
+	handler *h = (handler*)_h;
+	session *s = (session*)_s;
 
 	if (s->busy != 0)
 		return 1;
@@ -1732,8 +1732,8 @@ static int handler_select_check(void *_h, int fd, void *_s)
 
 static int handler_select_bads(void *_h, int fd, void *_s)
 {
-	handler h = (handler)_h;
-	session s = (session)_s;
+	handler *h = (handler*)_h;
+	session *s = (session*)_s;
 
 	s->f(s, s->v);
 	session_close(s);
@@ -1742,7 +1742,7 @@ static int handler_select_bads(void *_h, int fd, void *_s)
 	return 1;
 }
 
-int handler_wait_select(handler h)
+int handler_wait_select(handler *h)
 {
 	if (g_debug) printf("USING SELECT\n");
 	h->badfds = sl_int_create();
@@ -1767,8 +1767,8 @@ int handler_wait_select(handler h)
 
 		for (i = 0; (i < h->cnt) && n; i++)
 		{
-			server srv = &h->srvs[i];
-			session s = 0;
+			server *srv = &h->srvs[i];
+			session *s = 0;
 
 			if (!FD_ISSET(srv->fd, &h->rfds))
 				continue;
@@ -1818,7 +1818,7 @@ int handler_wait_select(handler h)
 
 // Use the platform-best option...
 
-int handler_wait(handler h)
+int handler_wait(handler *h)
 {
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__)
 	return handler_wait_kqueue(h);
@@ -1831,7 +1831,7 @@ int handler_wait(handler h)
 #endif
 }
 
-int handler_set_tls(handler h, const char *keyfile)
+int handler_set_tls(handler *h, const char *keyfile)
 {
 #if USE_SSL
 	static int init = 0;
@@ -1966,16 +1966,16 @@ static int leave_multicast(int fd6, int fd4, const char *addr)
 }
 #endif
 
-int handler_add_uncle(handler h, const char *binding, unsigned short port, const char *scope)
+int handler_add_uncle(handler *h, const char *binding, unsigned short port, const char *scope)
 {
-	extern uncle uncle_create2(handler h, const char *binding, unsigned short port, const char *scope);
-	uncle u = uncle_create2(h, binding, port, scope);
+	extern uncle *uncle_create2(handler *h, const char *binding, unsigned short port, const char *scope);
+	uncle *u = uncle_create2(h, binding, port, scope);
 	if (!u) return 0;
 	h->u[h->uncs++] = u;
 	return 1;
 }
 
-uncle handler_get_uncle(handler h, const char *scope)
+uncle *handler_get_uncle(handler *h, const char *scope)
 {
 	int i;
 
@@ -1988,7 +1988,7 @@ uncle handler_get_uncle(handler h, const char *scope)
 	return NULL;
 }
 
-static int handler_add_server2(handler h, int (*f)(session, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *maddr6, const char *maddr4, const char *name)
+static int handler_add_server2(handler *h, int (*f)(session*, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *maddr6, const char *maddr4, const char *name)
 {
 	int fd6 = socket(AF_INET6, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
 
@@ -2033,7 +2033,7 @@ static int handler_add_server2(handler h, int (*f)(session, void *v), void *v, c
 
 	if (fd6 != -1)
 	{
-		server srv = &h->srvs[h->cnt++];
+		server *srv = &h->srvs[h->cnt++];
 		srv->fd = fd6;
 		srv->port = port;
 		srv->tcp = tcp;
@@ -2092,7 +2092,7 @@ static int handler_add_server2(handler h, int (*f)(session, void *v), void *v, c
 
 	if (fd4 != -1)
 	{
-		server srv = &h->srvs[h->cnt++];
+		server *srv = &h->srvs[h->cnt++];
 		srv->fd = fd4;
 		srv->port = port;
 		srv->tcp = tcp;
@@ -2117,7 +2117,7 @@ static int handler_add_server2(handler h, int (*f)(session, void *v), void *v, c
 
 	if (name && name[0] && h->uncs)
 	{
-		uncle u = h->u[h->uncs-1];
+		uncle *u = h->u[h->uncs-1];
 		uncle_add(u, name, hostname(), port, tcp, ssl);
 	}
 
@@ -2125,12 +2125,12 @@ static int handler_add_server2(handler h, int (*f)(session, void *v), void *v, c
 	return 1;
 }
 
-int handler_add_server(handler h, int (*f)(session, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *name)
+int handler_add_server(handler *h, int (*f)(session*, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *name)
 {
 	return handler_add_server2(h, f, v, binding, port, tcp, ssl, NULL, NULL, name);
 }
 
-int handler_add_client(handler h, int (*f)(session, void *data), void *data, session s)
+int handler_add_client(handler *h, int (*f)(session*, void *data), void *data, session *s)
 {
 	session_share(s);
 	s->h = h;
@@ -2155,7 +2155,7 @@ int handler_add_client(handler h, int (*f)(session, void *data), void *data, ses
 	return 0;
 }
 
-handler handler_create(int threads)
+handler *handler_create(int threads)
 {
 #ifdef _WIN32
 	static int cnt = 0;
@@ -2173,7 +2173,7 @@ handler handler_create(int threads)
 	}
 #endif
 
-	handler h = (handler)calloc(1, sizeof(struct handler_));
+	handler *h = (handler*)calloc(1, sizeof(struct handler_));
 	if (!h) return NULL;
 	h->fds = sl_int_create();
 	h->tp = tpool_create(h->threads=threads);
@@ -2198,12 +2198,12 @@ handler handler_create(int threads)
 	return h;
 }
 
-int handler_add_multicast(handler h, int (*f)(session, void *v), void *v, const char *binding, unsigned short port, const char *addr6, const char *addr4, const char *name)
+int handler_add_multicast(handler *h, int (*f)(session*, void *v), void *v, const char *binding, unsigned short port, const char *addr6, const char *addr4, const char *name)
 {
 	return handler_add_server2(h, f, v, binding, port, 0, 0, addr6, addr4, name);
 }
 
-int handler_destroy(handler h)
+int handler_destroy(handler *h)
 {
 	if (!h)
 		return 0;

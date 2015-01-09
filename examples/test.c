@@ -29,7 +29,7 @@ static unsigned short g_uncle = UNCLE_DEFAULT_PORT;
 static const char *g_service = "TEST";
 static const char *qbf = "the quick brown fox jumped over the lazy dog";
 
-static int on_server_session(session s, void *v)
+static int on_server_session(session *s, void *v)
 {
 	if (session_on_connect(s))
 	{
@@ -54,14 +54,14 @@ static int on_server_session(session s, void *v)
 
 static void do_server(unsigned short port, int tcp, int ssl, int threads)
 {
-	handler h = handler_create(threads);
+	handler *h = handler_create(threads);
 
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
 	if (!handler_add_uncle(h, NULL, (short)g_uncle, SCOPE_DEFAULT))
 	{
-		printf("add uncle failed\n");
+		printf("add uncle *failed\n");
 		return;
 	}
 
@@ -77,8 +77,8 @@ static void do_server(unsigned short port, int tcp, int ssl, int threads)
 
 static void do_client(long cnt, const char *host, unsigned short port, int tcp, int ssl, int broadcast)
 {
-	session s = session_open(host, port, tcp, ssl);
-	if (!s) { printf("CLIENT: session failed\n"); return; }
+	session *s = session_open(host, port, tcp, ssl);
+	if (!s) { printf("CLIENT: session *failed\n"); return; }
 
 	printf("CLIENT: connected '%s'\n", session_get_remote_host(s, 0));
 	if (broadcast) session_enable_broadcast(s);
@@ -618,7 +618,7 @@ int main(int ac, char *av[])
 		{
 			unsigned tmp_port;
 			sscanf(av[i], "%*[^=]=%u", &tmp_port);
-			g_uncle = (unsigned short)tmp_port;
+			g_uncle *= (unsigned short)tmp_port;
 		}
 
 		if (!strncmp(av[i], "--port=", 7))
@@ -703,7 +703,7 @@ int main(int ac, char *av[])
 
 	if (client && discovery)
 	{
-		uncle u = uncle_create(NULL, g_uncle, SCOPE_DEFAULT);
+		uncle *u = uncle_create(NULL, g_uncle, SCOPE_DEFAULT);
 		sleep(1);
 
 		if (uncle_query(u, g_service, host, &port, &tcp, &ssl))

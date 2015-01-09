@@ -12,7 +12,7 @@ static int g_loops = 10;
 
 static const char *hello = "thequickbrownfoxjumpedoverthelazydog\n";
 
-static int on_session(session s, void *param)
+static int on_session(session *s, void *param)
 {
 	if (session_on_connect(s))
 	{
@@ -64,10 +64,10 @@ int main(int ac, char *av[])
 	g_quiet = (ac>6?atoi(av[6]):0);
 	int threads = (ac>7?atoi(av[7]):0);
 
-	session s = session_open(host, port, tcp, ssl);
+	session *s = session_open(host, port, tcp, ssl);
 	if (!s) return 1;
 
-	handler h = handler_create(threads);
+	handler *h = handler_create(threads);
 	handler_add_client(h, &on_session, NULL, s);
 
 	// Start the loop...

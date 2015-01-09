@@ -11,10 +11,10 @@
 
 struct uncle_
 {
-	handler h;
+	handler *h;
 	skiplist db;
 	lock l;
-	session s;				// used to broadcast on
+	session *s;				// used to broadcast on
 	char scope[256];
 	time_t unique;
 
@@ -25,14 +25,14 @@ struct uncle_
 		char addr[256];
 		unsigned short port;
 		int tcp, ssl, local;
-		session s;
+		session *s;
 	}
 	 search;
 };
 
 static const int g_debug = 0;
 
-static int uncle_iter(uncle u, const char *k, const char *v)
+static int uncle_iter(uncle *u, const char *k, const char *v)
 {
 	char name[256], addr[256];
 	name[255] = addr[255] = 0;
@@ -57,7 +57,7 @@ static int uncle_iter(uncle u, const char *k, const char *v)
 	return 0;
 }
 
-int uncle_query(uncle u, const char *name, char *addr, unsigned short *port, int *tcp, int *ssl)
+int uncle_query(uncle *u, const char *name, char *addr, unsigned short *port, int *tcp, int *ssl)
 {
 	if (!u)
 		return 0;
@@ -86,7 +86,7 @@ int uncle_query(uncle u, const char *name, char *addr, unsigned short *port, int
 	return 1;
 }
 
-static int uncle_list(uncle u, const char *name, int local, const char *addr, unsigned short port, int tcp, int ssl)
+static int uncle_list(uncle *u, const char *name, int local, const char *addr, unsigned short port, int tcp, int ssl)
 {
 	char tmpbuf[1024];
 	sprintf(tmpbuf, "%s/%s/%d/%u/%d/%d", name, addr, local, port, tcp, ssl);
@@ -96,7 +96,7 @@ static int uncle_list(uncle u, const char *name, int local, const char *addr, un
 	return 1;
 }
 
-int uncle_add(uncle u, const char *name, const char *addr, unsigned short port, int tcp, int ssl)
+int uncle_add(uncle *u, const char *name, const char *addr, unsigned short port, int tcp, int ssl)
 {
 	if (!u)
 		return 0;
@@ -112,7 +112,7 @@ int uncle_add(uncle u, const char *name, const char *addr, unsigned short port, 
 	return 1;
 }
 
-static int uncle_delist(uncle u, const char *name, int local, const char *addr, unsigned short port, int tcp)
+static int uncle_delist(uncle *u, const char *name, int local, const char *addr, unsigned short port, int tcp)
 {
 	u->search.name = name;
 	strcpy(u->search.addr, addr);
@@ -134,7 +134,7 @@ static int uncle_delist(uncle u, const char *name, int local, const char *addr, 
 	return 1;
 }
 
-int uncle_rem(uncle u, const char *name, const char *addr, unsigned short port, int tcp)
+int uncle_rem(uncle *u, const char *name, const char *addr, unsigned short port, int tcp)
 {
 	if (!u)
 		return 0;
@@ -149,7 +149,7 @@ int uncle_rem(uncle u, const char *name, const char *addr, unsigned short port, 
 	return 1;
 }
 
-static int uncle_iter2(uncle u, const char *k, const char *v)
+static int uncle_iter2(uncle *u, const char *k, const char *v)
 {
 	char name[256], addr[256];
 	name[255] = addr[255] = 0;
@@ -175,9 +175,9 @@ static int uncle_iter2(uncle u, const char *k, const char *v)
 	return 1;
 }
 
-static int uncle_handler(session s, void *data)
+static int uncle_handler(session *s, void *data)
 {
-	uncle u = (uncle)data;
+	uncle *u = (uncle*)data;
 	char *buf = 0;
 
 	if (!session_readmsg(s, &buf))
@@ -235,12 +235,12 @@ static int uncle_handler(session s, void *data)
 	return 1;
 }
 
-uncle uncle_create2(handler h, const char *binding, unsigned short port, const char *scope)
+uncle *uncle_create2(handler *h, const char *binding, unsigned short port, const char *scope)
 {
 	if (!h || !port)
 		return NULL;
 
-	uncle u = (uncle)calloc(1, sizeof(struct uncle_));
+	uncle *u = (uncle*)calloc(1, sizeof(struct uncle_));
 	u->db = sl_string_create2();
 	u->h = h;
 	u->l = lock_create();
@@ -260,23 +260,23 @@ uncle uncle_create2(handler h, const char *binding, unsigned short port, const c
 
 static int uncle_wait(void *data)
 {
-	uncle u = (uncle)data;
+	uncle *u = (uncle*)data;
 	handler_wait(u->h);
 	return 1;
 }
 
-uncle uncle_create(const char *binding, unsigned short port, const char *scope)
+uncle *uncle_create(const char *binding, unsigned short port, const char *scope)
 {
 	if (!port)
 		return NULL;
 
-	handler h = handler_create(0);
-	uncle u = uncle_create2(h, binding, port, scope);
+	handler *h = handler_create(0);
+	uncle *u = uncle_create2(h, binding, port, scope);
 	thread_run(&uncle_wait, u);
 	return u;
 }
 
-const char *uncle_get_scope(uncle u)
+const char *uncle_get_scope(uncle *u)
 {
 	if (!u)
 		return "";
@@ -284,7 +284,7 @@ const char *uncle_get_scope(uncle u)
 	return u->scope;
 }
 
-void uncle_destroy(uncle u)
+void uncle_destroy(uncle *u)
 {
 	if (!u)
 		return;
