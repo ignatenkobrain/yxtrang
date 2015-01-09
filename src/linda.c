@@ -20,7 +20,7 @@ struct hlinda_
 	linda l;
 	hstore hst;
 	char *dst;
-	json jquery;
+	json *jquery;
 	uuid_t oid, last_oid;
 	long long int_id;
 	const char *string_id;
@@ -32,9 +32,9 @@ int linda_out(hlinda h, const char *s)
 	if (!h)
 		return 0;
 
-	json j = json_open(s);
-	json j1 = json_get_object(j);
-	json joid = json_find(j1, LINDA_OID);
+	json *j = json_open(s);
+	json *j1 = json_get_object(j);
+	json *joid = json_find(j1, LINDA_OID);
 	uuid_t u;
 
 	if (joid)
@@ -44,7 +44,7 @@ int linda_out(hlinda h, const char *s)
 	else
 		uuid_gen(&u);
 
-	json jid = json_find(j1, LINDA_ID);
+	json *jid = json_find(j1, LINDA_ID);
 
 	if (jid)
 	{
@@ -125,20 +125,20 @@ static int read_handler(void *arg, void *k, void *v)
 		return 0;
 
 	int match = 1;
-	json j1 = json_get_object(h->jquery);
-	json jdst = json_open(h->dst);
-	json j2 = json_get_object(jdst);
+	json *j1 = json_get_object(h->jquery);
+	json *jdst = json_open(h->dst);
+	json *j2 = json_get_object(jdst);
 	size_t i, cnt = json_count(j1);
 
 	for (i = 0; i < cnt; i++)
 	{
-		json j1it = json_index(j1, i);
+		json *j1it = json_index(j1, i);
 		const char *name = json_get_string(j1it);
 
 		if (name[0] == '$')
 			continue;
 
-		json j2it = json_find(j2, name);
+		json *j2it = json_find(j2, name);
 
 		if (!j2it)
 		{
@@ -246,12 +246,12 @@ static int read_string_handler(void *arg, const char *k, uuid v)
 
 static int linda_read(hlinda h, const char *s, const char **buf, int rm, int nowait)
 {
-	json j = json_open(s);
-	json j1 = json_get_object(j);
+	json *j = json_open(s);
+	json *j1 = json_get_object(j);
 	h->oid.u1 = h->oid.u2 = 0;
 	int is_int = 0, is_string = 0;
 
-	json jid = json_find(j1, LINDA_ID);
+	json *jid = json_find(j1, LINDA_ID);
 
 	if (jid)
 	{
@@ -364,14 +364,14 @@ int linda_inp(hlinda h, const char *s, const char **buf)
 
 int linda_rm(hlinda h, const char *s)
 {
-	json j = json_open(s);
-	json j1 = json_get_object(j);
+	json *j = json_open(s);
+	json *j1 = json_get_object(j);
 	int is_int = 0, is_string = 0;
 	const char *string_id = NULL;
 	long long int_id = 0;
 	uuid_t u;
 
-	json joid = json_find(j1, LINDA_OID);
+	json *joid = json_find(j1, LINDA_OID);
 
 	if (!joid)
 	{
@@ -380,7 +380,7 @@ int linda_rm(hlinda h, const char *s)
 	}
 
 	uuid_from_string(json_get_string(joid), &u);
-	json jid = json_find(j1, LINDA_ID);
+	json *jid = json_find(j1, LINDA_ID);
 
 	if (jid)
 	{
@@ -481,9 +481,9 @@ static void linda_store_handler(void *p1, const uuid u, const void *_s, int len)
 
 	if (len > 0)							// add
 	{
-		json j = json_open(s);
-		json j1 = json_get_object(j);
-		json jid = json_find(j1, LINDA_ID);
+		json *j = json_open(s);
+		json *j1 = json_get_object(j);
+		json *jid = json_find(j1, LINDA_ID);
 
 		if (!jid)
 			return;
@@ -529,9 +529,9 @@ static void linda_store_handler(void *p1, const uuid u, const void *_s, int len)
 	}
 	else if (len < 0)					// remove (with hint)
 	{
-		json j = json_open(s);
-		json j1 = json_get_object(j);
-		json jid = json_find(j1, LINDA_ID);
+		json *j = json_open(s);
+		json *j1 = json_get_object(j);
+		json *jid = json_find(j1, LINDA_ID);
 
 		if (!jid)
 			return;

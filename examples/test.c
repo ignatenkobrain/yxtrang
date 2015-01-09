@@ -521,7 +521,7 @@ static void do_json()
 
 	// Parse and reformat...
 
-	json j = json_open(s);
+	json *j = json_open(s);
 	printf("PARSED: %s\n", pdst=json_to_string(j)); free(pdst);
 	json_close(j);
 
@@ -537,7 +537,7 @@ static void do_json()
 	json_set_false(json_object_add(j, "e"));
 	json_set_null(json_object_add(j, "f"));
 
-	json j0 = json_object_add(j, "g");
+	json *j0 = json_object_add(j, "g");
 	json_set_array(j0);
 	json_set_integer(json_array_add(j0), 11);
 	json_set_integer(json_array_add(j0), 22);
@@ -551,8 +551,8 @@ static void do_json()
 	json_close(j);
 
 	j = json_open(s);
-	json j1 = json_get_object(j);
-	json j2 = json_find(j1, "c");
+	json *j1 = json_get_object(j);
+	json *j2 = json_find(j1, "c");
 
 	if (j2)
 		printf("QUERY: 'c' = '%s'\n", json_get_string(j2));
