@@ -17,7 +17,7 @@ struct linda_
 
 struct hlinda_
 {
-	linda l;
+	linda *l;
 	hstore hst;
 	char *dst;
 	json *jquery;
@@ -27,7 +27,7 @@ struct hlinda_
 	size_t len;
 };
 
-int linda_out(hlinda h, const char *s)
+int linda_out(hlinda *h, const char *s)
 {
 	if (!h)
 		return 0;
@@ -92,7 +92,7 @@ int linda_out(hlinda h, const char *s)
 	return 0;
 }
 
-int linda_get_length(hlinda h)
+int linda_get_length(hlinda *h)
 {
 	if (!h)
 		return 0;
@@ -100,7 +100,7 @@ int linda_get_length(hlinda h)
 	return h->len;
 }
 
-const uuid linda_get_oid(hlinda h)
+const uuid linda_get_oid(hlinda *h)
 {
 	if (!h)
 		return NULL;
@@ -108,7 +108,7 @@ const uuid linda_get_oid(hlinda h)
 	return &h->oid;
 }
 
-const uuid linda_last_oid(hlinda h)
+const uuid linda_last_oid(hlinda *h)
 {
 	if (!h)
 		return NULL;
@@ -118,7 +118,7 @@ const uuid linda_last_oid(hlinda h)
 
 static int read_handler(void *arg, void *k, void *v)
 {
-	hlinda h = (hlinda)arg;
+	hlinda *h = (hlinda*)arg;
 	uuid u = (uuid)v;
 
 	if (!store_get(h->l->st, u, (void**)&h->dst, &h->len))
@@ -226,7 +226,7 @@ static int read_handler(void *arg, void *k, void *v)
 
 static int read_int_handler(void *arg,  int64_t k, uuid v)
 {
-	hlinda h = (hlinda)arg;
+	hlinda *h = (hlinda*)arg;
 
 	if (k != h->int_id)
 		return 0;
@@ -236,7 +236,7 @@ static int read_int_handler(void *arg,  int64_t k, uuid v)
 
 static int read_string_handler(void *arg, const char *k, uuid v)
 {
-	hlinda h = (hlinda)arg;
+	hlinda *h = (hlinda*)arg;
 
 	if (strcmp(k, h->string_id))
 		return 0;
@@ -244,7 +244,7 @@ static int read_string_handler(void *arg, const char *k, uuid v)
 	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int linda_read(hlinda h, const char *s, const char **buf, int rm, int nowait)
+static int linda_read(hlinda *h, const char *s, const char **buf, int rm, int nowait)
 {
 	json *j = json_open(s);
 	json *j1 = json_get_object(j);
@@ -330,7 +330,7 @@ static int linda_read(hlinda h, const char *s, const char **buf, int rm, int now
 	return 1;
 }
 
-int linda_rd(hlinda h, const char *s, const char **buf)
+int linda_rd(hlinda *h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -338,7 +338,7 @@ int linda_rd(hlinda h, const char *s, const char **buf)
 	return linda_read(h, s, buf, 0, 0);
 }
 
-int linda_rdp(hlinda h, const char *s, const char **buf)
+int linda_rdp(hlinda *h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -346,7 +346,7 @@ int linda_rdp(hlinda h, const char *s, const char **buf)
 	return linda_read(h, s, buf, 0, 1);
 }
 
-int linda_in(hlinda h, const char *s, const char **buf)
+int linda_in(hlinda *h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -354,7 +354,7 @@ int linda_in(hlinda h, const char *s, const char **buf)
 	return linda_read(h, s, buf, 1, 0);
 }
 
-int linda_inp(hlinda h, const char *s, const char **buf)
+int linda_inp(hlinda *h, const char *s, const char **buf)
 {
 	if (!h)
 		return 0;
@@ -362,7 +362,7 @@ int linda_inp(hlinda h, const char *s, const char **buf)
 	return linda_read(h, s, buf, 1, 1);
 }
 
-int linda_rm(hlinda h, const char *s)
+int linda_rm(hlinda *h, const char *s)
 {
 	json *j = json_open(s);
 	json *j1 = json_get_object(j);
@@ -441,7 +441,7 @@ int linda_rm(hlinda h, const char *s)
 	return 1;
 }
 
-void linda_release(hlinda h)
+void linda_release(hlinda *h)
 {
 	if (!h)
 		return;
@@ -453,18 +453,18 @@ void linda_release(hlinda h)
 	h->dst = NULL;
 }
 
-hlinda linda_begin(linda l)
+hlinda *linda_begin(linda *l)
 {
 	if (!l)
 		return NULL;
 
-	hlinda h = (hlinda)calloc(1, sizeof(struct hlinda_));
+	hlinda *h = (hlinda*)calloc(1, sizeof(struct hlinda_));
 	h->l = l;
 	h->hst = store_begin(l->st);
 	return h;
 }
 
-void linda_end(hlinda h, int dbsync)
+void linda_end(hlinda *h, int dbsync)
 {
 	if (!h)
 		return;
@@ -476,7 +476,7 @@ void linda_end(hlinda h, int dbsync)
 
 static void linda_store_handler(void *p1, const uuid u, const void *_s, int len)
 {
-	linda l = (linda)p1;
+	linda *l = (linda*)p1;
 	const char *s = (const char*)_s;
 
 	if (len > 0)							// add
@@ -581,15 +581,15 @@ static void linda_store_handler(void *p1, const uuid u, const void *_s, int len)
 	}
 }
 
-linda linda_open(const char *path1, const char *path2)
+linda *linda_open(const char *path1, const char *path2)
 {
-	linda l = (linda)calloc(1, sizeof(struct linda_));
+	linda *l = (linda*)calloc(1, sizeof(struct linda_));
 	if (!l) return NULL;
 	l->st = store_open2(path1, path2, 0, &linda_store_handler, l);
 	return l;
 }
 
-int linda_close(linda l)
+int linda_close(linda *l)
 {
 	if (!l)
 		return 0;

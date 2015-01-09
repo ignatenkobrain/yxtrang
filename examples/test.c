@@ -168,9 +168,9 @@ static void do_script(long cnt)
 
 static void do_linda_out(long cnt)
 {
-	linda l = linda_open("./db", NULL);
+	linda *l = linda_open("./db", NULL);
 	const int dbsync = 0;
-	hlinda h = linda_begin(l);
+	hlinda *h = linda_begin(l);
 	long i;
 
 	for (i = 0; i < cnt; i++)
@@ -207,8 +207,8 @@ static void do_linda_out(long cnt)
 
 static void do_linda_in()
 {
-	linda l = linda_open("./db", NULL);
-	hlinda h = linda_begin(l);
+	linda *l = linda_open("./db", NULL);
+	hlinda *h = linda_begin(l);
 	long i;
 
 	// Return by id (indexed)...

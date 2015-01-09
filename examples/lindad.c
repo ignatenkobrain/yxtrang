@@ -13,7 +13,7 @@ extern int g_http_debug;
 
 static int linda_request(session s, void *param)
 {
-	linda l = (linda)param;
+	linda *l = (linda*)param;
 	const char *ct = session_get_stash(s, "content-type");
 
 	if (!strstr(ct, APPLICATION_JSON))
@@ -31,7 +31,7 @@ static int linda_request(session s, void *param)
 	}
 
 	const int dbsync = 0;
-	hlinda h = linda_begin(l);
+	hlinda *h = linda_begin(l);
 
 	if (session_get_udata_flag(s, HTTP_GET))
 	{
@@ -217,7 +217,7 @@ int main(int ac, char *av[])
 			return 2;
 	}
 
-	linda l = linda_open(path1, path2);
+	linda *l = linda_open(path1, path2);
 	if (!l) return 3;
 
 	struct httpserver_reqs_ reqs[] =
