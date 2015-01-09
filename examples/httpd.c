@@ -89,7 +89,7 @@ int main(int ac, char *av[])
 	if (ssl)
 		handler_set_tls(h, "server.pem");
 
-	httpserver http = httpserver_create(&http_request, NULL);
+	httpserver *http = httpserver_create(&http_request, NULL);
 	if (!http) return 2;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, NULL))

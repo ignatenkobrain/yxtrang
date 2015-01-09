@@ -263,7 +263,7 @@ int httpserver_handler(session s, void *p1)
 	if (session_get_udata_flag(s, HTTP_POST))
 		get_postdata(s);
 
-	httpserver h = (httpserver)p1;
+	httpserver *h = (httpserver*)p1;
 
 	if (!h->f)
 	{
@@ -355,17 +355,17 @@ int httpserver_response(session s, unsigned code, const char *msg, size_t len, c
 	return 1;
 }
 
-httpserver httpserver_create(int (*f)(session,void*), void *p1)
+httpserver *httpserver_create(int (*f)(session,void*), void *p1)
 {
-	httpserver h = (httpserver)calloc(1, sizeof(struct httpserver_));
+	httpserver *h = (httpserver*)calloc(1, sizeof(struct httpserver_));
 	h->f = f;
 	h->data = p1;
 	return h;
 }
 
-httpserver httpserver_create2(struct httpserver_reqs_ *reqs)
+httpserver *httpserver_create2(struct httpserver_reqs_ *reqs)
 {
-	httpserver h = (httpserver)calloc(1, sizeof(struct httpserver_));
+	httpserver *h = (httpserver*)calloc(1, sizeof(struct httpserver_));
 	size_t i = 0;
 
 	while (reqs->f)
@@ -380,7 +380,7 @@ httpserver httpserver_create2(struct httpserver_reqs_ *reqs)
 	return h;
 }
 
-void httpserver_destroy(httpserver h)
+void httpserver_destroy(httpserver *h)
 {
 	if (!h)
 		return;

@@ -227,7 +227,7 @@ int main(int ac, char *av[])
 		{0}
 	};
 
-	httpserver http = httpserver_create2(reqs);
+	httpserver *http = httpserver_create2(reqs);
 	if (!http) return 4;
 
 	if (!handler_add_server(h, &httpserver_handler, http, binding, port, 1, ssl, LINDA_SERVICE))
