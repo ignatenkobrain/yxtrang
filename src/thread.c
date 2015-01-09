@@ -52,9 +52,9 @@ struct lock_
 #endif
 };
 
-lock lock_create()
+lock *lock_create()
 {
-	lock l = (lock)calloc(1, sizeof(struct lock_));
+	lock *l = (lock*)calloc(1, sizeof(struct lock_));
 
 #ifdef _WIN32
 	InitializeCriticalSection(&l->mutex);
@@ -65,7 +65,7 @@ lock lock_create()
 	return l;
 }
 
-void lock_lock(lock l)
+void lock_lock(lock *l)
 {
 	if (!l)
 		return;
@@ -77,7 +77,7 @@ void lock_lock(lock l)
 #endif
 }
 
-void lock_unlock(lock l)
+void lock_unlock(lock *l)
 {
 	if (!l)
 		return;
@@ -89,7 +89,7 @@ void lock_unlock(lock l)
 #endif
 }
 
-void lock_destroy(lock l)
+void lock_destroy(lock *l)
 {
 	if (!l)
 		return;
@@ -101,7 +101,7 @@ void lock_destroy(lock l)
 
 // Crude atomicity, uses global lock.
 
-static lock g_lock = NULL;
+static lock *g_lock = NULL;
 
 uint64_t atomic_addu64(uint64_t *v, int n)
 {
@@ -271,9 +271,9 @@ int thread_run(int (*f)(void*), void *data)
 #endif
 }
 
-thread_pool tpool_create(int threads)
+thread_pool *tpool_create(int threads)
 {
-	thread_pool tp = (thread_pool)calloc(1, sizeof(struct thread_pool_));
+	thread_pool *tp = (thread_pool*)calloc(1, sizeof(struct thread_pool_));
 
 	if (threads > MAX_THREADS)
 		threads = MAX_THREADS;
@@ -290,7 +290,7 @@ thread_pool tpool_create(int threads)
 	return tp;
 }
 
-int tpool_start(thread_pool tp, int (*f)(void*), void *data)
+int tpool_start(thread_pool *tp, int (*f)(void*), void *data)
 {
 	if (!tp || !f)
 		return 0;
@@ -314,7 +314,7 @@ int tpool_start(thread_pool tp, int (*f)(void*), void *data)
 	return 1;
 }
 
-void tpool_destroy(thread_pool tp)
+void tpool_destroy(thread_pool *tp)
 {
 	if (!tp)
 		return;

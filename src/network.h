@@ -49,8 +49,8 @@ extern void session_set_stash(session *s, const char *key, const char *value);
 extern void session_del_stash(session *s, const char *key);
 extern const char *session_get_stash(session *s, const char *key);
 
-extern void session_lock(session *s);		// handler-wide lock will
-extern void session_unlock(session *s);		// block other sessions
+extern void session_lock(session *s);		// handler-wide lock *will
+extern void session_unlock(session *s);		// block *other sessions
 
 extern int session_shutdown(session *s);
 

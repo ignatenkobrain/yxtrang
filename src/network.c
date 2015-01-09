@@ -113,8 +113,8 @@ typedef struct _server server;
 struct handler_
 {
 	skiplist fds, badfds;
-	lock strand;
-	thread_pool tp;
+	lock *strand;
+	thread_pool **tp;
 	uncle *u[MAX_SERVERS];
 	fd_set rfds;
 	server srvs[MAX_SERVERS];
@@ -135,7 +135,7 @@ struct session_
 	const char *src;
 	char *dstbuf;
 	char *dst;
-	lock strand;
+	lock *strand;
 	uint64_t udata_flags;
 	unsigned long long udata_int;
 	int connected, disconnected, len, busy;

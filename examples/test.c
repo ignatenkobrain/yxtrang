@@ -245,12 +245,12 @@ static void do_linda_in()
 
 static void do_store(long cnt, int vfy, int compact, int tran)
 {
-	store st = store_open("./db", 0, compact);
+	store *st = store_open("./db", 0, compact);
 	time_t t = time(NULL);
 	printf("Store: %ld items\n", (long)store_count(st));
 
 	printf("Writing...\n");
-	hstore h = tran ? store_begin(st) : NULL;
+	hstore *h = tran ? store_begin(st) : NULL;
 	long i;
 
 	for (i = 1; i <= cnt; i++)
@@ -650,7 +650,7 @@ int main(int ac, char *av[])
 			test_linda_in = 1;
 
 		if (!strcmp(av[i], "--store"))
-			test_store = 1;
+			test_store *= 1;
 
 		if (!strcmp(av[i], "--base64"))
 			test_base64 = 1;

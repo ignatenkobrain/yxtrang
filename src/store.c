@@ -62,12 +62,12 @@ struct store_
 	uint64_t eodpos[MAX_LOGFILES];
 	int fd[MAX_LOGFILES], idx;
 	int transactions, current;
-	lock lk;
+	lock *lk;
 };
 
 struct hstore_
 {
-	store st;
+	store *st;
 	uint64_t start_pos;
 	int wait_for_write;
 	unsigned nbr;
@@ -203,12 +203,12 @@ static int parse(const char *buf, unsigned *nbr, uuid u, unsigned *flags, unsign
 	return src-buf;
 }
 
-unsigned long store_count(const store st)
+unsigned long store_count(const store *st)
 {
 	return tree_count(st->tptr);
 }
 
-static int store_write2(store st, const void *buf, size_t len, const void *buf2, size_t len2, uint64_t pos)
+static int store_write2(store *st, const void *buf, size_t len, const void *buf2, size_t len2, uint64_t pos)
 {
 	int wlen;
 
@@ -245,7 +245,7 @@ static int store_write2(store st, const void *buf, size_t len, const void *buf2,
 	return 1;
 }
 
-static int store_write(store st, const void *buf, size_t len, uint64_t pos)
+static int store_write(store *st, const void *buf, size_t len, uint64_t pos)
 {
 	int wlen = pwrite(st->fd[st->idx-1], buf, len, pos);
 
@@ -258,7 +258,7 @@ static int store_write(store st, const void *buf, size_t len, uint64_t pos)
 	return 1;
 }
 
-static int store_apply(store st, int n, uint64_t pos)
+static int store_apply(store *st, int n, uint64_t pos)
 {
 	int fd = st->fd[st->idx-1];
 	int cnt = 0;
@@ -343,7 +343,7 @@ static int store_apply(store st, int n, uint64_t pos)
 	return cnt;
 }
 
-int store_add(store st, const uuid u, const void *buf, size_t len)
+int store_add(store *st, const uuid u, const void *buf, size_t len)
 {
 	if (!st || !u || !buf || !len)
 		return 0;
@@ -367,7 +367,7 @@ int store_add(store st, const uuid u, const void *buf, size_t len)
 	return 1;
 }
 
-int store_rem2(store st, const uuid u, const void *buf, size_t len)
+int store_rem2(store *st, const uuid u, const void *buf, size_t len)
 {
 	if (!st || !u || !buf || !len)
 		return 0;
@@ -387,7 +387,7 @@ int store_rem2(store st, const uuid u, const void *buf, size_t len)
 	return 1;
 }
 
-int store_rem(store st, const uuid u)
+int store_rem(store *st, const uuid u)
 {
 	if (!st || !u)
 		return 0;
@@ -408,7 +408,7 @@ int store_rem(store st, const uuid u)
 	return 1;
 }
 
-int store_get(const store st, const uuid u, void **buf, size_t *len)
+int store_get(const store *st, const uuid u, void **buf, size_t *len)
 {
 	if (!st || !u || !buf || !len)
 	{
@@ -492,12 +492,12 @@ int store_get(const store st, const uuid u, void **buf, size_t *len)
 	return nbytes;
 }
 
-hstore store_begin(store st)
+hstore *store_begin(store *st)
 {
 	if (!st)
 		return 0;
 
-	hstore h = (hstore)calloc(1, sizeof(struct hstore_));
+	hstore *h = (hstore*)calloc(1, sizeof(struct hstore_));
 
 	if (!h)
 		return 0;
@@ -509,7 +509,7 @@ hstore store_begin(store st)
 	return h;
 }
 
-int store_hget(hstore h, const uuid u, void **buf, size_t *len)
+int store_hget(hstore *h, const uuid u, void **buf, size_t *len)
 {
 	if (!h)
 		return 0;
@@ -517,7 +517,7 @@ int store_hget(hstore h, const uuid u, void **buf, size_t *len)
 	return store_get(h->st, u, buf, len);
 }
 
-int store_hadd(hstore h, const uuid u, const void *buf, size_t len)
+int store_hadd(hstore *h, const uuid u, const void *buf, size_t len)
 {
 	if (!h || !u || !buf || !len)
 		return 0;
@@ -543,7 +543,7 @@ int store_hadd(hstore h, const uuid u, const void *buf, size_t len)
 	return ok;
 }
 
-int store_hrem2(hstore h, const uuid u, const void *buf, size_t len)
+int store_hrem2(hstore *h, const uuid u, const void *buf, size_t len)
 {
 	if (!h || !u)
 		return 0;
@@ -569,7 +569,7 @@ int store_hrem2(hstore h, const uuid u, const void *buf, size_t len)
 	return ok;
 }
 
-int store_hrem(hstore h, const uuid u)
+int store_hrem(hstore *h, const uuid u)
 {
 	if (!h || !u)
 		return 0;
@@ -596,7 +596,7 @@ int store_hrem(hstore h, const uuid u)
 	return ok;
 }
 
-int store_cancel(hstore h)
+int store_cancel(hstore *h)
 {
 	if (!h)
 		return 0;
@@ -620,7 +620,7 @@ int store_cancel(hstore h)
 	return 1;
 }
 
-int store_end(hstore h, int dbsync)
+int store_end(hstore *h, int dbsync)
 {
 	if (!h)
 		return 0;
@@ -649,7 +649,7 @@ int store_end(hstore h, int dbsync)
 	return 1;
 }
 
-static void store_load_file(store st)
+static void store_load_file(store *st)
 {
 	uint64_t pos = 0, save_pos = 0, next_pos = 0;
 	unsigned save_nbr = 0, cnt = 0;
@@ -758,7 +758,7 @@ static void store_load_file(store st)
 
 static int store_merge_item(void *h, const uuid u, unsigned long long *v)
 {
-	store st = (store)h;
+	store *st = (store*)h;
 	int idx = FILEIDX(*v);
 
 	if (idx == 0)
@@ -847,7 +847,7 @@ static int store_merge_item(void *h, const uuid u, unsigned long long *v)
 	return 1;
 }
 
-static int store_open_file(store st, const char *filename, int readonly, int create)
+static int store_open_file(store *st, const char *filename, int readonly, int create)
 {
 	if (!st)
 		return 0;
@@ -862,7 +862,7 @@ static int store_open_file(store st, const char *filename, int readonly, int cre
 	return 1;
 }
 
-static int store_merge(store st)
+static int store_merge(store *st)
 {
 	if (!st)
 		return 0;
@@ -899,7 +899,7 @@ static int store_open_handler(void *p1, const char *name)
 	if (!strcmp(name, ZEROTH_LOG))
 		return 1;
 
-	store st = (store)p1;
+	store *st = (store*)p1;
 	string filename;
 	sprintf(filename, "%s/%s", st->path2, name);
 
@@ -910,9 +910,9 @@ static int store_open_handler(void *p1, const char *name)
 	return 1;
 }
 
-store store_open2(const char *path1, const char *path2, int compact, void (*f)(void*,const uuid,const void*,int), void *p1)
+store *store_open2(const char *path1, const char *path2, int compact, void (*f)(void*,const uuid,const void*,int), void *p1)
 {
-	store st = (store)calloc(1, sizeof(struct store_));
+	store *st = (store*)calloc(1, sizeof(struct store_));
 	if (!st || !path1) return NULL;
 	if (!path2) path2 = path1;
 	strcpy(st->path1, path1);
@@ -980,7 +980,7 @@ store store_open2(const char *path1, const char *path2, int compact, void (*f)(v
 	return st;
 }
 
-static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,const uuid,const void*,int), void *p1)
+static int store_logreader_apply(store *st, int n, uint64_t pos, int (*f)(void*,const uuid,const void*,int), void *p1)
 {
 	int idx = FILEIDX(pos);
 	int fd = st->fd[idx];
@@ -1046,7 +1046,7 @@ static int store_logreader_apply(store st, int n, uint64_t pos, int (*f)(void*,c
 	return 1;
 }
 
-int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int), void *p1)
+int store_tail(store *st, const uuid u, int (*f)(void*,const uuid,const void*,int), void *p1)
 {
 	if (!st || !u)
 		return 0;
@@ -1186,7 +1186,7 @@ int store_tail(store st, const uuid u, int (*f)(void*,const uuid,const void*,int
 	return cnt;
 }
 
-void store_done(hreader r)
+void store_done(hreader *r)
 {
 	if (!r)
 		return;
@@ -1194,12 +1194,12 @@ void store_done(hreader r)
 	free(r);
 }
 
-store store_open(const char *path1, const char *path2, int compact)
+store *store_open(const char *path1, const char *path2, int compact)
 {
 	return store_open2(path1, path2, compact, NULL, NULL);
 }
 
-int store_close(store st)
+int store_close(store *st)
 {
 	if (!st)
 		return 0;

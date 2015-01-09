@@ -3,13 +3,13 @@
 
 #include <stdint.h>
 
-typedef struct lock_ *lock;
-typedef struct thread_pool_ *thread_pool;
+typedef struct lock_ lock;
+typedef struct thread_pool_ thread_pool;
 
-extern lock lock_create(void);
-extern void lock_lock(lock l);
-extern void lock_unlock(lock l);
-extern void lock_destroy(lock l);
+extern lock *lock_create(void);
+extern void lock_lock(lock *l);
+extern void lock_unlock(lock *l);
+extern void lock_destroy(lock *l);
 
 extern int atomic_inc(int *v);			// return pre-value
 extern int atomic_dec(int *v);			// return post-value
@@ -27,8 +27,8 @@ extern int thread_run(int (*f)(void*), void *data);
 // Run a supplied function from a pool of threads. The thread
 // will be returned to the pool for fast re-use when needed.
 
-extern thread_pool tpool_create(int threads);
-extern int tpool_start(thread_pool tp, int (*f)(void*), void *data);
-extern void tpool_destroy(thread_pool tp);
+extern thread_pool *tpool_create(int threads);
+extern int tpool_start(thread_pool *tp, int (*f)(void*), void *data);
+extern void tpool_destroy(thread_pool *tp);
 
 #endif

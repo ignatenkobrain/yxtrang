@@ -10,7 +10,7 @@
 
 struct linda_
 {
-	store st;
+	store *st;
 	skiplist sl;
 	int is_int, is_string;
 };
@@ -18,7 +18,7 @@ struct linda_
 struct hlinda_
 {
 	linda *l;
-	hstore hst;
+	hstore *hst;
 	char *dst;
 	json *jquery;
 	uuid_t oid, last_oid;
