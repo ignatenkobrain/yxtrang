@@ -21,7 +21,7 @@ struct hlinda_
 	hstore *hst;
 	char *dst;
 	json *jquery;
-	uuid_t oid, last_oid;
+	uuid oid, last_oid;
 	long long int_id;
 	const char *string_id;
 	size_t len;
@@ -35,7 +35,7 @@ int linda_out(hlinda *h, const char *s)
 	json *j = json_open(s);
 	json *j1 = json_get_object(j);
 	json *joid = json_find(j1, LINDA_OID);
-	uuid_t u;
+	uuid u;
 
 	if (joid)
 	{
@@ -100,7 +100,7 @@ int linda_get_length(hlinda *h)
 	return h->len;
 }
 
-const uuid linda_get_oid(hlinda *h)
+const uuid *linda_get_oid(hlinda *h)
 {
 	if (!h)
 		return NULL;
@@ -108,7 +108,7 @@ const uuid linda_get_oid(hlinda *h)
 	return &h->oid;
 }
 
-const uuid linda_last_oid(hlinda *h)
+const uuid *linda_last_oid(hlinda *h)
 {
 	if (!h)
 		return NULL;
@@ -119,7 +119,7 @@ const uuid linda_last_oid(hlinda *h)
 static int read_handler(void *arg, void *k, void *v)
 {
 	hlinda *h = (hlinda*)arg;
-	uuid u = (uuid)v;
+	uuid *u = (uuid*)v;
 
 	if (!store_get(h->l->st, u, (void**)&h->dst, &h->len))
 		return 0;
@@ -224,7 +224,7 @@ static int read_handler(void *arg, void *k, void *v)
 	return 0;
 }
 
-static int read_int_handler(void *arg,  int64_t k, uuid v)
+static int read_int_handler(void *arg,  int64_t k, uuid *v)
 {
 	hlinda *h = (hlinda*)arg;
 
@@ -234,7 +234,7 @@ static int read_int_handler(void *arg,  int64_t k, uuid v)
 	return read_handler(arg, (void*)(size_t)k, v);
 }
 
-static int read_string_handler(void *arg, const char *k, uuid v)
+static int read_string_handler(void *arg, const char *k, uuid *v)
 {
 	hlinda *h = (hlinda*)arg;
 
@@ -369,7 +369,7 @@ int linda_rm(hlinda *h, const char *s)
 	int is_int = 0, is_string = 0;
 	const char *string_id = NULL;
 	long long int_id = 0;
-	uuid_t u;
+	uuid u;
 
 	json *joid = json_find(j1, LINDA_OID);
 
@@ -474,7 +474,7 @@ void linda_end(hlinda *h, int dbsync)
 	free(h);
 }
 
-static void linda_store_handler(void *p1, const uuid u, const void *_s, int len)
+static void linda_store_handler(void *p1, const uuid *u, const void *_s, int len)
 {
 	linda *l = (linda*)p1;
 	const char *s = (const char*)_s;

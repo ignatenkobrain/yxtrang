@@ -257,7 +257,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 	{
 		char tmpbuf[1024];
 		int len = sprintf(tmpbuf, "{'name':'test','i':%ld}\n", i);
-		uuid_t u = {i, t};
+		uuid u = {i, t};
 
 		if (tran)
 		{
@@ -290,7 +290,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 			void *buf = &tmpbuf;
 			size_t len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
-			uuid_t u = {k, t};
+			uuid u = {k, t};
 
 			if (!store_get(st, &u, &buf, &len))
 				printf("HTTP_GET failed: %ld\n", k);
@@ -304,7 +304,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 		for (i = 1; i <= cnt; i++)
 		{
 			long k = (rand()%cnt)+1;
-			uuid_t u = {k, t};
+			uuid u = {k, t};
 			store_rem(st, &u);
 		}
 
@@ -321,7 +321,7 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 			void *buf = &tmpbuf;
 			size_t len = sizeof(tmpbuf);
 			long k = (rand()%cnt)+1;
-			uuid_t u = {k, t};
+			uuid u = {k, t};
 			store_get(st, &u, &buf, &len);
 		}
 	}
@@ -431,7 +431,7 @@ void do_tree(long cnt, int rnd)
 	{
 		for (i = 1; i <= cnt; i++)
 		{
-			uuid_t u = uuid_set(i, 1);
+			uuid u = uuid_set(i, 1);
 			tree_add(tptr, &u, u.u1);
 		}
 	}
@@ -440,7 +440,7 @@ void do_tree(long cnt, int rnd)
 		for (i = 1; i <= cnt; i++)
 		{
 			uint64_t k = rand()%10;
-			uuid_t u = uuid_set(((i+k)%cnt)+1, 1);
+			uuid u = uuid_set(((i+k)%cnt)+1, 1);
 			tree_add(tptr, &u, u.u1);
 		}
 	}
@@ -449,7 +449,7 @@ void do_tree(long cnt, int rnd)
 
 	for (i = 1; i <= cnt; i++)
 	{
-		uuid_t u = uuid_set((rand()%cnt)+1,1);
+		uuid u = uuid_set((rand()%cnt)+1,1);
 		unsigned long long v = 0;
 
 		if (!tree_get(tptr, &u, &v))
@@ -473,7 +473,7 @@ void do_tree(long cnt, int rnd)
 	{
 		for (i = 1; i <= cnt; i++)
 		{
-			uuid_t u = uuid_set((rand()%cnt)+1, 1);
+			uuid u = uuid_set((rand()%cnt)+1, 1);
 
 			if (!tree_del(tptr, &u))
 			{

@@ -29,7 +29,7 @@ typedef struct _node node;
 
 struct _node
 {
-	uuid_t k;
+	uuid k;
 
 	union
 	{
@@ -54,12 +54,12 @@ struct tree_
 {
 	trunk *first, *last;
 	size_t trunks, branches, leafs;
-	uuid_t last_key;
+	uuid last_key;
 };
 
-static uuid_t kzero = {0};
+static uuid kzero = {0};
 
-static int binary_search(node *n, const uuid k, int imin, int imax)
+static int binary_search(node *n, const uuid *k, int imin, int imax)
 {
 	while (imax >= imin)
 	{
@@ -79,7 +79,7 @@ static int binary_search(node *n, const uuid k, int imin, int imax)
 
 // Modified binary search: return position where it is or ought to be
 
-static int binary_search2(node *n, const uuid k, int imin, int imax)
+static int binary_search2(node *n, const uuid *k, int imin, int imax)
 {
 	int imid = 0;
 
@@ -138,7 +138,7 @@ size_t tree_count(const tree *tptr)
 	return tptr->leafs;
 }
 
-static int branch_insert(tree *tptr, branch **b2, const uuid k, unsigned long long v)
+static int branch_insert(tree *tptr, branch **b2, const uuid *k, unsigned long long v)
 {
 	branch *b = *b2;
 
@@ -202,7 +202,7 @@ static int branch_insert(tree *tptr, branch **b2, const uuid k, unsigned long lo
 	return branch_insert(tptr, last, k, v);
 }
 
-int tree_insert(tree *tptr, const uuid k, unsigned long long v)
+int tree_insert(tree *tptr, const uuid *k, unsigned long long v)
 {
 	if (!tptr)
 		return 0;
@@ -210,7 +210,7 @@ int tree_insert(tree *tptr, const uuid k, unsigned long long v)
 	return branch_insert(tptr, &tptr->last->active, k, v);
 }
 
-static void trunk_add(tree *tptr, trunk *t, branch *save, branch *b, const uuid k)
+static void trunk_add(tree *tptr, trunk *t, branch *save, branch *b, const uuid *k)
 {
 	if (!t->next)
 	{
@@ -251,7 +251,7 @@ static void trunk_add(tree *tptr, trunk *t, branch *save, branch *b, const uuid 
 	t->active->nodes++;
 }
 
-int tree_add(tree *tptr, const uuid k, unsigned long long v)
+int tree_add(tree *tptr, const uuid *k, unsigned long long v)
 {
 	if (!tptr || !k)
 		return 0;
@@ -297,7 +297,7 @@ static int is_active(const tree *tptr, const branch *b)
 	return 0;
 }
 
-static int branch_del(tree *tptr, branch *b, const uuid k)
+static int branch_del(tree *tptr, branch *b, const uuid *k)
 {
 	if (b->leaf)
 	{
@@ -362,7 +362,7 @@ static int branch_del(tree *tptr, branch *b, const uuid k)
 	return del;
 }
 
-int tree_del(tree *tptr, const uuid k)
+int tree_del(tree *tptr, const uuid *k)
 {
 	if (!tptr || !k)
 		return 0;
@@ -370,7 +370,7 @@ int tree_del(tree *tptr, const uuid k)
 	return branch_del(tptr, tptr->last->active, k);
 }
 
-static int branch_get(const tree *tptr, branch *b, const uuid k, unsigned long long *v)
+static int branch_get(const tree *tptr, branch *b, const uuid *k, unsigned long long *v)
 {
 	if (b->leaf)
 	{
@@ -403,7 +403,7 @@ static int branch_get(const tree *tptr, branch *b, const uuid k, unsigned long l
 	return branch_get(tptr, last, k, v);
 }
 
-int tree_get(const tree *tptr, const uuid k, unsigned long long *v)
+int tree_get(const tree *tptr, const uuid *k, unsigned long long *v)
 {
 	if (!tptr || !k)
 		return 0;
@@ -411,7 +411,7 @@ int tree_get(const tree *tptr, const uuid k, unsigned long long *v)
 	return branch_get(tptr, tptr->last->active, k, v);
 }
 
-static int branch_set(const tree *tptr, branch *b, const uuid k, unsigned long long v)
+static int branch_set(const tree *tptr, branch *b, const uuid *k, unsigned long long v)
 {
 	if (b->leaf)
 	{
@@ -444,7 +444,7 @@ static int branch_set(const tree *tptr, branch *b, const uuid k, unsigned long l
 	return branch_set(tptr, last, k, v);
 }
 
-int tree_set(const tree *tptr, const uuid k, unsigned long long v)
+int tree_set(const tree *tptr, const uuid *k, unsigned long long v)
 {
 	if (!tptr || !k)
 		return 0;
@@ -452,7 +452,7 @@ int tree_set(const tree *tptr, const uuid k, unsigned long long v)
 	return branch_set(tptr, tptr->last->active, k, v);
 }
 
-static int branch_iter(const tree *tptr, size_t *cnt, branch *b, void *h, int (*f)(void*,const uuid,unsigned long long*))
+static int branch_iter(const tree *tptr, size_t *cnt, branch *b, void *h, int (*f)(void*,const uuid*,unsigned long long*))
 {
 	int i;
 
@@ -479,7 +479,7 @@ static int branch_iter(const tree *tptr, size_t *cnt, branch *b, void *h, int (*
 	return 1;
 }
 
-size_t tree_iter(const tree *tptr, void *h, int (*f)(void*,const uuid,unsigned long long*))
+size_t tree_iter(const tree *tptr, void *h, int (*f)(void*,const uuid*,unsigned long long*))
 {
 	if (!tptr)
 		return 0;

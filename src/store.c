@@ -57,7 +57,7 @@ struct store_
 {
 	tree *tptr;
 	string filename[MAX_LOGFILES], path1, path2;
-	void (*f)(void*,const uuid,const void*,int);
+	void (*f)(void*,const uuid*,const void*,int);
 	void *p1;
 	uint64_t eodpos[MAX_LOGFILES];
 	int fd[MAX_LOGFILES], idx;
@@ -167,13 +167,13 @@ static int dirlist(const char *path, const char *dotted_ext, int (*f)(void*,cons
 	return cnt;
 }
 
-static int prefix(char *buf, unsigned nbr, const uuid u, unsigned flags, unsigned len)
+static int prefix(char *buf, unsigned nbr, const uuid *u, unsigned flags, unsigned len)
 {
 	char tmpbuf[256];
 	return sprintf(buf, "[ %u %u %s %u ] ", nbr, flags, uuid_to_string(u, tmpbuf), len);
 }
 
-static int parse(const char *buf, unsigned *nbr, uuid u, unsigned *flags, unsigned *len)
+static int parse(const char *buf, unsigned *nbr, uuid *u, unsigned *flags, unsigned *len)
 {
 	char tmpbuf[256];
 	tmpbuf[0] = 0;
@@ -191,7 +191,7 @@ static int parse(const char *buf, unsigned *nbr, uuid u, unsigned *flags, unsign
 	while (*src++ != ' ')		// skip flags
 		;
 
-	while (*src++ != ' ')		// skip uuid_t
+	while (*src++ != ' ')		// skip uuid
 		;
 
 	while (*src++ != ' ')		// skip len
@@ -274,7 +274,7 @@ static int store_apply(store *st, int n, uint64_t pos)
 			return 0;
 
 		unsigned nbr, flags, nbytes;
-		uuid_t u;
+		uuid u;
 
 		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
 
@@ -343,7 +343,7 @@ static int store_apply(store *st, int n, uint64_t pos)
 	return cnt;
 }
 
-int store_add(store *st, const uuid u, const void *buf, size_t len)
+int store_add(store *st, const uuid *u, const void *buf, size_t len)
 {
 	if (!st || !u || !buf || !len)
 		return 0;
@@ -367,7 +367,7 @@ int store_add(store *st, const uuid u, const void *buf, size_t len)
 	return 1;
 }
 
-int store_rem2(store *st, const uuid u, const void *buf, size_t len)
+int store_rem2(store *st, const uuid *u, const void *buf, size_t len)
 {
 	if (!st || !u || !buf || !len)
 		return 0;
@@ -387,7 +387,7 @@ int store_rem2(store *st, const uuid u, const void *buf, size_t len)
 	return 1;
 }
 
-int store_rem(store *st, const uuid u)
+int store_rem(store *st, const uuid *u)
 {
 	if (!st || !u)
 		return 0;
@@ -408,7 +408,7 @@ int store_rem(store *st, const uuid u)
 	return 1;
 }
 
-int store_get(const store *st, const uuid u, void **buf, size_t *len)
+int store_get(const store *st, const uuid *u, void **buf, size_t *len)
 {
 	if (!st || !u || !buf || !len)
 	{
@@ -441,13 +441,13 @@ int store_get(const store *st, const uuid u, void **buf, size_t *len)
 	}
 
 	unsigned nbr, flags, nbytes;
-	uuid_t tmp_u;
+	uuid tmp_u;
 	int skip = parse(tmpbuf, &nbr, &tmp_u, &flags, &nbytes);
 
-	if (uuid_compare(u, &tmp_u) != 0)	// CHECK uuid_t match
+	if (uuid_compare(u, &tmp_u) != 0)	// CHECK uuid match
 	{
 		char tmpbuf1[256], tmpbuf2[256];
-		printf("store_get failed uuid_t=%s !=%s failed\n", uuid_to_string(u, tmpbuf1), uuid_to_string(&tmp_u, tmpbuf2));
+		printf("store_get failed uuid=%s !=%s failed\n", uuid_to_string(u, tmpbuf1), uuid_to_string(&tmp_u, tmpbuf2));
 		return 0;
 	}
 
@@ -509,7 +509,7 @@ hstore *store_begin(store *st)
 	return h;
 }
 
-int store_hget(hstore *h, const uuid u, void **buf, size_t *len)
+int store_hget(hstore *h, const uuid *u, void **buf, size_t *len)
 {
 	if (!h)
 		return 0;
@@ -517,7 +517,7 @@ int store_hget(hstore *h, const uuid u, void **buf, size_t *len)
 	return store_get(h->st, u, buf, len);
 }
 
-int store_hadd(hstore *h, const uuid u, const void *buf, size_t len)
+int store_hadd(hstore *h, const uuid *u, const void *buf, size_t len)
 {
 	if (!h || !u || !buf || !len)
 		return 0;
@@ -543,7 +543,7 @@ int store_hadd(hstore *h, const uuid u, const void *buf, size_t len)
 	return ok;
 }
 
-int store_hrem2(hstore *h, const uuid u, const void *buf, size_t len)
+int store_hrem2(hstore *h, const uuid *u, const void *buf, size_t len)
 {
 	if (!h || !u)
 		return 0;
@@ -569,7 +569,7 @@ int store_hrem2(hstore *h, const uuid u, const void *buf, size_t len)
 	return ok;
 }
 
-int store_hrem(hstore *h, const uuid u)
+int store_hrem(hstore *h, const uuid *u)
 {
 	if (!h || !u)
 		return 0;
@@ -664,7 +664,7 @@ static void store_load_file(store *st)
 			break;
 
 		unsigned nbr, flags, nbytes;
-		uuid_t u;
+		uuid u;
 		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
 
 		if (flags == TR_BEGIN)
@@ -756,7 +756,7 @@ static void store_load_file(store *st)
 	printf("store_load_file: '%s' applied=%u, size=%llu MiB\n", st->filename[st->idx-1], cnt, (unsigned long long)pos/1024/1024);
 }
 
-static int store_merge_item(void *h, const uuid u, unsigned long long *v)
+static int store_merge_item(void *h, const uuid *u, unsigned long long *v)
 {
 	store *st = (store*)h;
 	int idx = FILEIDX(*v);
@@ -775,14 +775,14 @@ static int store_merge_item(void *h, const uuid u, unsigned long long *v)
 	}
 
 	unsigned nbr, flags, nbytes;
-	uuid_t tmp_u;
+	uuid tmp_u;
 	int skip = parse(tmpbuf, &nbr, &tmp_u, &flags, &nbytes);
 	tmpbuf[skip] = 0;
 
-	if (uuid_compare(u, &tmp_u) != 0)	// CHECK uuid_t match
+	if (uuid_compare(u, &tmp_u) != 0)	// CHECK uuid match
 	{
 		char tmpbuf1[256], tmpbuf2[256];
-		printf("store_merge_item failed uuid_t=%s !=%s failed\n", uuid_to_string(u, tmpbuf1), uuid_to_string(&tmp_u, tmpbuf2));
+		printf("store_merge_item failed uuid=%s !=%s failed\n", uuid_to_string(u, tmpbuf1), uuid_to_string(&tmp_u, tmpbuf2));
 		return -1;
 	}
 
@@ -910,7 +910,7 @@ static int store_open_handler(void *p1, const char *name)
 	return 1;
 }
 
-store *store_open2(const char *path1, const char *path2, int compact, void (*f)(void*,const uuid,const void*,int), void *p1)
+store *store_open2(const char *path1, const char *path2, int compact, void (*f)(void*,const uuid*,const void*,int), void *p1)
 {
 	store *st = (store*)calloc(1, sizeof(struct store_));
 	if (!st || !path1) return NULL;
@@ -980,7 +980,7 @@ store *store_open2(const char *path1, const char *path2, int compact, void (*f)(
 	return st;
 }
 
-static int store_logreader_apply(store *st, int n, uint64_t pos, int (*f)(void*,const uuid,const void*,int), void *p1)
+static int store_logreader_apply(store *st, int n, uint64_t pos, int (*f)(void*,const uuid*,const void*,int), void *p1)
 {
 	int idx = FILEIDX(pos);
 	int fd = st->fd[idx];
@@ -993,7 +993,7 @@ static int store_logreader_apply(store *st, int n, uint64_t pos, int (*f)(void*,
 			return 0;
 
 		unsigned nbr, flags, nbytes;
-		uuid_t u;
+		uuid u;
 
 		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
 
@@ -1046,7 +1046,7 @@ static int store_logreader_apply(store *st, int n, uint64_t pos, int (*f)(void*,
 	return 1;
 }
 
-int store_tail(store *st, const uuid u, int (*f)(void*,const uuid,const void*,int), void *p1)
+int store_tail(store *st, const uuid *u, int (*f)(void*,const uuid*,const void*,int), void *p1)
 {
 	if (!st || !u)
 		return 0;
@@ -1099,7 +1099,7 @@ int store_tail(store *st, const uuid u, int (*f)(void*,const uuid,const void*,in
 		}
 
 		unsigned nbr, flags, nbytes;
-		uuid_t u;
+		uuid u;
 		int skip = parse(tmpbuf, &nbr, &u, &flags, &nbytes);
 
 		if (flags == TR_BEGIN)
