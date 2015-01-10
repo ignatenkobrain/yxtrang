@@ -13,22 +13,27 @@
 //
 //          list l;
 //          list_init(&l);
+//			..
 //			mynode *my = (mynode*)malloc(sizeof(mynode));
 //          my->val = 123456;
 //          list_push_back(&l, (node*)my);
 //			list_pop_front(&l, (node**)&my);
 //          int val = my->val;
 //          free(my);
+//			..
+//			list_clear(&l);
 //
 // Dynamic heap-based:
 //
 //          list *l = list_create();
+//			..
 //			mynode *my = (mynode*)malloc(sizeof(mynode));
 //          my->val = 123456;
 //          list_push_back(l, (node*)my);
 //			list_pop_front(l, (node**)&my);
 //          int val = my->val;
 //          free(my);
+//			..
 //          list_destroy(l);
 
 #include <string.h>
