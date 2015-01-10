@@ -60,9 +60,11 @@ extern int list_remove(list *l, node *n);
 extern node *list_front(list *l);		// Returns NULL if empty
 extern node *list_back(list *l);		// Returns NULL if empty
 
-extern size_t list_count(list *l);		// Returns internal count
+extern size_t list_count(const list *l);		// Returns internal count
 
 extern int list_iter(list *l, int (*)(node*,void*), void *data);
 extern int list_clear(list *l);
+
+extern void list_concat(list *l, const list *l2);
 
 #endif

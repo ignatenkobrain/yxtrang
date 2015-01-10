@@ -18,7 +18,7 @@ int list_init(list *l)
 	return 1;
 }
 
-size_t list_count(list *l)
+size_t list_count(const list *l)
 {
 	if (!l)
 		return 0;
@@ -241,3 +241,12 @@ int list_insert_after(list *l, node *n, node *v)
 	n->next = v;
 	return 1;
 }
+
+void list_concat(list *l, const list *l2)
+{
+	node *n;
+
+	for (n = l2->first; n; n = n->next)
+		list_push_back(l, n);
+}
+
