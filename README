@@ -41,9 +41,9 @@ jsonq:
 
 linda:
 
- An implementation of the Linda coordination language as an
- idempotent JSON database. It has limited indexing and ad-hoc
- querying capabilities (see examples/lindad).
+ An implementation of the Linda coordination language as an idempotent
+ JSON database built on top of 'store'. It has some limited indexing
+ and ad-hoc querying capabilities (see examples/lindad).
 
 list:
 

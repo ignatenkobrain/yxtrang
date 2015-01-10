@@ -2,11 +2,6 @@
 
 #include "list.h"
 
-struct node_
-{
-	node *prev, *next;
-};
-
 struct list_
 {
 	node *first, *last;
