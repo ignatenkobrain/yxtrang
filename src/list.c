@@ -244,6 +244,9 @@ int list_insert_after(list *l, node *n, node *v)
 
 void list_concat(list *l, const list *l2)
 {
+	if (!l || !l2)
+		return;
+
 	node *n;
 
 	for (n = l2->first; n; n = n->next)
