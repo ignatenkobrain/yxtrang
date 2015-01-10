@@ -60,7 +60,7 @@ int list_clear(list *l)
 	return 1;
 }
 
-node *list_front(list *l)
+node *list_front(const list *l)
 {
 	if (!l)
 		return NULL;
@@ -68,7 +68,7 @@ node *list_front(list *l)
 	return l->first;
 }
 
-node *list_back(list *l)
+node *list_back(const list *l)
 {
 	if (!l)
 		return NULL;

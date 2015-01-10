@@ -57,8 +57,8 @@ extern int list_pop_front(list *l, node **n);	// Returns 'n' if not NULL
 extern int list_pop_back(list *l, node **n);	// Returns 'n' if not NULL
 extern int list_remove(list *l, node *n);
 
-extern node *list_front(list *l);		// Returns NULL if empty
-extern node *list_back(list *l);		// Returns NULL if empty
+extern node *list_front(const list *l);		// Returns NULL if empty
+extern node *list_back(const list *l);		// Returns NULL if empty
 
 extern size_t list_count(const list *l);		// Returns internal count
 
