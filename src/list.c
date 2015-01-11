@@ -247,9 +247,19 @@ void list_concat(list *l, list *l2)
 	if (!l || !l2)
 		return;
 
-	node *n;
+	if (!l2->first)
+		return;
 
-	for (n = l2->first; n; n = n->next)
-		list_push_back(l, n);
+	if (!l->first)
+	{
+		l->first = l->last = l2->first;
+		l2->first = l2->last = NULL;
+		return;
+	}
+
+	l->last->next = l2->first;
+	l2->first->prev = l->last;
+	l->last = l2->last;
+	l2->first = l2->last = NULL;
 }
 
