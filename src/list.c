@@ -252,7 +252,8 @@ void list_concat(list *l, list *l2)
 
 	if (!l->first)
 	{
-		l->first = l->last = l2->first;
+		l->first = l2->first;
+		l->last = l2->last;
 		l2->first = l2->last = NULL;
 		return;
 	}
