@@ -242,7 +242,7 @@ int list_insert_after(list *l, node *n, node *v)
 	return 1;
 }
 
-void list_concat(list *l, const list *l2)
+void list_concat(list *l, list *l2)
 {
 	if (!l || !l2)
 		return;

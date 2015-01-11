@@ -65,6 +65,6 @@ extern size_t list_count(const list *l);		// Returns internal count
 extern int list_iter(list *l, int (*)(node*,void*), void *data);
 extern int list_clear(list *l);
 
-extern void list_concat(list *l, const list *l2);
+extern void list_concat(list *l, list *l2);
 
 #endif
