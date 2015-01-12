@@ -56,6 +56,7 @@ int list_clear(list *l)
 		free(save);
 	}
 
+	l->first = l->last = NULL;
 	l->count = 0;
 	return 1;
 }
