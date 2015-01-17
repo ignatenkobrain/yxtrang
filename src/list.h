@@ -39,8 +39,6 @@
 #include <string.h>
 
 typedef struct node_ node;
-struct node_ { node *prev, *next; };
-
 typedef struct list_ list;
 
 extern int list_init(list *l);		// static list
