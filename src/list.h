@@ -38,8 +38,8 @@
 
 #include <string.h>
 
-typedef struct node_ node;
 typedef struct list_ list;
+typedef struct node_ node;
 
 extern int list_init(list *l);		// static list
 
