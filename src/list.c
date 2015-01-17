@@ -69,6 +69,22 @@ node *list_front(const list *l)
 	return l->first;
 }
 
+node *list_prev(node *n)
+{
+	if (!n)
+		return NULL;
+
+	return n->prev;
+}
+
+node *list_next(node *n)
+{
+	if (!n)
+		return NULL;
+
+	return n->next;
+}
+
 node *list_back(const list *l)
 {
 	if (!l)
