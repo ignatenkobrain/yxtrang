@@ -41,6 +41,8 @@
 typedef struct list_ list;
 typedef struct node_ node;
 
+struct node_ { node *prev, *next; };
+
 extern int list_init(list *l);		// static list
 
 extern list *list_create(void);		// dynamic list
