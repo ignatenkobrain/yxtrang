@@ -114,7 +114,10 @@ int daemonize(int watchdog)
 	close(0);
 	open("/dev/null", O_RDONLY);
 	open("vermeer.log", O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-	dup(1);
+
+	if (!dup(1))
+		return 0;
+
 	return 1;
 }
 #endif
