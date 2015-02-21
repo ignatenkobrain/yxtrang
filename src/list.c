@@ -270,15 +270,17 @@ void list_concat(list *l, list *l2)
 	{
 		l->head = l2->head;
 		l->tail = l2->tail;
-		l2->head = l2->tail = NULL;
 		l->nodes = l2->nodes;
+		l2->head = l2->tail = NULL;
+		l2->nodes = 0;
 		return;
 	}
 
 	l->tail->next = l2->head;
 	l2->head->prev = l->tail;
 	l->tail = l2->tail;
-	l2->head = l2->tail = NULL;
 	l->nodes += l2->nodes;
+	l2->head = l2->tail = NULL;
+	l2->nodes = 0;
 }
 
