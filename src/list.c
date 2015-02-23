@@ -119,14 +119,12 @@ int list_remove(list *l, node *n)
 
 	if (l->head == n)
 		l->head = n->next;
+	else
+		n->prev->next = n->next;
 
 	if (l->tail == n)
 		l->tail = n->prev;
-
-	if (n->prev)
-		n->prev->next = n->next;
-
-	if (n->next)
+	else
 		n->next->prev = n->prev;
 
 	n->prev = n->next = NULL;
