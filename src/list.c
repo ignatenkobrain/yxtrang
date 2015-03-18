@@ -68,7 +68,7 @@ node *list_front(const list *l)
 	return l->front;
 }
 
-node *list_prevz(node *n)
+node *list_prev(node *n)
 {
 	if (!n)
 		return NULL;
