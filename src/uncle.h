@@ -8,15 +8,15 @@ typedef struct uncle_ uncle;
 #define SCOPE_DEFAULT "DEFAULT"
 
 // Create using an internal handler and thread for manual
-// control of resources. See network.h for how to create an
-// automatic uncle *that self-manages all resources.
+// control of resources. See network.h for how to create
+// automatically an *uncle* that self-manages resources.
 
 extern uncle *uncle_create(const char *binding, unsigned short port, const char *scope);
 
 extern const char *uncle_get_scope(uncle *u);
 
 // Add, remove ephemeral resources.
-// Resources are named and there can be many duplicates, but
+// Resources are named and there can be duplicates, but
 // the combination of name/addr/port/tcp is unique.
 
 extern int uncle_add(uncle *u, const char *name, const char *addr, unsigned short port, int tcp, int ssl);
