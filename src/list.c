@@ -4,7 +4,7 @@
 
 struct list_
 {
-	node *head, *tail;
+	node *front, *back;
 	size_t cnt;
 };
 
@@ -13,7 +13,7 @@ int list_init(list *l)
 	if (!l)
 		return 0;
 
-	l->head = l->tail = NULL;
+	l->front = l->back = NULL;
 	l->cnt = 0;
 	return 1;
 }
@@ -46,7 +46,7 @@ int list_clear(list *l)
 	if (!l)
 		return 0;
 
-	node *n = l->head;
+	node *n = l->front;
 
 	while (n)
 	{
@@ -55,7 +55,7 @@ int list_clear(list *l)
 		free(save);
 	}
 
-	l->head = l->tail = NULL;
+	l->front = l->back = NULL;
 	l->cnt = 0;
 	return 1;
 }
@@ -65,7 +65,7 @@ node *list_front(const list *l)
 	if (!l)
 		return NULL;
 
-	return l->head;
+	return l->front;
 }
 
 node *list_prevz(node *n)
@@ -89,7 +89,7 @@ node *list_back(const list *l)
 	if (!l)
 		return NULL;
 
-	return l->tail;
+	return l->back;
 }
 
 int list_iter(list *l, int (*f)(node*,void*), void *data)
@@ -97,7 +97,7 @@ int list_iter(list *l, int (*f)(node*,void*), void *data)
 	if (!l)
 		return 0;
 
-	node *n = l->head;
+	node *n = l->front;
 
 	while (n)
 	{
@@ -117,13 +117,13 @@ int list_remove(list *l, node *n)
 	if (!l || !n)
 		return 0;
 
-	if (l->head == n)
-		l->head = n->next;
+	if (l->front == n)
+		l->front = n->next;
 	else
 		n->prev->next = n->next;
 
-	if (l->tail == n)
-		l->tail = n->prev;
+	if (l->back == n)
+		l->back = n->prev;
 	else
 		n->next->prev = n->prev;
 
@@ -140,16 +140,16 @@ int list_push_front(list *l, node *n)
 	n->prev = NULL;
 	l->cnt++;
 
-	if (!l->head)
+	if (!l->front)
 	{
-		l->head = l->tail = n;
+		l->front = l->back = n;
 		n->next = NULL;
 		return 1;
 	}
 
-	l->head->prev = n;
-	n->next = l->head;
-	l->head = n;
+	l->front->prev = n;
+	n->next = l->front;
+	l->front = n;
 	return 1;
 }
 
@@ -161,16 +161,16 @@ int list_push_back(list *l, node *n)
 	n->next = NULL;
 	l->cnt++;
 
-	if (!l->head)
+	if (!l->front)
 	{
-		l->head = l->tail = n;
+		l->front = l->back = n;
 		n->prev = NULL;
 		return 1;
 	}
 
-	l->tail->next = n;
-	n->prev = l->tail;
-	l->tail = n;
+	l->back->next = n;
+	n->prev = l->back;
+	l->back = n;
 	return 1;
 }
 
@@ -179,20 +179,20 @@ int list_pop_front(list *l, node **n)
 	if (!l)
 		return 0;
 
-	if (!l->head)
+	if (!l->front)
 		return 0;
 
 	l->cnt--;
 
 	if (n)
 	{
-		*n = l->head;
+		*n = l->front;
 		(*n)->prev = NULL;
 		(*n)->next = NULL;
 	}
 
-	l->head = l->head->next;
-	l->head->prev = NULL;
+	l->front = l->front->next;
+	l->front->prev = NULL;
 	return 1;
 }
 
@@ -201,20 +201,20 @@ int list_pop_back(list *l, node **n)
 	if (!l)
 		return 0;
 
-	if (!l->tail)
+	if (!l->back)
 		return 0;
 
 	l->cnt--;
 
 	if (n)
 	{
-		*n = l->tail;
+		*n = l->back;
 		(*n)->prev = NULL;
 		(*n)->next = NULL;
 	}
 
-	l->tail = l->tail->prev;
-	l->tail->next = NULL;
+	l->back = l->back->prev;
+	l->back->next = NULL;
 	return 1;
 }
 
@@ -225,8 +225,8 @@ int list_insert_before(list *l, node *n, node *v)
 
 	l->cnt++;
 
-	if (l->head == n)
-		l->head = v;
+	if (l->front == n)
+		l->front = v;
 
 	if (n->prev)
 		n->prev->next = v;
@@ -244,8 +244,8 @@ int list_insert_after(list *l, node *n, node *v)
 
 	l->cnt++;
 
-	if (l->tail == n)
-		l->tail = v;
+	if (l->back == n)
+		l->back = v;
 
 	if (n->next)
 		n->next->prev = v;
@@ -261,24 +261,24 @@ void list_concat(list *l, list *l2)
 	if (!l || !l2)
 		return;
 
-	if (!l2->head)
+	if (!l2->front)
 		return;
 
-	if (!l->head)
+	if (!l->front)
 	{
-		l->head = l2->head;
-		l->tail = l2->tail;
+		l->front = l2->front;
+		l->back = l2->back;
 		l->cnt = l2->cnt;
-		l2->head = l2->tail = NULL;
+		l2->front = l2->back = NULL;
 		l2->cnt = 0;
 		return;
 	}
 
-	l->tail->next = l2->head;
-	l2->head->prev = l->tail;
-	l->tail = l2->tail;
+	l->back->next = l2->front;
+	l2->front->prev = l->back;
+	l->back = l2->back;
 	l->cnt += l2->cnt;
-	l2->head = l2->tail = NULL;
+	l2->front = l2->back = NULL;
 	l2->cnt = 0;
 }
 
