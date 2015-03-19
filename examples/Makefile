@@ -32,6 +32,7 @@ clean:
 test.o: ../src/json.h ../src/base64.h ../src/skiplist.h ../src/tree.h
 test.o: ../src/uuid.h ../src/store.h ../src/network.h ../src/scriptlet.h
 test.o: ../src/linda.h ../src/jsonq.h ../src/thread.h ../src/uncle.h
+test.o: ../src/rational.h
 echo1.o: ../src/network.h
 echo2.o: ../src/network.h
 echod.o: ../src/network.h

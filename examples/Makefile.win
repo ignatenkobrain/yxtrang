@@ -50,7 +50,7 @@ $*.obj
 <<
 
 test.obj: $*.c ..\src\scriptlet.h ..\src\skiplist.h  ..\src\tree.h ..\src\store.h ..\src\network.h \
-				..\src\uuid.h ..\src\base64.h ..\src\json.h ..\src\uncle.h
+				..\src\uuid.h ..\src\base64.h ..\src\json.h ..\src\uncle.h ..\src\rational.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 
 echo1.obj: $*.c ..\src\network.h
