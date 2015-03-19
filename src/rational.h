@@ -16,22 +16,22 @@ typedef struct
 #define r_get_int(r) (r_reduce(r), (r)->n / (r)->d)
 #define r_get_real(r) (r_reduce(r), (double)(r)->n / (double)(r)->d)
 
-extern int r_eq(const rational *r, const rational *v);
-extern int r_neq(const rational *r, const rational *v);
-extern int r_gt(const rational *r, const rational *v);
-extern int r_gte(const rational *r, const rational *v);
-extern int r_lt(const rational *r, const rational *v);
-extern int r_lte(const rational *r, const rational *v);
+#define r_add(r,v) { (r)->n=((r)->n*v->d)+(v->n*(r)->d); (r)->d=v->d*(r)->d; }
+#define r_sub(r,v) { (r)->n=((r)->n*v->d)-(v->n*(r)->d); (r)->d=v->d*(r)->d; }
+#define r_mul(r,v) { (r)->n*=v->n; (r)->d*=v->d; }
+#define r_div(r,v) { (r)->n*=v->d; (r)->d*=v->n; }
 
-extern void r_add(rational *r, const rational *v);
-extern void r_sub(rational *r, const rational *v);
-extern void r_mul(rational *r, const rational *v);
-extern void r_div(rational *r, const rational *v);
+#define r_addi(r,v) { (r)->n=(r)->n+(v*(r)->d); (r)->d=(r)->d; }
+#define r_subi(r,v) { (r)->n=(r)->n-(v*(r)->d); (r)->d=(r)->d; }
+#define r_muli(r,v) { (r)->n*=v; }
+#define r_divi(r,v) { (r)->d*=v; }
 
-extern void r_addi(rational *r, long long v);
-extern void r_subi(rational *r, long long v);
-extern void r_muli(rational *r, long long v);
-extern void r_divi(rational *r, long long v);
+#define r_eq(r,v) (((r)->n * v->d) == (v->n * (r)->d))
+#define r_neq(r,v) (((r)->n * v->d) != (v->n * (r)->d))
+#define r_gt(r,v) (((r)->n * v->d) > (v->n * (r)->d))
+#define r_gte(r,v) (((r)->n * v->d) >= (v->n * (r)->d))
+#define r_lt(r,v) (((r)->n * v->d) < (v->n * (r)->d))
+#define r_lte(r,v) (((r)->n * v->d) <= (v->n * (r)->d))
 
 extern void r_reduce(rational *r);
 
