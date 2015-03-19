@@ -1,6 +1,3 @@
-#include <string.h>
-#include <stdio.h>
-
 #include "rational.h"
 
 static long long gcd(long long num, long long remainder)
