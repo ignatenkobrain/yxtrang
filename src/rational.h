@@ -21,10 +21,10 @@ typedef struct
 #define r_mul(r,v) { (r)->n*=v->n; (r)->d*=v->d; }
 #define r_div(r,v) { (r)->n*=v->d; (r)->d*=v->n; }
 
-#define r_addi(r,v) { (r)->n=(r)->n+(v*(r)->d); (r)->d=(r)->d; }
-#define r_subi(r,v) { (r)->n=(r)->n-(v*(r)->d); (r)->d=(r)->d; }
-#define r_muli(r,v) { (r)->n*=v; }
-#define r_divi(r,v) { (r)->d*=v; }
+#define r_addi(r,i) { (r)->n=(r)->n+((long long)i*(r)->d); (r)->d=(r)->d; }
+#define r_subi(r,i) { (r)->n=(r)->n-((long long)i*(r)->d); (r)->d=(r)->d; }
+#define r_muli(r,i) { (r)->n*=(long long)i; }
+#define r_divi(r,i) { (r)->d*=(long long)i; }
 
 #define r_eq(r,v) (((r)->n * v->d) == (v->n * (r)->d))
 #define r_neq(r,v) (((r)->n * v->d) != (v->n * (r)->d))
@@ -32,6 +32,13 @@ typedef struct
 #define r_gte(r,v) (((r)->n * v->d) >= (v->n * (r)->d))
 #define r_lt(r,v) (((r)->n * v->d) < (v->n * (r)->d))
 #define r_lte(r,v) (((r)->n * v->d) <= (v->n * (r)->d))
+
+#define r_eqi(r,i) ((r)->n == ((long long)i*(r)->d))
+#define r_neqi(r,i) ((r)->n != ((long long)i*(r)->d))
+#define r_gti(r,i) ((r)->n > ((long long)i*(r)->d))
+#define r_gtei(r,i) ((r)->n >= ((long long)i*(r)->d))
+#define r_lti(r,i) ((r)->n < ((long long)i*(r)->d))
+#define r_ltei(r,i) ((r)->n <= ((long long)i*(r)->d))
 
 extern void r_reduce(rational *r);
 
