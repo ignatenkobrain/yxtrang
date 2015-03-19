@@ -505,8 +505,8 @@ static void do_rat()
 	r_int(&r, 100);
 	r_divi(&r, 10);
 	printf("100 / 10 = %lld/%lld ", r.n, r.d);
-	r_reduce(&r);
-	printf(" reduced = %lld/%lld\n", r.n, r.d);
+	printf(" reduced = %lld ", r_get_int(&r));
+	printf(" check = %lld/%lld\n", r.n, r.d);
 }
 
 static void do_base64()

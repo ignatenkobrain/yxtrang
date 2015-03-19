@@ -11,10 +11,10 @@ typedef struct
 #define r_int(r,v) { (r)->n = v; (r)->d = 1; }
 
 // Useful for expressing currency, eg. $3.21 = r_rat(3,21,100)
-
 #define r_rat(r,w,num,den) { (r)->n = (w*den)+num; (r)->d = den; }
-#define r_get_int(r) ((r)->n / (r)->d)
-#define r_get_real(r) ((double)(r)->n / (double)(r)->d)
+
+#define r_get_int(r) (r_reduce(r), (r)->n / (r)->d)
+#define r_get_real(r) (r_reduce(r), (double)(r)->n / (double)(r)->d)
 
 extern int r_eq(const rational *r, const rational *v);
 extern int r_neq(const rational *r, const rational *v);
