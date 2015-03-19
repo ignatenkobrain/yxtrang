@@ -57,6 +57,11 @@ network:
  broadcast).
 
 
+rational:
+
+ Rational number (ie. numerator/denominator) operations.
+
+
 scriptlet:
 
  Engine to compile to bytecode and run micro-scripts. These can be used
