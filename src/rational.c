@@ -12,9 +12,9 @@ void r_reduce(rational *r)
 {
 	long long num = 0;
 
-	if (r->d > r->n)
+	if ((r->d) > (r->n))
 		num = gcd(r->d, r->n);
-	else if (r->d < r->n)
+	else if ((r->d) < (r->n))
 		num = gcd(r->n, r->d);
 	else
 		num = gcd(r->n, r->d);
@@ -22,7 +22,7 @@ void r_reduce(rational *r)
 	r->n /= num;
 	r->d /= num;
 
-	if (r->d < 0)
+	if ((r->d) < 0)
 	{
 		r->n *= -1;
 		r->d *= -1;
