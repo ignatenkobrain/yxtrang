@@ -7,15 +7,14 @@ typedef struct
 }
  rational;
 
-inline void r_copy(rational *r, const rational *v) { r->n = v->n; r->d = v->d; }
-inline void r_int(rational *r, long long v) { r->n = v; r->d = 1; };
+#define r_copy(r,v) { (r)->n = (v)->n; (r)->d = (v)->d; }
+#define r_int(r,v) { (r)->n = v; (r)->d = 1; }
 
 // Useful for expressing currency, eg. $3.21 = r_rat(3,21,100)
 
-inline void r_rat(rational *r, long long w, long long n, long long d) { r->n = (w*d)+n; r->d = d; };
-
-inline long long r_get_int(const rational *r) { return r->n / r->d; }
-inline double r_get_real(const rational *r) { return (double)r->n / (double)r->d; }
+#define r_rat(r,w,num,den) { (r)->n = (w*den)+num; (r)->d = den; }
+#define r_get_int(r) ((r)->n / (r)->d)
+#define r_get_real(r) ((double)(r)->n / (double)(r)->d)
 
 extern int r_eq(const rational *r, const rational *v);
 extern int r_neq(const rational *r, const rational *v);
@@ -34,6 +33,6 @@ extern void r_subi(rational *r, long long v);
 extern void r_muli(rational *r, long long v);
 extern void r_divi(rational *r, long long v);
 
-extern void reduce(rational *r);
+extern void r_reduce(rational *r);
 
 #endif

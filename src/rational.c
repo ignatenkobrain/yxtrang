@@ -11,7 +11,7 @@ static long long gcd(long long num, long long remainder)
 	return gcd(remainder, num%remainder);
 }
 
-void reduce(rational *r)
+void r_reduce(rational *r)
 {
 	long long num = 0;
 
