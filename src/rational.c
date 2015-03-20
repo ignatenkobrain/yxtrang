@@ -4,7 +4,7 @@
 
 void r_float(rational *r, double v)
 {
-	r->n = (long long)(v *(double)1000000000000000000LL);
+	r->n = (long long)(v * 1000000000000000000LL);
 	r->d = 1000000000000000000ULL;
 	r_reduce(r);
 }
