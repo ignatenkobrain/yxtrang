@@ -4,7 +4,8 @@
 typedef struct { long long n; long long d; } rational;
 
 #define r_copy(r,v) { (r)->n=(v)->n; (r)->d=(v)->d; }
-#define r_rat(r,wholes,num,den) { (r)->n=(long long)(wholes*den)+num; (r)->d=(long long)den; }
+#define r_ratw(r,wholes,num,den) { (r)->n=(long long)(wholes*den)+num; (r)->d=(long long)den; }
+#define r_rat(r,num,den) { (r)->n=(long long)num; (r)->d=(long long)den; }
 #define r_int(r,v) { (r)->n=(long long)v; (r)->d=1; }
 extern void r_float(rational *r, double v);
 
