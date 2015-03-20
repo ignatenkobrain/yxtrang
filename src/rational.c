@@ -2,25 +2,6 @@
 
 #include "rational.h"
 
-void r_float(rational *r, double v)
-{
-	r->n = (long long)(v * 1000000000000000000LL);
-	r->d = 1000000000000000000ULL;
-	r_reduce(r);
-}
-
-const char *r_tostring(rational *r, char *tmpbuf)
-{
-	r_reduce(r);
-
-	if (r->d == 1)
-		sprintf(tmpbuf, "%lld", r->n);
-	else
-		sprintf(tmpbuf, "%lld rdiv %lld", r->n, r->d);
-
-	return tmpbuf;
-}
-
 static long long gcd(long long num, long long remainder)
 {
 	if (remainder == 0)
@@ -40,13 +21,34 @@ void r_reduce(rational *r)
 	else
 		num = gcd(r->n, r->d);
 
-	r->n /= num;
-	r->d /= num;
-
-	if ((r->d) < 0)
+	if (num < 0)
 	{
-		r->n *= -1;
-		r->d *= -1;
+		r->n /= -num;
+		r->d /= -num;
 	}
+	else
+	{
+		r->n /= num;
+		r->d /= num;
+	}
+}
+
+void r_float(rational *r, double v)
+{
+	r->n = (long long)(v * 1000000000000000000LL);
+	r->d = 1000000000000000000ULL;
+	r_reduce(r);
+}
+
+const char *r_tostring(rational *r, char *tmpbuf)
+{
+	r_reduce(r);
+
+	if (r->d == 1)
+		sprintf(tmpbuf, "%lld", r->n);
+	else
+		sprintf(tmpbuf, "%lld rdiv %llu", r->n, r->d);
+
+	return tmpbuf;
 }
 
