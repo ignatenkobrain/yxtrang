@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "rational.h"
 
 static long long gcd(long long num, long long remainder)
@@ -28,3 +30,16 @@ void r_reduce(rational *r)
 		r->d *= -1;
 	}
 }
+
+const char *r_tostring(char *tmpbuf, rational *r)
+{
+	r_reduce(r);
+
+	if (r->d == 1)
+		sprintf(tmpbuf, "%lld", r->n);
+	else
+		sprintf(tmpbuf, "%lld/%lld", r->n, r->d);
+
+	return tmpbuf;
+}
+

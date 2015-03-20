@@ -35,6 +35,7 @@ typedef struct { long long n, d; } rational;
 #define r_lti(r,i) ((r)->n<((long long)i*(r)->d))
 #define r_ltei(r,i) ((r)->n<=((long long)i*(r)->d))
 
+extern const char *r_tostring(char *tmpbuf, rational *r);
 extern void r_reduce(rational *r);
 
 #endif
