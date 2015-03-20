@@ -31,7 +31,7 @@ void r_reduce(rational *r)
 void r_float(rational *r, double v)
 {
 	r->n = (long long)(v * 1000000000000000000LL);
-	r->d = 1000000000000000000ULL;
+	r->d = 1000000000000000000LL;
 	r_reduce(r);
 }
 
@@ -42,7 +42,7 @@ const char *r_tostring(rational *r, char *tmpbuf)
 	if (r->d == 1)
 		sprintf(tmpbuf, "%lld", r->n);
 	else
-		sprintf(tmpbuf, "%lld rdiv %llu", r->n, r->d);
+		sprintf(tmpbuf, "%lld rdiv %lld", r->n, r->d);
 
 	return tmpbuf;
 }

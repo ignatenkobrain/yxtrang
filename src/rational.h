@@ -1,7 +1,7 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
 
-typedef struct { long long n; unsigned long long d; } rational;
+typedef struct { long long n; long long d; } rational;
 
 #define r_copy(r,v) { (r)->n=(v)->n; (r)->d=(v)->d; }
 #define r_rat(r,wholes,num,den) { (r)->n=(long long)(wholes*den)+num; (r)->d=(long long)den; }
