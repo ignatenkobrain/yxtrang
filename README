@@ -59,7 +59,8 @@ network:
 
 rational:
 
- Rational number (ie. numerator/denominator) operations.
+ Rational number (ie. numerator/denominator) operations. Useful,
+ for example, expressing currency, eg. $3.21 = r_rat(3,21,100).
 
 
 scriptlet:

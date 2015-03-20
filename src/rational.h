@@ -5,9 +5,7 @@ typedef struct { long long n, d; } rational;
 
 #define r_copy(r,v) { (r)->n = (v)->n; (r)->d = (v)->d; }
 #define r_int(r,v) { (r)->n = v; (r)->d = 1; }
-
-// Useful for expressing currency, eg. $3.21 = r_rat(3,21,100)
-#define r_rat(r,w,num,den) { (r)->n = (w*den)+num; (r)->d = den; }
+#define r_rat(r,wholes,num,den) { (r)->n = (wholes*den)+num; (r)->d = den; }
 
 #define r_get_int(r) (r_reduce(r), (r)->n / (r)->d)
 #define r_get_real(r) (r_reduce(r), (double)(r)->n / (double)(r)->d)
