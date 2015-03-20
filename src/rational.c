@@ -22,15 +22,10 @@ void r_reduce(rational *r)
 		num = gcd(r->n, r->d);
 
 	if (num < 0)
-	{
-		r->n /= -num;
-		r->d /= -num;
-	}
-	else
-	{
-		r->n /= num;
-		r->d /= num;
-	}
+		num = -num;
+
+	r->n /= num;
+	r->d /= num;
 }
 
 void r_float(rational *r, double v)
