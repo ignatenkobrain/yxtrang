@@ -1,11 +1,12 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
 
-typedef struct { long long n, d; } rational;
+typedef struct { long long n; unsigned long long d; } rational;
 
 #define r_copy(r,v) { (r)->n=(v)->n; (r)->d=(v)->d; }
-#define r_int(r,v) { (r)->n=(long long)v; (r)->d=1; }
 #define r_rat(r,wholes,num,den) { (r)->n=(long long)(wholes*den)+num; (r)->d=(long long)den; }
+#define r_int(r,v) { (r)->n=(long long)v; (r)->d=1; }
+extern void r_float(rational *r, double v);
 
 #define r_get_int(r) (r_reduce(r), (r)->n/(r)->d)
 #define r_get_float(r) (r_reduce(r), (double)(r)->n/(double)(r)->d)

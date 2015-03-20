@@ -2,6 +2,13 @@
 
 #include "rational.h"
 
+void r_float(rational *r, double v)
+{
+	r->n = (long long)(v *(double)1000000000000000000LL);
+	r->d = 1000000000000000000ULL;
+	r_reduce(r);
+}
+
 static long long gcd(long long num, long long remainder)
 {
 	if (remainder == 0)

@@ -507,6 +507,16 @@ static void do_rat()
 	printf("100 / 10 = %lld/%lld ", r.n, r.d);
 	printf(" reduced = %lld ", r_get_int(&r));
 	printf(" check = %lld/%lld\n", r.n, r.d);
+
+	double v = 10.0/3.0;
+	r_float(&r, v);
+	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+	v = 1.0/3.0;
+	r_float(&r, v);
+	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+	v = 0.1;
+	r_float(&r, v);
+	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
 }
 
 static void do_base64()
