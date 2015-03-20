@@ -10,6 +10,18 @@ static long long gcd(long long num, long long remainder)
 	return gcd(remainder, num%remainder);
 }
 
+const char *r_tostring(char *tmpbuf, rational *r)
+{
+	r_reduce(r);
+
+	if (r->d == 1)
+		sprintf(tmpbuf, "%lld", r->n);
+	else
+		sprintf(tmpbuf, "%lld rdiv %lld", r->n, r->d);
+
+	return tmpbuf;
+}
+
 void r_reduce(rational *r)
 {
 	long long num = 0;
@@ -29,17 +41,5 @@ void r_reduce(rational *r)
 		r->n *= -1;
 		r->d *= -1;
 	}
-}
-
-const char *r_tostring(char *tmpbuf, rational *r)
-{
-	r_reduce(r);
-
-	if (r->d == 1)
-		sprintf(tmpbuf, "%lld", r->n);
-	else
-		sprintf(tmpbuf, "%lld rdiv %lld", r->n, r->d);
-
-	return tmpbuf;
 }
 
