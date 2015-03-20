@@ -9,14 +9,6 @@ void r_float(rational *r, double v)
 	r_reduce(r);
 }
 
-static long long gcd(long long num, long long remainder)
-{
-	if (remainder == 0)
-		return num;
-
-	return gcd(remainder, num%remainder);
-}
-
 const char *r_tostring(rational *r, char *tmpbuf)
 {
 	r_reduce(r);
@@ -27,6 +19,14 @@ const char *r_tostring(rational *r, char *tmpbuf)
 		sprintf(tmpbuf, "%lld rdiv %lld", r->n, r->d);
 
 	return tmpbuf;
+}
+
+static long long gcd(long long num, long long remainder)
+{
+	if (remainder == 0)
+		return num;
+
+	return gcd(remainder, num%remainder);
 }
 
 void r_reduce(rational *r)
