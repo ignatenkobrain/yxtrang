@@ -496,7 +496,7 @@ void do_tree(long cnt, int rnd)
 static void do_rat()
 {
 	rational r;
-	r_ratw(&r, 33, 1, 3);
+	r_rat3(&r, 33, 1, 3);
 	r_muli(&r, 3);
 	printf("33 1/3 * 3 = %lld\n", r_get_int(&r));
 	r_int(&r, 100);
@@ -508,15 +508,15 @@ static void do_rat()
 	printf(" reduced = %lld ", r_get_int(&r));
 	printf(" check = %lld/%lld\n", r.n, r.d);
 
-	r_rat(&r, 1, 10);
+	r_rat2(&r, 1, 10);
 	printf("1 / 10 = %lld/%lld ", r.n, r.d);
 	r_reduce(&r);
 	printf(" check = %lld/%lld\n", r.n, r.d);
-	r_rat(&r, -1, 10);
+	r_rat2(&r, -1, 10);
 	printf("-1 / 10 = %lld/%lld ", r.n, r.d);
 	r_reduce(&r);
 	printf(" check = %lld/%lld\n", r.n, r.d);
-	r_rat(&r, 1, -10);
+	r_rat2(&r, 1, -10);
 	printf("1 / -10 = %lld/%lld ", r.n, r.d);
 	r_reduce(&r);
 	printf(" check = %lld/%lld\n", r.n, r.d);
