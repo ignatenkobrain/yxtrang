@@ -21,18 +21,18 @@ typedef struct { long long n, d; } rational;
 #define r_divi(r,i) { (r)->d*=(long long)i; }
 
 #define r_eq(r,v) (((r)->n*(v)->d)==((v)->n*(r)->d))
-#define r_neq(r,v) (((r)->n*(v)->d)!=((v)->n*(r)->d))
+#define r_ne(r,v) (((r)->n*(v)->d)!=((v)->n*(r)->d))
 #define r_gt(r,v) (((r)->n*(v)->d)>((v)->n*(r)->d))
-#define r_gte(r,v) (((r)->n*(v)->d)>=((v)->n*(r)->d))
+#define r_ge(r,v) (((r)->n*(v)->d)>=((v)->n*(r)->d))
 #define r_lt(r,v) (((r)->n*(v)->d)<((v)->n*(r)->d))
-#define r_lte(r,v) (((r)->n*(v)->d)<=((v)->n*(r)->d))
+#define r_le(r,v) (((r)->n*(v)->d)<=((v)->n*(r)->d))
 
 #define r_eqi(r,i) ((r)->n==((long long)i*(r)->d))
-#define r_neqi(r,i) ((r)->n!=((long long)i*(r)->d))
+#define r_nei(r,i) ((r)->n!=((long long)i*(r)->d))
 #define r_gti(r,i) ((r)->n>((long long)i*(r)->d))
-#define r_gtei(r,i) ((r)->n>=((long long)i*(r)->d))
+#define r_gei(r,i) ((r)->n>=((long long)i*(r)->d))
 #define r_lti(r,i) ((r)->n<((long long)i*(r)->d))
-#define r_ltei(r,i) ((r)->n<=((long long)i*(r)->d))
+#define r_lei(r,i) ((r)->n<=((long long)i*(r)->d))
 
 extern const char *r_tostring(char *tmpbuf, rational *r);
 extern void r_reduce(rational *r);
