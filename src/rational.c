@@ -10,7 +10,7 @@ static long long gcd(long long num, long long remainder)
 	return gcd(remainder, num%remainder);
 }
 
-const char *r_tostring(char *tmpbuf, rational *r)
+const char *r_tostring(rational *r, char *tmpbuf)
 {
 	r_reduce(r);
 
