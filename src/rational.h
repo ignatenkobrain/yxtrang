@@ -9,7 +9,7 @@ typedef struct { long long n, d; } rational;
 #define r_rat(r,wholes,num,den) { (r)->n=(wholes*den)+num; (r)->d=den; }
 
 #define r_get_int(r) (r_reduce(r), (r)->n/(r)->d)
-#define r_get_real(r) (r_reduce(r), (double)(r)->n/(double)(r)->d)
+#define r_get_float(r) (r_reduce(r), (double)(r)->n/(double)(r)->d)
 
 #define r_add(r,v) { (r)->n=((r)->n*v->d)+(v->n*(r)->d); (r)->d=v->d*(r)->d; }
 #define r_sub(r,v) { (r)->n=((r)->n*v->d)-(v->n*(r)->d); (r)->d=v->d*(r)->d; }
