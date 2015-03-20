@@ -38,7 +38,7 @@ const char *r_tostring(char *tmpbuf, rational *r)
 	if (r->d == 1)
 		sprintf(tmpbuf, "%lld", r->n);
 	else
-		sprintf(tmpbuf, "%lld/%lld", r->n, r->d);
+		sprintf(tmpbuf, "%lld rdiv %lld", r->n, r->d);
 
 	return tmpbuf;
 }
