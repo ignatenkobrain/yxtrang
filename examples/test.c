@@ -554,6 +554,10 @@ static void do_rat()
 	v = 1.925;
 	r_float(&r, v);
 	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+
+	v = 0.25;
+	r_float(&r, v);
+	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
 }
 
 static void do_base64()
