@@ -37,11 +37,3 @@ void r_float(rational *r, double v)
 	r->d = 1000000000000000000LL;
 	r_reduce(r);
 }
-
-const char *r_tostring(rational *r, char *tmpbuf)
-{
-	r_reduce(r);
-	sprintf(tmpbuf, "%lld/%lld", r->n, r->d);
-	return tmpbuf;
-}
-

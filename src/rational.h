@@ -36,7 +36,6 @@ extern void r_float(rational *r, double v);
 #define r_lti(r,v) ((r)->n<((long long)v*(r)->d))
 #define r_lei(r,v) ((r)->n<=((long long)v*(r)->d))
 
-extern const char *r_tostring(rational *r, char *tmpbuf);
 extern void r_reduce(rational *r);
 
 #endif
