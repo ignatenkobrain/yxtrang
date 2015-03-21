@@ -499,6 +499,7 @@ static void do_rat()
 	r_rat3(&r, 33, 1, 3);
 	r_muli(&r, 3);
 	printf("33 1/3 * 3 = %lld\n", r_get_int(&r));
+
 	r_int(&r, 100);
 	r_divi(&r, 3);
 	printf("100 / 3 = %lld/%lld\n", r.n, r.d);
@@ -512,10 +513,12 @@ static void do_rat()
 	printf("1 / 10 = %lld/%lld ", r.n, r.d);
 	r_reduce(&r);
 	printf(" check = %lld/%lld\n", r.n, r.d);
+
 	r_rat2(&r, -1, 10);
 	printf("-1 / 10 = %lld/%lld ", r.n, r.d);
 	r_reduce(&r);
 	printf(" check = %lld/%lld\n", r.n, r.d);
+
 	r_rat2(&r, 1, -10);
 	printf("1 / -10 = %lld/%lld ", r.n, r.d);
 	r_reduce(&r);
@@ -524,6 +527,7 @@ static void do_rat()
 	double v = 10.0/3.0;
 	r_float(&r, v);
 	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+
 	v = 1.0/3.0;
 	r_float(&r, v);
 	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
@@ -534,10 +538,20 @@ static void do_rat()
 	v = -10.0/3.0;
 	r_float(&r, v);
 	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+
 	v = -1.0/3.0;
 	r_float(&r, v);
 	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+
 	v = -0.1;
+	r_float(&r, v);
+	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+
+	v = 0.125;
+	r_float(&r, v);
+	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
+
+	v = 1.925;
 	r_float(&r, v);
 	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
 }
