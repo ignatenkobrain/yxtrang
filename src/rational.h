@@ -9,7 +9,6 @@ typedef struct { long long n; long long d; } rational;
 #define r_rat2(r,num,den) { (r)->n=(long long)num; (r)->d=(long long)den; }
 extern void r_float(rational *r, double v);
 
-#define r_get_int(r) (r_reduce(r), (r)->n/(r)->d)
 #define r_get_float(r) (r_reduce(r), (double)(r)->n/(double)(r)->d)
 
 #define r_add(r,v) { (r)->n=((r)->n*(v)->d)+((v)->n*(r)->d); (r)->d=(v)->d*(r)->d; }
