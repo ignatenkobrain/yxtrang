@@ -4,6 +4,8 @@
 
 #include <network.h>
 
+// Echo server...
+
 static int g_quiet = 0;
 
 static int on_session(session *s, void *param)

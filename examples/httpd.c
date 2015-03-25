@@ -5,6 +5,8 @@
 
 #include <httpserver.h>
 
+// HTTP server...
+
 extern int g_http_debug;
 static const char *g_www_root = "/var/www";
 
