@@ -11,8 +11,8 @@ inline static void r_rat(rational *r, rational * v) { r->n=v->n; r->d=v->d; }
 inline static void r_rat2(rational *r, long long m, long long n) { r->n=(long long)m; r->d=(long long)n; }
 inline static void r_rat3(rational *r, long long w, long long n, long long d) { r->n=(long long)(w*d)+n; r->d=(long long)n; }
 
-inline static long long r_get_int(rational *r) { r_reduce(r); return r->n/r->d; }
-inline static double r_get_float(rational *r) { r_reduce(r); return (double)r->n/(double)r->d; }
+inline static long long r_get_int(rational *r) { return r->n/r->d; }
+inline static double r_get_float(rational *r) { return (double)r->n/(double)r->d; }
 
 inline static void r_add(rational *r, rational *v) { r->n=(r->n*v->d)+(v->n*r->d); r->d=v->d*r->d; }
 inline static void r_sub(rational *r, rational *v) { r->n=(r->n*v->d)-(v->n*r->d); r->d=v->d*r->d; }
