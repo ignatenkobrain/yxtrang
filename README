@@ -36,7 +36,7 @@ json:
 jsonq:
 
  JSON quick and dirty search for named value. Doesn't allocate any
- memory and is useful for one-off searches.
+ memory and is useful for one-off key-value fetches.
 
 
 linda:
@@ -73,8 +73,8 @@ scriptlet:
 skiplist:
 
  Index for any type. This unique variant uses a special bucketized mod
- allowing more efficient storage (400M vs 150M keys on an 8GB system)
- than traditional skiplist.
+ allowing more efficient storage (eg. 400M vs 150M keys on an 8GB
+ system) than the original skiplist code.
 
 
 store:
