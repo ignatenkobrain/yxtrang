@@ -1,4 +1,4 @@
-// The handler *will select the optimal mechanism for the platform:
+// The handler will select the optimal mechanism for the platform:
 //
 //		BSD				- kqueue
 //		Linux 			- epoll
@@ -38,7 +38,9 @@
 #undef EWOULDBLOCK
 #endif
 #define EWOULDBLOCK WSAEWOULDBLOCK
+#ifdef EINTR
 #undef EINTR
+#endif
 #define EINTR WSAEINTR
 #else
 #include <sys/types.h>
@@ -91,7 +93,7 @@
 
 #define BUFLEN 1500
 #define FD_POLLSIZE 10000
-#define MAX_SERVERS 1024
+#define MAX_SERVERS 1000
 #define SESSION_TIMEOUT_SECONDS 90
 #define MAX_EVENTS 1000
 
@@ -101,14 +103,13 @@
 
 static const int g_debug = 0;
 
-struct _server
+typedef struct
 {
 	int (*f)(session*, void*);
 	void *v;
 	int fd, port, tcp, ssl, ipv4;
-};
-
-typedef struct _server server;
+}
+ server;
 
 struct handler_
 {
@@ -189,6 +190,7 @@ static unsigned char dh512_p[] =
     0x48, 0x97, 0x6F, 0x76, 0x79, 0x50, 0x94, 0xE7, 0x1E, 0x79, 0x03, 0x52,
     0x9F, 0x5A, 0x82, 0x4B,
 };
+
 static unsigned char dh512_g[] =
 {
     0x02,
@@ -206,6 +208,7 @@ static DH *get_dh512()
         return (NULL);
     return (dh);
 }
+
 static unsigned char dh1024_p[] =
 {
     0xE6, 0x96, 0x9D, 0x3D, 0x49, 0x5B, 0xE3, 0x2C, 0x7C, 0xF1, 0x80, 0xC3,
@@ -220,6 +223,7 @@ static unsigned char dh1024_p[] =
     0x26, 0x2E, 0x56, 0xA8, 0x87, 0x15, 0x38, 0xDF, 0xD8, 0x23, 0xC6, 0x50,
     0x50, 0x85, 0xE2, 0x1F, 0x0D, 0xD5, 0xC8, 0x6B,
 };
+
 static unsigned char dh1024_g[] =
 {
     0x02,
@@ -251,10 +255,6 @@ static DH *ssl_dh_GetTmpParam(int nKeyLen)
         dh = get_dh1024();
     return dh;
 }
-
-/*
-  *Hand out the already generated DH parameters...
- */
 
 static DH *ssl_callback_TmpDH(SSL *pSSL, int nExport, int nKeyLen)
 {
