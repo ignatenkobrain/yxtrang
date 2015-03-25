@@ -78,7 +78,7 @@ extern int handler_add_uncle(handler *h, const char *binding, unsigned short por
 // Specify 'tcp' to enable TCP streams or UDP datagrams.
 // Use 'ssl' to immediately enable TLS (SSL is not supported).
 
-// If name is not NULL then it is added to the uncle *as a named service.
+// If name is not NULL then it is added to the uncle as a named service.
 
 extern int handler_add_multicast(handler *h, int (*f)(session*, void *data), void *data, const char *binding, unsigned short port, const char *maddr6, const char *maddr4, const char *name);
 extern int handler_add_server(handler *h, int (*f)(session*, void *data), void *data, const char *binding, unsigned short port, int tcp, int ssl, const char *name);
