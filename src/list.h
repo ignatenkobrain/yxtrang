@@ -53,12 +53,12 @@ extern int list_push_back(list *l, node *n);
 extern int list_insert_before(list *l, node *n, node *v);
 extern int list_insert_after(list *l, node *n, node *v);
 
-extern int list_pop_front(list *l, node **n);	// Returns 'n' if not NULL
-extern int list_pop_back(list *l, node **n);	// Returns 'n' if not NULL
+extern int list_pop_front(list *l, node **n);
+extern int list_pop_back(list *l, node **n);
 extern int list_remove(list *l, node *n);
 
-extern node *list_front(const list *l);				// Returns NULL if empty
-extern node *list_back(const list *l);				// Returns NULL if empty
+extern node *list_front(const list *l);			// Returns NULL if empty
+extern node *list_back(const list *l);			// Returns NULL if empty
 
 extern node *list_next(node *n);				// Returns NULL if no more
 extern node *list_prev(node *n);				// Returns NULL if no more
