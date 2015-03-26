@@ -6,9 +6,9 @@ typedef struct { long long n; long long d; } rational;
 extern void r_reduce(rational *r);
 extern void r_float(rational *r, double v);
 
+inline static void r_int(rational *r, long long v) { r->n=(long long)v; r->d=1; }
 inline static void r_rat(rational *r, rational * v) { r->n=v->n; r->d=v->d; }
 inline static void r_rat2(rational *r, long long n, long long d) { r->n=(long long)n; r->d=(long long)d; }
-inline static void r_int(rational *r, long long v) { r->n=(long long)v; r->d=1; }
 #define r_rat3(r,w,n,d) r_rat2(r, (w*d)+n, d)
 
 inline static long long r_get_int(rational *r) { return r->n/r->d; }
