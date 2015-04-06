@@ -185,14 +185,21 @@ int list_pop_front(list *l, node **n)
 	l->cnt--;
 
 	if (n)
-	{
 		*n = l->front;
+
+	l->front = l->front->next;
+
+	if (l->front)
+		l->front->prev = NULL;
+	else
+		l->back = NULL;
+
+	if (n)
+	{
 		(*n)->prev = NULL;
 		(*n)->next = NULL;
 	}
 
-	l->front = l->front->next;
-	l->front->prev = NULL;
 	return 1;
 }
 
@@ -207,14 +214,21 @@ int list_pop_back(list *l, node **n)
 	l->cnt--;
 
 	if (n)
-	{
 		*n = l->back;
+
+	l->back = l->back->prev;
+
+	if (l->back)
+		l->back->next = NULL;
+	else
+		l->front = NULL;
+
+	if (n)
+	{
 		(*n)->prev = NULL;
 		(*n)->next = NULL;
 	}
 
-	l->back = l->back->prev;
-	l->back->next = NULL;
 	return 1;
 }
 
