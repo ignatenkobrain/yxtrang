@@ -460,6 +460,7 @@ session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 #ifdef SO_REUSEADDR
 				int flag = 1;
 				setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));
+#endif
 
 				if (tcp)
 				{
@@ -472,7 +473,6 @@ session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 						continue;
 					}
 				}
-#endif
 
 				break;
 			}
@@ -499,6 +499,7 @@ session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 #if SO_REUSEADDR
 				int flag = 1;
 				setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));
+#endif
 
 				if (tcp)
 				{
@@ -511,7 +512,6 @@ session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 						continue;
 					}
 				}
-#endif
 
 				break;
 			}
