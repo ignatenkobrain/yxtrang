@@ -461,6 +461,10 @@ session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 				int flag = 1;
 				setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));
 #endif
+#ifdef SO_REUSEPORT
+				int flag2 = 1;
+				setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (char*)&flag2, sizeof(flag2));
+#endif
 
 				if (tcp)
 				{
@@ -2006,10 +2010,13 @@ static int handler_add_server2(handler *h, int (*f)(session*, void *v), void *v,
 	int flag = 1;
 	setsockopt(fd6, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));
 #endif
-
+#ifdef SO_REUSEPORT
+	int flag2 = 1;
+	setsockopt(fd6, SOL_SOCKET, SO_REUSEPORT, (char*)&flag2, sizeof(flag2));
+#endif
 #ifdef IPV6_V6ONLY
-	flag = 1;
-	setsockopt(fd6, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&flag, sizeof(flag));
+	int flag3 = 1;
+	setsockopt(fd6, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&flag3, sizeof(flag3));
 #endif
 
 	struct sockaddr_in6 addr6 = {0};
@@ -2065,11 +2072,13 @@ static int handler_add_server2(handler *h, int (*f)(session*, void *v), void *v,
 		return 0;
 	}
 
+#if SO_REUSEADDR
 	flag = 1;
 	setsockopt(fd4, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));
+#endif
 #ifdef SO_REUSEPORT
-	flag = 1;
-	setsockopt(fd4, SOL_SOCKET, SO_REUSEPORT, (char*)&flag, sizeof(flag));
+	flag2 = 1;
+	setsockopt(fd4, SOL_SOCKET, SO_REUSEPORT, (char*)&flag2, sizeof(flag2));
 #endif
 
 	struct sockaddr_in addr4 = {0};
