@@ -27,8 +27,6 @@ lindad: lindad.o ../src/yxtrang.a
 clean:
 	rm -f *.o test echo1 echo2 echod httpd lindad
 
-# DO NOT DELETE
-
 test.o: ../src/json.h ../src/base64.h ../src/skiplist.h ../src/tree.h
 test.o: ../src/uuid.h ../src/store.h ../src/network.h ../src/scriptlet.h
 test.o: ../src/linda.h ../src/jsonq.h ../src/thread.h ../src/uncle.h
