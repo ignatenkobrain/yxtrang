@@ -1,14 +1,17 @@
 Yxtrang
 -------
 
-The 'trang is not a framework, it's a library. A toolkit. A loose
+The yxtrang is not a framework, it's a library. A toolkit. A loose
 collection of small modules that do interesting things and which can
 be used together if need be or not. It has no dependencies on any
-external libraries. It is written in C and is absolutely free.
+external libraries. It is written in plain old C and is absolutely
+free, with a BSD 2-clause license.
+
+I've enjoyed rewriting code that I previously did in C++, and for
+the most part it's cleaner, more concise, easier to understand and
+faster.
 
 From little things big things grow!
-
-BSD 2-clause licensed.
 
 
 Current modules
