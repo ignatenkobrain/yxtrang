@@ -271,15 +271,15 @@ void list_concat(list *l, list *l2)
 		l->front = l2->front;
 		l->back = l2->back;
 		l->cnt = l2->cnt;
-		l2->front = l2->back = NULL;
-		l2->cnt = 0;
-		return;
+	}
+	else
+	{
+		l->back->next = l2->front;
+		l2->front->prev = l->back;
+		l->back = l2->back;
+		l->cnt += l2->cnt;
 	}
 
-	l->back->next = l2->front;
-	l2->front->prev = l->back;
-	l->back = l2->back;
-	l->cnt += l2->cnt;
 	l2->front = l2->back = NULL;
 	l2->cnt = 0;
 }
