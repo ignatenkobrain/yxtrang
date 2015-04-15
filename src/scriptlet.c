@@ -19,12 +19,12 @@
 
 typedef char token[TOKEN_SIZE];
 
-static const struct _precedence_table
+static const struct precedence_table_
 {
 	const char *op;
 	int precedence;
 }
-	ptable[] =
+ ptable[] =
 {
 	{"(", 1},
 	{")", 1},
@@ -139,7 +139,7 @@ typedef enum
 }
  typecode;
 
-struct _bytecode
+struct bytecode_
 {
 	int level, nbr_params;
 	typecode tc;
@@ -152,9 +152,9 @@ struct _bytecode
 	};
 };
 
-typedef struct _bytecode *bytecode;
+typedef struct bytecode_ *bytecode;
 
-struct _item
+struct item_
 {
 	token tok;
 	int precedence, save_operands;
@@ -163,23 +163,23 @@ struct _item
 struct scriptlet_
 {
 	int it_codes, use_cnt;
-	struct _bytecode codes[STACK_SIZE];
+	struct bytecode_ codes[STACK_SIZE];
 };
 
-struct _compiletime
+struct compiletime_
 {
 	scriptlet *s;
 	int it_operands, it_ops, level;
-	struct _item operands[STACK_SIZE], ops[STACK_SIZE];
+	struct item_ operands[STACK_SIZE], ops[STACK_SIZE];
 };
 
-typedef struct _compiletime *compiletime;
+typedef struct compiletime_ *compiletime;
 
 struct hscriptlet_
 {
 	scriptlet *s;
 	skiplist *symtab;
-	struct _bytecode stack[STACK_SIZE], syms[STACK_SIZE];
+	struct bytecode_ stack[STACK_SIZE], syms[STACK_SIZE];
 	int it_stack, it_syms, it_syms_save, it, level;
 };
 
@@ -342,7 +342,7 @@ int scriptlet_get_string(hscriptlet *r, const char *k, const char **value)
 
 static int get_precedence(const char *tok)
 {
-	const struct _precedence_table *ptr = ptable;
+	const struct precedence_table_ *ptr = ptable;
 
 	while (ptr->op)
 	{
@@ -870,7 +870,7 @@ static const char *get_token(const char *src, char *tok)
 
 static int compile(scriptlet *s, const char *src)
 {
-	compiletime c = (compiletime)calloc(1, sizeof(struct _compiletime));
+	compiletime c = (compiletime)calloc(1, sizeof(struct compiletime_));
 	c->s = s;
 	s->it_codes = 0;
 	token tok;
@@ -988,7 +988,7 @@ static void push_stack_string(hscriptlet *r, const char *value)
 	strcpy(code->str_val, value);
 }
 
-static int peek_bytecode(hscriptlet *r, int *level)
+static int peekbytecode_(hscriptlet *r, int *level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -998,7 +998,7 @@ static int peek_bytecode(hscriptlet *r, int *level)
 	return code->tc;
 }
 
-static void skip_bytecode(hscriptlet *r)
+static void skipbytecode_(hscriptlet *r)
 {
 	if (r->it == r->s->it_codes)
 		return;
@@ -1006,7 +1006,7 @@ static void skip_bytecode(hscriptlet *r)
 	r->it++;
 }
 
-static int next_bytecode(hscriptlet *r, bytecode *value, int *nbr_params, int *level)
+static int nextbytecode_(hscriptlet *r, bytecode *value, int *nbr_params, int *level)
 {
 	if (r->it == r->s->it_codes)
 		return empty_tc;
@@ -1043,13 +1043,13 @@ int scriptlet_run(hscriptlet *r)
 	int type1 = 0, type2 = 0;
 	int done = 0;
 
-	while (!done && (bc = next_bytecode(r, &value, &nbr_params, &r->level)) != 0)
+	while (!done && (bc = nextbytecode_(r, &value, &nbr_params, &r->level)) != 0)
 	{
 		DEBUG printf("run level=%d, bc=%d nbr_params=%d\n", r->level, bc, nbr_params);
 
 		if (nbr_params)
 		{
-			next_bytecode(r, &val1, &dummy, &dummy);
+			nextbytecode_(r, &val1, &dummy, &dummy);
 			val1 = substitute(r, val1);
 			type1 = val1->tc;
 			nbr_params--;
@@ -1057,7 +1057,7 @@ int scriptlet_run(hscriptlet *r)
 
 		if (nbr_params)
 		{
-			next_bytecode(r, &val2, &dummy, &dummy);
+			nextbytecode_(r, &val2, &dummy, &dummy);
 			val2 = substitute(r, val2);
 			type2 = val2->tc;
 			nbr_params--;
@@ -1330,12 +1330,12 @@ int scriptlet_run(hscriptlet *r)
 				{
 					int skip = 0, tmp_level = 0, tmp_code;
 
-					while ((tmp_code = peek_bytecode(r, &tmp_level)) != 0)
+					while ((tmp_code = peekbytecode_(r, &tmp_level)) != 0)
 					{
 						if (tmp_level <= r->level)
 							break;
 
-						skip_bytecode(r);
+						skipbytecode_(r);
 						skip++;
 					}
 				}
@@ -1349,12 +1349,12 @@ int scriptlet_run(hscriptlet *r)
 				{
 					int skip = 0, tmp_level = 0, tmp_code;
 
-					while ((tmp_code = peek_bytecode(r, &tmp_level)) != 0)
+					while ((tmp_code = peekbytecode_(r, &tmp_level)) != 0)
 					{
 						if (tmp_level <= r->level)
 							break;
 
-						skip_bytecode(r);
+						skipbytecode_(r);
 						skip++;
 					}
 				}
@@ -1814,7 +1814,7 @@ int scriptlet_run(hscriptlet *r)
 
 				 	if (one_more)
 				 	{
-				 		next_bytecode(r, &val2, &dummy, &dummy);
+				 		nextbytecode_(r, &val2, &dummy, &dummy);
 						val2 = substitute(r, val2);
 						type2 = val2->tc;
 				 		nbr_params--;
@@ -1845,7 +1845,7 @@ int scriptlet_run(hscriptlet *r)
 
 				 	if (one_more)
 				 	{
-				 		type2 = next_bytecode(r, &val2, &dummy, &dummy);
+				 		type2 = nextbytecode_(r, &val2, &dummy, &dummy);
 						val2 = substitute(r, val2);
 						type2 = val2->tc;
 				 		nbr_params--;
@@ -1876,7 +1876,7 @@ int scriptlet_run(hscriptlet *r)
 
 				 	if (one_more)
 				 	{
-				 		type2 = next_bytecode(r, &val2, &dummy, &dummy);
+				 		type2 = nextbytecode_(r, &val2, &dummy, &dummy);
 						val2 = substitute(r, val2);
 						type2 = val2->tc;
 				 		nbr_params--;
@@ -1907,7 +1907,7 @@ int scriptlet_run(hscriptlet *r)
 
 				 	if (one_more)
 				 	{
-				 		type2 = next_bytecode(r, &val2, &dummy, &dummy);
+				 		type2 = nextbytecode_(r, &val2, &dummy, &dummy);
 						val2 = substitute(r, val2);
 						type2 = val2->tc;
 				 		nbr_params--;
