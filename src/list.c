@@ -60,7 +60,7 @@ int list_clear(list *l)
 	return 1;
 }
 
-node *list_prev(node *n)
+node *list_prev(const node *n)
 {
 	if (!n)
 		return NULL;
@@ -68,7 +68,7 @@ node *list_prev(node *n)
 	return n->prev;
 }
 
-node *list_next(node *n)
+node *list_next(const node *n)
 {
 	if (!n)
 		return NULL;

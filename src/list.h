@@ -41,8 +41,8 @@ extern int list_insert_after(list *l, node *n, node *v);
 
 extern node *list_front(const list *l);			// Returns NULL if none
 extern node *list_back(const list *l);			// Returns NULL if none
-extern node *list_next(node *n);				// Returns NULL if none
-extern node *list_prev(node *n);				// Returns NULL if none
+extern node *list_next(const node *n);			// Returns NULL if none
+extern node *list_prev(const node *n);			// Returns NULL if none
 extern node *list_pop_front(list *l);			// Returns NULL if none
 extern node *list_pop_back(list *l);			// Returns NULL if none
 
