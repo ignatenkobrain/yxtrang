@@ -127,7 +127,6 @@ int list_remove(list *l, node *n)
 	else
 		n->next->prev = n->prev;
 
-	n->prev = n->next = NULL;
 	l->cnt--;
 	return 1;
 }
@@ -174,7 +173,7 @@ int list_push_back(list *l, node *n)
 	return 1;
 }
 
-int list_pop_front(list *l, node **n)
+int list_pop_front(list *l)
 {
 	if (!l)
 		return 0;
@@ -183,9 +182,6 @@ int list_pop_front(list *l, node **n)
 		return 0;
 
 	l->cnt--;
-
-	if (n)
-		*n = l->front;
 
 	l->front = l->front->next;
 
@@ -197,7 +193,7 @@ int list_pop_front(list *l, node **n)
 	return 1;
 }
 
-int list_pop_back(list *l, node **n)
+int list_pop_back(list *l)
 {
 	if (!l)
 		return 0;
@@ -206,9 +202,6 @@ int list_pop_back(list *l, node **n)
 		return 0;
 
 	l->cnt--;
-
-	if (n)
-		*n = l->back;
 
 	l->back = l->back->prev;
 

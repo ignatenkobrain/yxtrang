@@ -14,25 +14,11 @@
 //          list l;
 //          list_init(&l);
 //			..
-//			mynode *my = (mynode*)malloc(sizeof(mynode));
-//          my->val = 123456;
-//          list_push_back(&l, (node*)my);
-//			list_pop_front(&l, (node**)&my);
-//          int val = my->val;
-//          free(my);
-//			..
 //			list_clear(&l);
 //
 // Dynamic heap-based:
 //
 //          list *l = list_create();
-//			..
-//			mynode *my = (mynode*)malloc(sizeof(mynode));
-//          my->val = 123456;
-//          list_push_back(l, (node*)my);
-//			list_pop_front(l, (node**)&my);
-//          int val = my->val;
-//          free(my);
 //			..
 //          list_destroy(l);
 
@@ -53,12 +39,12 @@ extern int list_push_back(list *l, node *n);
 extern int list_insert_before(list *l, node *n, node *v);
 extern int list_insert_after(list *l, node *n, node *v);
 
-extern int list_pop_front(list *l, node **n);
-extern int list_pop_back(list *l, node **n);
-extern int list_remove(list *l, node *n);
-
 extern node *list_front(const list *l);			// Returns NULL if empty
 extern node *list_back(const list *l);			// Returns NULL if empty
+
+extern int list_pop_front(list *l);
+extern int list_pop_back(list *l);
+extern int list_remove(list *l, node *n);
 
 extern node *list_next(node *n);				// Returns NULL if no more
 extern node *list_prev(node *n);				// Returns NULL if no more
