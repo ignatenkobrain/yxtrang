@@ -60,14 +60,6 @@ int list_clear(list *l)
 	return 1;
 }
 
-node *list_front(const list *l)
-{
-	if (!l)
-		return NULL;
-
-	return l->front;
-}
-
 node *list_prev(node *n)
 {
 	if (!n)
@@ -82,6 +74,14 @@ node *list_next(node *n)
 		return NULL;
 
 	return n->next;
+}
+
+node *list_front(const list *l)
+{
+	if (!l)
+		return NULL;
+
+	return l->front;
 }
 
 node *list_back(const list *l)
@@ -173,16 +173,16 @@ int list_push_back(list *l, node *n)
 	return 1;
 }
 
-int list_pop_front(list *l)
+node *list_pop_front(list *l)
 {
 	if (!l)
-		return 0;
+		return NULL;
 
 	if (!l->front)
-		return 0;
+		return NULL;
 
 	l->cnt--;
-
+	node *save = l->front;
 	l->front = l->front->next;
 
 	if (l->front)
@@ -190,19 +190,19 @@ int list_pop_front(list *l)
 	else
 		l->back = NULL;
 
-	return 1;
+	return save;
 }
 
-int list_pop_back(list *l)
+node *list_pop_back(list *l)
 {
 	if (!l)
-		return 0;
+		return NULL;
 
 	if (!l->back)
-		return 0;
+		return NULL;
 
 	l->cnt--;
-
+	node *save = l->back;
 	l->back = l->back->prev;
 
 	if (l->back)
@@ -210,7 +210,7 @@ int list_pop_back(list *l)
 	else
 		l->front = NULL;
 
-	return 1;
+	return save;
 }
 
 int list_insert_before(list *l, node *n, node *v)

@@ -39,16 +39,14 @@ extern int list_push_back(list *l, node *n);
 extern int list_insert_before(list *l, node *n, node *v);
 extern int list_insert_after(list *l, node *n, node *v);
 
-extern node *list_front(const list *l);			// Returns NULL if empty
-extern node *list_back(const list *l);			// Returns NULL if empty
+extern node *list_front(const list *l);			// Returns NULL if none
+extern node *list_back(const list *l);			// Returns NULL if none
+extern node *list_next(node *n);				// Returns NULL if none
+extern node *list_prev(node *n);				// Returns NULL if none
+extern node *list_pop_front(list *l);			// Returns NULL if none
+extern node *list_pop_back(list *l);			// Returns NULL if none
 
-extern int list_pop_front(list *l);
-extern int list_pop_back(list *l);
 extern int list_remove(list *l, node *n);
-
-extern node *list_next(node *n);				// Returns NULL if no more
-extern node *list_prev(node *n);				// Returns NULL if no more
-
 extern size_t list_count(const list *l);		// Returns internal count
 
 extern int list_iter(list *l, int (*)(node*,void*), void *data);
