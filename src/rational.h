@@ -24,18 +24,18 @@ inline static void r_subi(rational *r, long long v) { r->n=r->n-(v*r->d); r->d=r
 inline static void r_muli(rational *r, long long v) { r->n*=v; }
 inline static void r_divi(rational *r, long long v) { r->d*=v; }
 
-#define r_eq(r,v) ( ((r)->n*(v)->d)==((v)->n*((r)->d)) )
-#define r_ne(r,v) ( ((r)->n*(v)->d)!=((v)->n*((r)->d)) )
-#define r_gt(r,v) ( ((r)->n*(v)->d)>((v)->n*((r)->d)) )
-#define r_ge(r,v) ( ((r)->n*(v)->d)>=((v)->n*((r)->d)) )
-#define r_lt(r,v) ( ((r)->n*(v)->d)<((v)->n*((r)->d)) )
-#define r_le(r,v) ( ((r)->n*(v)->d)<=((v)->n*((r)->d)) )
+inline static int r_eq(rational *r, rational *v) { return (r->n*v->d) == (r->d*v->n); }
+inline static int r_ne(rational *r, rational *v) { return (r->n*v->d) != (r->d*v->n); }
+inline static int r_gt(rational *r, rational *v) { return (r->n*v->d) > (r->d*v->n); }
+inline static int r_ge(rational *r, rational *v) { return (r->n*v->d) >= (r->d*v->n); }
+inline static int r_lt(rational *r, rational *v) { return (r->n*v->d) < (r->d*v->n); }
+inline static int r_le(rational *r, rational *v) { return (r->n*v->d) <= (r->d*v->n); }
 
-#define r_eqi(r,v) ( (r)->n==((r)->d*(v)) )
-#define r_nei(r,v) ( (r)->n!=((r)->d*(v)) )
-#define r_gti(r,v) ( (r)->n>((r)->d*(v)) )
-#define r_gei(r,v) ( (r)->n>=((r)->d*(v)) )
-#define r_lti(r,v) ( (r)->n<((r)->d*(v)) )
-#define r_lei(r,v) ( (r)->n<=((r)->d*(v)) )
+inline static int r_eqi(rational *r, long long v) { return r->n == (r->d*v); }
+inline static int r_nei(rational *r, long long v) { return r->n != (r->d*v); }
+inline static int r_gti(rational *r, long long v) { return r->n > (r->d*v); }
+inline static int r_gei(rational *r, long long v) { return r->n >= (r->d*v); }
+inline static int r_lti(rational *r, long long v) { return r->n < (r->d*v); }
+inline static int r_lei(rational *r, long long v) { return r->n <= (r->d*v); }
 
 #endif
