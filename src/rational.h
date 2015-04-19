@@ -24,18 +24,18 @@ inline static void r_subi(rational *r, long long v) { r->n=r->n-(v*r->d); r->d=r
 inline static void r_muli(rational *r, long long v) { r->n*=v; }
 inline static void r_divi(rational *r, long long v) { r->d*=v; }
 
-#define r_eq(r,v) ( ((r)->n*(v)->d)==((v)->n*(r)->d) )
-#define r_ne(r,v) ( ((r)->n*(v)->d)!=((v)->n*(r)->d) )
-#define r_gt(r,v) ( ((r)->n*(v)->d)>((v)->n*(r)->d) )
-#define r_ge(r,v) ( ((r)->n*(v)->d)>=((v)->n*(r)->d) )
-#define r_lt(r,v) ( ((r)->n*(v)->d)<((v)->n*(r)->d) )
-#define r_le(r,v) ( ((r)->n*(v)->d)<=((v)->n*(r)->d) )
+#define r_eq(r,v) ( ((r)->n*(v)->d)==((v)->n*((r)->d)) )
+#define r_ne(r,v) ( ((r)->n*(v)->d)!=((v)->n*((r)->d)) )
+#define r_gt(r,v) ( ((r)->n*(v)->d)>((v)->n*((r)->d)) )
+#define r_ge(r,v) ( ((r)->n*(v)->d)>=((v)->n*((r)->d)) )
+#define r_lt(r,v) ( ((r)->n*(v)->d)<((v)->n*((r)->d)) )
+#define r_le(r,v) ( ((r)->n*(v)->d)<=((v)->n*((r)->d)) )
 
-#define r_eqi(r,v) ( (r)->n==((long long)v*(r)->d) )
-#define r_nei(r,v) ( (r)->n!=((long long)v*(r)->d) )
-#define r_gti(r,v) ( (r)->n>((long long)v*(r)->d) )
-#define r_gei(r,v) ( (r)->n>=((long long)v*(r)->d) )
-#define r_lti(r,v) ( (r)->n<((long long)v*(r)->d) )
-#define r_lei(r,v) ( (r)->n<=((long long)v*(r)->d) )
+#define r_eqi(r,v) ( (r)->n==((r)->d*(v)) )
+#define r_nei(r,v) ( (r)->n!=((r)->d*(v)) )
+#define r_gti(r,v) ( (r)->n>((r)->d*(v)) )
+#define r_gei(r,v) ( (r)->n>=((r)->d*(v)) )
+#define r_lti(r,v) ( (r)->n<((r)->d*(v)) )
+#define r_lei(r,v) ( (r)->n<=((r)->d*(v)) )
 
 #endif
