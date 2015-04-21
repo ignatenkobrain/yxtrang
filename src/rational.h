@@ -1,7 +1,7 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
 
-typedef struct { long long n; long long d; } rational;
+typedef struct { long long n, d; } rational;
 
 extern void r_reduce(rational *r);
 extern void r_float(rational *r, double v);
