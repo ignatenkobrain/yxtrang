@@ -117,6 +117,8 @@ int list_remove(list *l, node *n)
 	if (!l || !n)
 		return 0;
 
+	l->cnt--;
+
 	if (l->front == n)
 		l->front = n->next;
 	else
@@ -127,7 +129,7 @@ int list_remove(list *l, node *n)
 	else
 		n->next->prev = n->prev;
 
-	l->cnt--;
+	n->prev = n->next = NULL;
 	return 1;
 }
 
