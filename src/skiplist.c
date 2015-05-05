@@ -1,24 +1,24 @@
 /*
-  *"Skip Lists are a probabilistic alternative to balanced trees, as
-  *described in the June 1990 issue of CACM and were invented by
-  *William Pugh in 1987"
+ * "Skip Lists are a probabilistic alternative to balanced trees, as
+ * described in the June 1990 issue of CACM and were invented by
+ * William Pugh in 1987"
  *
-  *Modifed: Andrew G Davison 2014 (Infradig Systems)...
+ * Modifed: Andrew G Davison 2014 (Infradig Systems)...
  *
-  *This version is unique (as far as I know) in that it adds 'buckets'
-  *with binary search within. This allows many more keys to be stored:
-  *about 400M 64-bit keys (bucket size 16) on an 8GB system vs 150M
-  *with the original. A pathological case exists whereby keys are added
-  *in descending order and it reverts to one key per bucket, as per the
-  *original. Since buckets are fixed in size, this is bad. The case
-  *though is unlikely and can be planned around. For both in-order and
-  *random insertion space usage is optimal.
+ * This version is unique (as far as I know) in that it adds 'buckets'
+ * with binary search within. This allows many more keys to be stored:
+ * about 400M 64-bit keys (bucket size 16) on an 8GB system vs 150M
+ * with the original. A pathological case exists whereby keys are added
+ * in descending order and it reverts to one key per bucket, as per the
+ * original. Since buckets are fixed in size, this is bad. The case
+ * though is unlikely and can be planned around. For both in-order and
+ * random insertion space usage is optimal.
  *
-  *Future enhancement: allocate variable sized buckets (requires
-  *storing bucket allocation size in node).
+ * Future enhancement: allocate variable sized buckets (requires
+ * storing bucket allocation size in node).
  *
-  *Follow-on enhancement: when deleting from a bucket, if the number
-  *drops below half the bucket size, reallocate bucket at half size.
+ * Follow-on enhancement: when deleting from a bucket, if the number
+ * drops below half the bucket size, reallocate bucket at half size.
  *
  */
 
@@ -28,10 +28,10 @@
 
 #include "skiplist.h"
 
-typedef struct _keyval keyval_t;
-typedef struct _node *node;
+typedef struct keyval_ keyval_t;
+typedef struct node_ *node;
 
-struct _keyval
+struct keyval_
 {
 	void*	key;
 	void*	val;
@@ -41,7 +41,7 @@ struct _keyval
 #define SKIPLIST_KEYS 16
 #endif
 
-struct _node
+struct node_
 {
 	int			nbr;
 	keyval_t	bkt[SKIPLIST_KEYS];
@@ -62,7 +62,7 @@ struct skiplist_
 
 #define MaxNumberOfLevels 32
 #define MaxLevel (MaxNumberOfLevels-1)
-#define NewNodeOfLevel(x) (node)malloc(sizeof(struct _node)+((x)*sizeof(node)))
+#define NewNodeOfLevel(x) (node)malloc(sizeof(struct node_)+((x)*sizeof(node)))
 
 // Allows using integer values as keys...
 
@@ -239,7 +239,7 @@ int sl_add(skiplist *l, const void *key, const void *value)
 	int i, k;
 	node update[MaxNumberOfLevels];
 	node p, q;
-	struct _node stash;
+	struct node_ stash;
 	stash.nbr = 0;
 
 	p = l->header;

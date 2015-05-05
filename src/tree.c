@@ -23,11 +23,11 @@
 #define TREE_NODES 64
 #endif
 
-typedef struct _trunk trunk;
-typedef struct _branch branch;
-typedef struct _node node;
+typedef struct trunk_ trunk;
+typedef struct branch_ branch;
+typedef struct node_ node;
 
-struct _node
+struct node_
 {
 	uuid k;
 
@@ -38,13 +38,13 @@ struct _node
 	};
 };
 
-struct _branch
+struct branch_
 {
-	unsigned max_nodes, nodes, leaf;
+	unsigned maxnode_s, nodes, leaf;
 	node n[0];
 };
 
-struct _trunk
+struct trunk_
 {
 	branch *active;
 	trunk *next;
@@ -111,17 +111,17 @@ tree *tree_create()
 	tree *tptr = (tree*)calloc(1, sizeof(struct tree_));
 	if (!tptr) return NULL;
 	tptr->trunks++;
-	tptr->last = tptr->first = (trunk*)calloc(1, sizeof(struct _trunk));
+	tptr->last = tptr->first = (trunk*)calloc(1, sizeof(struct trunk_));
 	if (!tptr->last) return tptr;
 
-	size_t block_size = TREE_NODES  *sizeof(struct _node);
-	block_size += sizeof(struct _branch);
+	size_t block_size = TREE_NODES  *sizeof(struct node_);
+	block_size += sizeof(struct branch_);
 
 	tptr->branches++;
 	trunk *t = tptr->first;
 	t->active = (branch*)calloc(1, block_size);
 	if (!t->active) return tptr;
-	t->active->max_nodes = TREE_NODES;
+	t->active->maxnode_s = TREE_NODES;
 	t->active->leaf = 1;
 
 	// Add in a dummy (illegal) zero key,
@@ -151,11 +151,11 @@ static int branch_insert(tree *tptr, branch **b2, const uuid *k, unsigned long l
 
 		// If full, reallocate a bigger one...
 
-		if (b->nodes == b->max_nodes)
+		if (b->nodes == b->maxnode_s)
 		{
-			b->max_nodes += 1;
-			size_t block_size = b->max_nodes  *sizeof(struct _node);
-			block_size += sizeof(struct _branch);
+			b->maxnode_s += 1;
+			size_t block_size = b->maxnode_s  *sizeof(struct node_);
+			block_size += sizeof(struct branch_);
 			b = (branch*)realloc(b, block_size);
 			if (!b) return 0;
 
@@ -215,16 +215,16 @@ static void trunk_add(tree *tptr, trunk *t, branch *save, branch *b, const uuid 
 	if (!t->next)
 	{
 		tptr->trunks++;
-		tptr->last = t->next = (trunk*)calloc(1, sizeof(struct _trunk));
+		tptr->last = t->next = (trunk*)calloc(1, sizeof(struct trunk_));
 		if (!tptr->last) return;
 
-		size_t block_size = TREE_NODES  *sizeof(struct _node);
-		block_size += sizeof(struct _branch);
+		size_t block_size = TREE_NODES  *sizeof(struct node_);
+		block_size += sizeof(struct branch_);
 
 		tptr->branches++;
 		t->next->active = (branch*)calloc(1, block_size);
 		if (!t->next->active) return;
-		t->next->active->max_nodes = TREE_NODES;
+		t->next->active->maxnode_s = TREE_NODES;
 		t->next->active->n[0].k = save->n[0].k;
 		t->next->active->n[0].b = save;
 		t->next->active->nodes++;
@@ -232,17 +232,17 @@ static void trunk_add(tree *tptr, trunk *t, branch *save, branch *b, const uuid 
 
 	t = t->next;
 
-	if (t->active->nodes == t->active->max_nodes)
+	if (t->active->nodes == t->active->maxnode_s)
 	{
 		branch *save2 = t->active;
 
-		size_t block_size = TREE_NODES  *sizeof(struct _node);
-		block_size += sizeof(struct _branch);
+		size_t block_size = TREE_NODES  *sizeof(struct node_);
+		block_size += sizeof(struct branch_);
 
 		tptr->branches++;
 		t->active = (branch*)calloc(1, block_size);
 		if (!t->active) return;
-		t->active->max_nodes = TREE_NODES;
+		t->active->maxnode_s = TREE_NODES;
 		trunk_add(tptr, t, save2, t->active, k);
 	}
 
@@ -261,17 +261,17 @@ int tree_add(tree *tptr, const uuid *k, unsigned long long v)
 
 	trunk *t = tptr->first;
 
-	if (t->active->nodes == t->active->max_nodes)
+	if (t->active->nodes == t->active->maxnode_s)
 	{
 		branch *save2 = t->active;
 
-		size_t block_size = TREE_NODES  *sizeof(struct _node);
-		block_size += sizeof(struct _branch);
+		size_t block_size = TREE_NODES  *sizeof(struct node_);
+		block_size += sizeof(struct branch_);
 
 		tptr->branches++;
 		t->active = (branch*)calloc(1, block_size);
 		if (!t->active) return 0;
-		t->active->max_nodes = TREE_NODES;
+		t->active->maxnode_s = TREE_NODES;
 		t->active->leaf = 1;
 		trunk_add(tptr, t, save2, t->active, k);
 	}

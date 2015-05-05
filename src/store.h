@@ -10,7 +10,6 @@
 
 typedef struct store_ store;
 typedef struct hstore_ hstore;
-typedef struct hreader_ hreader;
 
 extern store *store_open(const char *path1, const char *path2, int compact);
 extern store *store_open2(const char *path1, const char *path2, int compact, void (*)(void*,const uuid*,const void*,int), void *p1);

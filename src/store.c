@@ -1186,14 +1186,6 @@ int store_tail(store *st, const uuid *u, int (*f)(void*,const uuid*,const void*,
 	return cnt;
 }
 
-void store_done(hreader *r)
-{
-	if (!r)
-		return;
-
-	free(r);
-}
-
 store *store_open(const char *path1, const char *path2, int compact)
 {
 	return store_open2(path1, path2, compact, NULL, NULL);
