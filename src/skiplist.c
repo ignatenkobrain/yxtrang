@@ -60,9 +60,9 @@ struct skiplist_
 	void	(*freeval)(void*);
 };
 
-#define MaxNumberOfLevels 32
-#define MaxLevel (MaxNumberOfLevels-1)
-#define NewNodeOfLevel(x) (node)malloc(sizeof(struct node_)+((x)*sizeof(node)))
+#define max_levels 32
+#define max_level (max_levels-1)
+#define new_node_of_level(x) (node)malloc(sizeof(struct node_)+((x)*sizeof(node)))
 
 // Allows using integer values as keys...
 
@@ -88,7 +88,7 @@ skiplist *sl_create2(int (*compare)(const void*, const void*), void *(*copykey)(
 	if (!l) return NULL;
 
 	l->level = 1;
-	l->header = NewNodeOfLevel(MaxNumberOfLevels);
+	l->header = new_node_of_level(max_levels);
 
 	if (!l->header)
 	{
@@ -96,7 +96,7 @@ skiplist *sl_create2(int (*compare)(const void*, const void*), void *(*copykey)(
 		return NULL;
 	}
 
-	for (i = 0; i < MaxNumberOfLevels; i++)
+	for (i = 0; i < max_levels; i++)
 		l->header->forward[i] = NULL;
 
 	l->header->nbr = 1;
@@ -224,11 +224,11 @@ static int binary_search2(const skiplist *l, const keyval_t n[], const void *key
 
 #define frand() ((double)rand() / RAND_MAX)
 
-static int RandomLevelskiplist()
+static int random_level()
 {
 	const double P = 0.5;
     int lvl = (int)(log(frand())/log(1.-P));
-    return lvl < MaxLevel ? lvl : MaxLevel;
+    return lvl < max_level ? lvl : max_level;
 }
 
 int sl_add(skiplist *l, const void *key, const void *value)
@@ -237,7 +237,7 @@ int sl_add(skiplist *l, const void *key, const void *value)
 		return 0;
 
 	int i, k;
-	node update[MaxNumberOfLevels];
+	node update[max_levels];
 	node p, q;
 	struct node_ stash;
 	stash.nbr = 0;
@@ -302,7 +302,7 @@ int sl_add(skiplist *l, const void *key, const void *value)
 		}
 	}
 
-	k = RandomLevelskiplist();
+	k = random_level();
 
 	if (k >= l->level)
 	{
@@ -311,7 +311,7 @@ int sl_add(skiplist *l, const void *key, const void *value)
 		update[k] = l->header;
 	}
 
-	q = NewNodeOfLevel(k+1);
+	q = new_node_of_level(k+1);
 
 	if (q == NULL)
 		return 0;
@@ -384,7 +384,7 @@ int sl_rem(skiplist *l, const void *key)
 		return 0;
 
 	int k, m;
-	node update[MaxNumberOfLevels];
+	node update[max_levels];
 	node p, q;
 
 	p = l->header;
@@ -462,7 +462,7 @@ int sl_erase(skiplist *l, const void *key, const void *value, int (*compare)(con
 		compare = default_compare;
 
 	int k, m;
-	node update[MaxNumberOfLevels];
+	node update[max_levels];
 	node p, q;
 	p = l->header;
 
@@ -548,7 +548,7 @@ int sl_efface(skiplist *l, const void *value, int (*compare)(const void*,const v
 		compare = default_compare;
 
 	int k, m, imid = -1;
-	node update[MaxNumberOfLevels];
+	node update[max_levels];
 	node p, q;
 	p = l->header;
 
