@@ -31,16 +31,12 @@ struct json_
 	json *next;
 };
 
-#if _SVID_SOURCE || _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE \
-      && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200809L
-#else
-static char *strdup(const char *s)
+static char *copy_string(const char *s)
 {
 	size_t len =strlen(s)+1;
 	void *s2 = (char*)malloc(len);
 	return (char*) (s2 ? memcpy(s2, s, len) : NULL);
 }
-#endif
 
 #ifdef _WIN32
 static long long strtoll(const char *src, char **end, int base)
@@ -234,7 +230,7 @@ static void json__open(char **str, json *j, const int is_array)
 				}
 
 				*dst = 0;
-				j->name = strdup(name);
+				j->name = copy_string(name);
 				s++;
 			}
 
@@ -442,12 +438,12 @@ json *json_object_add(json *j, const char *name)
 	if (!j->head)
 	{
 		j = j->head = (json*)calloc(1, sizeof(struct json_));
-		j->name = strdup(name);
+		j->name = copy_string(name);
 		return j;
 	}
 
 	j = (json*)json_add(j->head);
-	j->name = strdup(name);
+	j->name = copy_string(name);
 	return j;
 }
 
@@ -487,7 +483,7 @@ json *json_create(json *j, const char *name)
 		return ptr;
 
 	ptr = (json*)json_add(j);
-	j->name = strdup(name);
+	j->name = copy_string(name);
 	return ptr;
 }
 
@@ -596,7 +592,7 @@ int json_set_string(json *j, const char *value)
 		free(j->str);
 
 	j->type = type_string;
-	j->str = strdup(value);
+	j->str = copy_string(value);
 	return 1;
 }
 
