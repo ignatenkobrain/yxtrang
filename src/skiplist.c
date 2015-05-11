@@ -66,6 +66,13 @@ struct skiplist_
 
 // Allows using integer values as keys...
 
+char *copy_string(const char *s)
+{
+	size_t len =strlen(s)+1;
+	void *s2 = (char*)malloc(len);
+	return (char*) (s2 ? memcpy(s2, s, len) : NULL);
+}
+
 static int default_compare(const void *k1, const void *k2)
 {
 	if ((size_t)k1 < (size_t)k2)
