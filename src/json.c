@@ -31,6 +31,17 @@ struct json_
 	json *next;
 };
 
+#if _SVID_SOURCE || _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE \
+      && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200809L
+#else
+static char *strdup(const char *s)
+{
+	size_t len =strlen(s)+1;
+	void *s2 = (char*)malloc(len);
+	return (char*) (s2 ? memcpy(s2, s, len) : NULL);
+}
+#endif
+
 #ifdef _WIN32
 static long long strtoll(const char *src, char **end, int base)
 {
