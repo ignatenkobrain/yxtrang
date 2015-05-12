@@ -52,7 +52,14 @@
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#define msleep(ms) usleep(ms*1000)
+
+#if _BSD_SOURCE || (_XOPEN_SOURCE >= 500 || \
+                    _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+                   !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+#define msleep(ms) usleep((ms)*1000)
+#else
+#define msleep(ms) sleep(ms/1000)
+#endif
 #endif
 
 #ifndef USE_SSL
