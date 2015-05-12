@@ -6,7 +6,6 @@
 #include <time.h>
 #include <float.h>
 
-#include <rational.h>
 #include <json.h>
 #include <jsonq.h>
 #include <base64.h>
@@ -493,69 +492,6 @@ void do_tree(long cnt, int rnd)
 	tree_destroy(tptr);
 }
 
-static void do_rat()
-{
-	rational r;
-	r_rat3(&r, 33, 1, 3);
-	r_muli(&r, 3);
-	r_reduce(&r);
-	printf("33 1/3 * 3 = %lld/%lld\n", r.n, r.d);
-
-	r_int(&r, 100);
-	r_divi(&r, 3);
-	printf("100 / 3 = %lld/%lld\n", r.n, r.d);
-	r_int(&r, 100);
-	r_divi(&r, 10);
-	printf("100 / 10 = %lld/%lld ", r.n, r.d);
-	printf(" check = %lld/%lld\n", r.n, r.d);
-
-	r_rat2(&r, 1, 10);
-	printf("1 / 10 = %lld/%lld ", r.n, r.d);
-	r_reduce(&r);
-	printf(" check = %lld/%lld\n", r.n, r.d);
-
-	r_rat2(&r, -1, 10);
-	printf("-1 / 10 = %lld/%lld ", r.n, r.d);
-	r_reduce(&r);
-	printf(" check = %lld/%lld\n", r.n, r.d);
-
-	r_rat2(&r, 1, -10);
-	printf("1 / -10 = %lld/%lld ", r.n, r.d);
-	r_reduce(&r);
-	printf(" check = %lld/%lld\n", r.n, r.d);
-
-	double v = 10.0/3.0;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-
-	v = 1.0/3.0;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-	v = 0.1;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-
-	v = -10.0/3.0;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-
-	v = -1.0/3.0;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-
-	v = -0.1;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-
-	v = 0.125;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-
-	v = 3.141592653589793;
-	r_float(&r, v);
-	printf("%.*g = %lld/%lld = %.*g\n", DBL_DIG, v, r.n, r.d, DBL_DIG, r_get_float(&r));
-}
-
 static void do_base64()
 {
 	const char *s = qbf;
@@ -653,7 +589,7 @@ int main(int ac, char *av[])
 	int test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
 	int discovery = 0, test_linda_out = 0, test_linda_in = 0;
-	int tran = 0, test_rat = 0;
+	int tran = 0;
 	unsigned short port = SERVER_PORT;
 	int i;
 
@@ -701,9 +637,6 @@ int main(int ac, char *av[])
 
 		if (!strcmp(av[i], "--tree"))
 			test_tree = 1;
-
-		if (!strcmp(av[i], "--rat"))
-			test_rat = 1;
 
 		if (!strcmp(av[i], "--json"))
 			test_json = 1;
@@ -778,12 +711,6 @@ int main(int ac, char *av[])
 			printf("DISCOVERY: service=%s, host=%s, port=%u, tcp=%d, ssl=%d\n", g_service, host, port, tcp, ssl);
 
 		uncle_destroy(u);
-	}
-
-	if (test_rat)
-	{
-		do_rat();
-		return 0;
 	}
 
 	if (test_json)
