@@ -573,7 +573,7 @@ static void do_jsonq(const char *name)
 		"'e':false,"
 		"'f':null,"
 		"'g':[11,22],"
-		"'h':{'h1':33,'h2':44,h3':'this is a \\\"quote\\\" character'}"
+		"'h':{'h1':33,'h2':44,h3':'this is a \\\"quoted\\\" string'}"
 		"}";
 
 	printf("%s\n", s);
