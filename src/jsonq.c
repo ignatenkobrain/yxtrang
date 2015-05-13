@@ -4,8 +4,8 @@
 
 #include "jsonq.h"
 
-static const char *escapes = "\a\f\b\t\v\r\n\"\\/\0";
-static const char *anti_escapes = "afbtvrn\"\\/0";
+static const char *escapes = "\a\f\b\t\v\r\n\0";
+static const char *anti_escapes = "afbtvrn0";
 
 const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 {
