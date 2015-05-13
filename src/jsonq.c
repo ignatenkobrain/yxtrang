@@ -4,8 +4,8 @@
 
 #include "jsonq.h"
 
-static const char *escapes = "\a\f\b\t\v\r\n\\\0";
-static const char *anti_escapes = "afbtvrn\\0";
+static const char *escapes = "\a\f\b\t\v\r\n\"\\/\0";
+static const char *anti_escapes = "afbtvrn\"\\/0";
 
 const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 {
@@ -13,7 +13,7 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 	char tmpbuf[1024];
 	char *dst = tmpbuf;
 	int found = 0, quoted = 0, level = 0, lhs = 1;
-	char quote = 0, ch;
+	char ch;
 
 	if (*s == '{')
 		s++;
@@ -21,43 +21,15 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 	while ((ch = *s++) != 0)
 	{
 		if (!quoted && (ch == '"'))
-		{
-			quote = '"';
 			quoted = 1;
-		}
-		else if (!quoted && (ch == '\''))
-		{
-			quote = '\'';
-			quoted = 1;
-		}
-		else if (quoted && (ch == quote))
-		{
+		else if (quoted && (ch == '"'))
 			quoted = 0;
-		}
 		else if (quoted && lhs && (ch == '\\'))
 		{
 			ch = *s++;
-
-			if (ch == '"')
-				*dst++ = ch;
-			else if (ch == '\'')
-				*dst++ = ch;
-			else if (ch == '\\')
-				*dst++ = ch;
-			else if (ch == '/')
-				*dst++ = ch;
-			else if (ch == 'b')
-				*dst++ = '\b';
-			else if (ch == 'f')
-				*dst++ = '\f';
-			else if (ch == 'n')
-				*dst++ = '\n';
-			else if (ch == 'r')
-				*dst++ = '\r';
-			else if (ch == 't')
-				*dst++ = '\t';
-			else
-				*dst++ = ch;
+			const char *ptr = strchr(anti_escapes, ch);
+			if (ptr) *dst++ = escapes[ptr-anti_escapes];
+			else *dst++ = ch;
 		}
 		else if (!quoted && lhs && !found && !level && (ch == ':'))
 		{
@@ -76,7 +48,7 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 		{
 			int len = (s-src)-1;
 
-			if (*src == quote)
+			if (*src == '"')
 			{
 				dst = dstbuf;
 				src++;

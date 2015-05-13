@@ -510,11 +510,11 @@ static void do_base64()
 
 static void do_json()
 {
-	const char *s = "{'a':1,'b':2.2,"
-		"'c':'the quick brown fox jumped over the lazy dog',"
-		"'d':true,'e':false,'f':null,"
-		"'g':[11,22],"
-		"'h':{'h1':33,'h2':44}"
+	const char *s = "{\"a\":1,\"b\":2.2,"
+		"\"c\":\"the quick brown fox jumped over the lazy dog\","
+		"\"d\":true,\"e\":false,\"f\":null,"
+		"\"g\":[11,22],"
+		"\"h\":{\"h1\":33,\"h2\":44}"
 		"}";
 
 	printf("ORIG: %s\n", s);
@@ -566,14 +566,14 @@ static void do_json()
 static void do_jsonq(const char *name)
 {
 	const char *s = "{"
-		"'a':1,"
-		"'b':2.2,"
-		"'c':'the quick brown \\\"fox\\\" jumped over the lazy dog',"
-		"'d':true,"
-		"'e':false,"
-		"'f':null,"
-		"'g':[11,22],"
-		"'h':{'h1':33,'h2':44,h3':'this is a \\\"quoted\\\" string'}"
+		"\"a\":1,"
+		"\"b\":2.2,"
+		"\"c\":\"the quick brown \\\"fox\\\" jumped over the lazy dog\","
+		"\"d\":true,"
+		"\"e\":false,"
+		"\"f\":null,"
+		"\"g\":[11,22],"
+		"\"h\":{\"h1\":33,\"h2\":44,h3\":\"this is a \\\"quoted\\\" string\"}"
 		"}";
 
 	printf("%s\n", s);
