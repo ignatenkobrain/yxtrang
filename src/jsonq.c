@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "jsonq.h"
 
@@ -15,12 +16,17 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 	int found = 0, quoted = 0, level = 0, lhs = 1;
 	char ch;
 
+	while (isspace(*s))
+		s++;
+
 	if (*s == '{')
 		s++;
 
 	while ((ch = *s++) != 0)
 	{
-		if (!quoted && (ch == '"'))
+		if (!quoted && isspace(ch))
+			;
+		else if (!quoted && (ch == '"'))
 			quoted = 1;
 		else if (quoted && (ch == '"'))
 			quoted = 0;
@@ -35,6 +41,9 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 		{
 			*dst = 0;
 			dst = tmpbuf;
+
+			while (isspace(*s))
+				s++;
 
 			if (!strcmp(name, tmpbuf))
 			{

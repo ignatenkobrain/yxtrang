@@ -568,7 +568,7 @@ static void do_jsonq(const char *name)
 	const char *s = "{"
 		"\"a\":1,"
 		"\"b\":2.2,"
-		"\"c\":\"the quick brown \\\"fox\\\" jumped over the lazy dog\","
+		"\"c\" : \"the quick brown \\\"fox\\\" jumped over the lazy dog\","
 		"\"d\":true,"
 		"\"e\":false,"
 		"\"f\":null,"
