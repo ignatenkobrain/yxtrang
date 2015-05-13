@@ -7,8 +7,8 @@
 const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 {
 	const char *src = s;
-	char token[256];
-	char *dst = token;
+	char tmpbuf[1024];
+	char *dst = tmpbuf;
 	int found = 0, quoted = 0, level = 0, lhs = 1;
 	char quote = 0, ch;
 
@@ -59,9 +59,9 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 		else if (!quoted && lhs && !found && !level && (ch == ':'))
 		{
 			*dst = 0;
-			dst = token;
+			dst = tmpbuf;
 
-			if (!strcmp(name, token))
+			if (!strcmp(name, tmpbuf))
 			{
 				found = 1;
 				src = s;
