@@ -9,9 +9,10 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 {
 	static const char *escapes = "\a\f\b\t\v\r\n";
 	static const char *anti_escapes = "afbtvrn";
+	*dstbuf = 0;
 
 	if (!s || !name || !dstbuf || !dstlen)
-		return NULL;
+		return dstbuf;
 
 	const char *src = s;
 	char tmpbuf[1024];		// only used for name
@@ -23,7 +24,7 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 		s++;
 
 	if (*s++ != '{')
-		return NULL;
+		return dstbuf;
 
 	while ((ch = *s++) != 0)
 	{
