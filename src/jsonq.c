@@ -32,8 +32,7 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 			quoted = 0;
 		else if (quoted && lhs && (ch == '\\'))
 		{
-			ch = *s++;
-			const char *ptr = strchr(anti_escapes, ch);
+			const char *ptr = strchr(anti_escapes, ch=*src++);
 			if (ptr) *dst++ = escapes[ptr-anti_escapes];
 			else *dst++ = ch;
 		}
@@ -70,9 +69,8 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 					if (ch == '\\')
 					{
 
-						ch = *src++;
 						len--;
-						const char *ptr = strchr(anti_escapes, ch);
+						const char *ptr = strchr(anti_escapes, ch=*src++);
 						if (ptr) *dst++ = escapes[ptr-anti_escapes];
 						else *dst++ = ch;
 					}
