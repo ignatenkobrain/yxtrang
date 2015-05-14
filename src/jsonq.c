@@ -19,8 +19,8 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 	while (isspace(*s))
 		s++;
 
-	if (*s == '{')
-		s++;
+	if (*s++ != '{')
+		return NULL;
 
 	while ((ch = *s++) != 0)
 	{
