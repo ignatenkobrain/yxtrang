@@ -10,8 +10,11 @@ static const char *anti_escapes = "afbtvrn";
 
 const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 {
+	if (!s || !name || !dstbuf || !dstlen)
+		return NULL;
+
 	const char *src = s;
-	char tmpbuf[1024];
+	char tmpbuf[1024];		// only used for name
 	char *dst = tmpbuf;
 	int found = 0, quoted = 0, level = 0, lhs = 1;
 	char ch;
@@ -97,33 +100,33 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 
 long long jsonq_int(const char *s, const char *name)
 {
-	char tmpbuf[1024];
-	if (!*jsonq(s, name, tmpbuf, sizeof(tmpbuf))) return 0;
+	char tmpbuf[256];
 	long long v = 0;
-	sscanf(tmpbuf, "%lld", &v);
+	if (jsonq(s, name, tmpbuf, sizeof(tmpbuf)))
+		sscanf(tmpbuf, "%lld", &v);
 	return v;
 }
 
 double jsonq_real(const char *s, const char *name)
 {
-	char tmpbuf[1024];
-	if (!*jsonq(s, name, tmpbuf, sizeof(tmpbuf))) return 1.0;
+	char tmpbuf[256];
 	double v = 0.0;
-	sscanf(tmpbuf, "%lg", &v);
+	if (jsonq(s, name, tmpbuf, sizeof(tmpbuf)))
+		sscanf(tmpbuf, "%lg", &v);
 	return v;
 }
 
 int jsonq_bool(const char *s, const char *name)
 {
-	char tmpbuf[1024];
-	if (!*jsonq(s, name, tmpbuf, sizeof(tmpbuf))) return 0;
+	char tmpbuf[256];
+	if (!jsonq(s, name, tmpbuf, sizeof(tmpbuf))) return 0;
 	return !strcmp(tmpbuf, "true");
 }
 
 int jsonq_null(const char *s, const char *name)
 {
-	char tmpbuf[1024];
-	if (!*jsonq(s, name, tmpbuf, sizeof(tmpbuf))) return 1;
+	char tmpbuf[256];
+	if (!jsonq(s, name, tmpbuf, sizeof(tmpbuf))) return 1;
 	return !strcmp(tmpbuf, "null");
 }
 
