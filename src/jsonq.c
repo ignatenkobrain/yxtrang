@@ -44,11 +44,8 @@ const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 			while (isspace(*s))
 				s++;
 
-			if (!strcmp(name, tmpbuf))
-			{
-				found = 1;
+			if ((found = !strcmp(name, tmpbuf)) != 0)
 				src = s;
-			}
 
 			lhs = 0;
 		}
