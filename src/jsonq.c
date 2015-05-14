@@ -5,11 +5,11 @@
 
 #include "jsonq.h"
 
-static const char *escapes = "\a\f\b\t\v\r\n";
-static const char *anti_escapes = "afbtvrn";
-
 const char *jsonq(const char *s, const char *name, char *dstbuf, int dstlen)
 {
+	static const char *escapes = "\a\f\b\t\v\r\n";
+	static const char *anti_escapes = "afbtvrn";
+
 	if (!s || !name || !dstbuf || !dstlen)
 		return NULL;
 
