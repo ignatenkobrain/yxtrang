@@ -3,8 +3,8 @@ CPPFLAGS = $(CPPFLAGS) /MT /O2 /Gy /EHsc /D_CRT_SECURE_NO_DEPRECATE=1 /D_CRT_NON
 
 CPPFLAGS = $(CPPFLAGS) -I\boost -I. /nologo /DWIN32_LEAN_AND_MEAN /DUSE_SSL=0
 
-OBJECTS = base64.obj daemon.obj httpserver.obj json.obj jsonq.obj \
-			linda.obj list.obj network.obj scriptlet.obj \
+OBJECTS = base64.obj daemon.obj dict.obj  httpserver.obj json.obj \
+			jsonq.obj linda.obj list.obj network.obj scriptlet.obj \
 			skiplist.obj store.obj thread.obj tree.obj uncle.obj \
 			uuid.obj
 
@@ -23,6 +23,11 @@ $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
 daemon.obj: $*.h $*.c
+        cl @<<
+$(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
+<<
+
+dict.obj: $*.h $*.c
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<

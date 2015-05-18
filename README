@@ -27,6 +27,12 @@ daemon:
  Platform agnostic daemonizer code.
 
 
+dict:
+
+ A simple dictionary based on a skiplist. String key and void value.
+ Only pointer to the key/value is stored.
+
+
 httpserver:
 
  Mechanism to easily write a custom HTTP handler (see examples/httpd).

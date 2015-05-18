@@ -1,7 +1,7 @@
 CFLAGS += -Ofast $(DBG) -Wall -D_BSD_SOURCE
 CFLAGS += -I/usr/local/include -D_REENTRANT    # BSDs want this
 
-OBJECTS = base64.o daemon.o httpserver.o json.o jsonq.o \
+OBJECTS = base64.o daemon.o dict.o httpserver.o json.o jsonq.o \
 			linda.o list.o network.o scriptlet.o \
 			skiplist.o store.o thread.o tree.o uncle.o uuid.o
 
@@ -18,6 +18,7 @@ clean:
 
 base64.o: base64.h
 daemon.o: daemon.h
+dict.o: dict.h
 httpserver.o: httpserver.h network.h
 json.o: json.h
 jsonq.o: jsonq.h
