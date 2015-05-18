@@ -30,7 +30,8 @@ daemon:
 dict:
 
  A simple dictionary based on a skiplist. Use a char* key and void*
- value. Only the pointers are stored.
+ value. Only the pointers are stored. Optionally allow duplicates.
+ Optionally delete keys and/or values on cleanup.
 
 
 httpserver:
