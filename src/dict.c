@@ -17,6 +17,7 @@ struct slnode_
 
 void dict_init(dict *d, int dups)
 {
+	if (!d) return;
 	d->header = new_node_of_level(max_levels);
 	if (d->header == NULL) return;
 	d->level = 1;
@@ -41,6 +42,7 @@ static int random_level(void)
 
 int dict_set(dict *d, const char *key, void *value)
 {
+	if (!d || !key) return 0;
 	slnode *update[max_levels], *p = d->header, *q = NULL;
 	int i, k;
 
@@ -88,6 +90,7 @@ int dict_set(dict *d, const char *key, void *value)
 
 void *dict_rem(dict *d, const char *key)
 {
+	if (!d || !key) return NULL;
 	slnode *update[max_levels], *p = d->header, *q = NULL;
 	int k, m;
 
@@ -131,6 +134,7 @@ void *dict_rem(dict *d, const char *key)
 
 void *dict_get(dict *d, const char *key)
 {
+	if (!d || !key) return NULL;
 	slnode *p = d->header, *q = NULL;
 	int k;
 
@@ -148,11 +152,13 @@ void *dict_get(dict *d, const char *key)
 
 void dict_start(dict *d)
 {
+	if (!d) return;
 	d->p = d->header->forward[0];
 }
 
 void *dict_iter(dict *d)
 {
+	if (!d) return NULL;
 	if (d->p == NULL) return NULL;
 	void *value = d->p->value;
 	d->p = d->p->forward[0];
@@ -161,6 +167,7 @@ void *dict_iter(dict *d)
 
 void dict_done(dict *d, int delkey, void (*delval)(void *value))
 {
+	if (!d) return;
 	slnode *p = d->header, *q;
 	q = p->forward[0];
 	free(p);
