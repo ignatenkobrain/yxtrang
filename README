@@ -29,8 +29,8 @@ daemon:
 
 dict:
 
- A simple dictionary based on a skiplist. String key and void value.
- Only pointer to the key/value is stored.
+ A simple dictionary based on a skiplist. Use a char* key and void*
+ value. Only the pointers are stored.
 
 
 httpserver:
