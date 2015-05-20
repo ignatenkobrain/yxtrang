@@ -334,39 +334,39 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 
 static void do_skipbuck(long cnt)
 {
-	extern void sl_dump(const skipbuck *sptr);
-	skipbuck *sl = sl_int_create();
+	extern void sb_dump(const skipbuck *sptr);
+	skipbuck *sl = sb_int_create();
 	long i;
 
 	printf("Writing...\n");
 
 #if !SKIP_RANDOM && 1
 	for (i = 1; i <= cnt; i++)
-		sl_int_add(sl, i, i);
+		sb_int_add(sl, i, i);
 
 	printf("Duplicates...\n");
 
 	for (i = 1; i <= cnt; i++)
 	{
 		int k = (rand()%cnt)+1;
-		sl_int_add(sl, k, k);
+		sb_int_add(sl, k, k);
 	}
 #elif !SKIP_RANDOM && 1
 	for (i = 1; i <= cnt; i++)
-		sl_int_add(sl, i, i);
+		sb_int_add(sl, i, i);
 #elif !SKIP_RANDOM && 0
 	for (i = cnt; i > 0; i--)
-		sl_int_add(sl, i, i);
+		sb_int_add(sl, i, i);
 #else
 	for (i = 1; i <= cnt; i++)
 	{
 		int k = (rand()%cnt)+1;
-		sl_int_add(sl, k, k);
+		sb_int_add(sl, k, k);
 	}
 #endif
 
 	if (!g_quiet)
-		sl_dump(sl);
+		sb_dump(sl);
 
 	// Spot check...
 
@@ -377,7 +377,7 @@ static void do_skipbuck(long cnt)
 		int k = (rand()%cnt)+1;
 		int v = -1;
 
-		if (!sl_int_get(sl, k, &v))
+		if (!sb_int_get(sl, k, &v))
 #if !SKIP_RANDOM
 			printf("Get failed: %llu\n", (unsigned long long)(size_t)k);
 #else
@@ -390,35 +390,35 @@ static void do_skipbuck(long cnt)
 	}
 
 	if (!g_quiet)
-		sl_dump(sl);
+		sb_dump(sl);
 
 	// Try some deletes...
 
 	printf("Deleting...\n");
 
-	while (sl_count(sl) > 0)
+	while (sb_count(sl) > 0)
 	{
 		for (i = 1; i <= cnt; i++)
 		{
 			int k = (rand()%cnt)+1;
 
 #if 1
-			if (!sl_int_rem(sl, k))
+			if (!sb_int_rem(sl, k))
 #elif 0
-			if (!sl_int_erase(sl, k, (size_t)k, NULL))
+			if (!sb_int_erase(sl, k, (size_t)k, NULL))
 #else
-			if (!sl_int_efface(sl, (size_t)k, NULL))
+			if (!sb_int_efface(sl, (size_t)k, NULL))
 #endif
 				;//printf("Del failed: %llu\n", (unsigned long long)k);
 			else
 				;//printf("Del k=%llu\n", (unsigned long long)k);
 		}
 
-		//sl_dump(sl);
-		printf("Count: %llu\n", (unsigned long long)sl_count(sl));
+		//sb_dump(sl);
+		printf("Count: %llu\n", (unsigned long long)sb_count(sl));
 	}
 
-	sl_destroy(sl);
+	sb_destroy(sl);
 }
 
 #define TREE_RANDOM 0

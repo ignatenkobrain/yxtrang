@@ -70,9 +70,9 @@ int uncle_query(uncle *u, const char *name, char *addr, unsigned short *port, in
 	lock_lock(u->l);
 
 	if (name[0])
-		sl_string_find(u->db, name, &uncle_iter, u);
+		sb_string_find(u->db, name, &uncle_iter, u);
 	else
-		sl_string_iter(u->db, &uncle_iter, u);
+		sb_string_iter(u->db, &uncle_iter, u);
 
 	lock_unlock(u->l);
 
@@ -91,7 +91,7 @@ static int uncle_list(uncle *u, const char *name, int local, const char *addr, u
 	char tmpbuf[1024];
 	sprintf(tmpbuf, "%s/%s/%d/%u/%d/%d", name, addr, local, port, tcp, ssl);
 	lock_lock(u->l);
-	sl_string_add(u->db, tmpbuf, tmpbuf);
+	sb_string_add(u->db, tmpbuf, tmpbuf);
 	lock_unlock(u->l);
 	return 1;
 }
@@ -121,7 +121,7 @@ static int uncle_delist(uncle *u, const char *name, int local, const char *addr,
 	u->search.addr[0] = 0;
 
 	lock_lock(u->l);
-	sl_string_find(u->db, name, &uncle_iter, u);
+	sb_string_find(u->db, name, &uncle_iter, u);
 
 	if (!u->search.addr[0])
 	{
@@ -129,7 +129,7 @@ static int uncle_delist(uncle *u, const char *name, int local, const char *addr,
 		return 0;
 	}
 
-	sl_string_rem(u->db, u->search.key);
+	sb_string_rem(u->db, u->search.key);
 	lock_unlock(u->l);
 	return 1;
 }
@@ -225,9 +225,9 @@ static int uncle_handler(session *s, void *data)
 		lock_lock(u->l);
 
 		if (name[0])
-			sl_string_find(u->db, name, &uncle_iter2, u);
+			sb_string_find(u->db, name, &uncle_iter2, u);
 		else
-			sl_string_iter(u->db, &uncle_iter2, u);
+			sb_string_iter(u->db, &uncle_iter2, u);
 
 		lock_unlock(u->l);
 	}
@@ -241,7 +241,7 @@ uncle *uncle_create2(handler *h, const char *binding, unsigned short port, const
 		return NULL;
 
 	uncle *u = (uncle*)calloc(1, sizeof(struct uncle_));
-	u->db = sl_string_create2();
+	u->db = sb_string_create2();
 	u->h = h;
 	u->l = lock_create();
 	u->unique = time(NULL);
@@ -290,7 +290,7 @@ void uncle_destroy(uncle *u)
 		return;
 
 	handler_destroy(u->h);
-	sl_string_destroy(u->db);
+	sb_string_destroy(u->db);
 	lock_destroy(u->l);
 	session_close(u->s);
 	free(u);

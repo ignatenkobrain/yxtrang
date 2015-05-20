@@ -237,7 +237,7 @@ hscriptlet *scriptlet_prepare(scriptlet *s)
 	scriptlet_share(s);
 	hscriptlet *r = (hscriptlet*)calloc(1, sizeof(struct hscriptlet_));
 	r->s = s;
-	r->symtab = sl_string_create();
+	r->symtab = sb_string_create();
 	scriptlet_set_int(r, "$FIRST", 1);
 	r->it_syms_save = r->it_syms;
 	return r;
@@ -246,7 +246,7 @@ hscriptlet *scriptlet_prepare(scriptlet *s)
 int scriptlet_done(hscriptlet *r)
 {
 	scriptlet_unshare(r->s);
-	sl_string_destroy(r->symtab);
+	sb_string_destroy(r->symtab);
 	free(r);
 	return 1;
 }
@@ -256,8 +256,8 @@ int scriptlet_set_int(hscriptlet *r, const char *k, long long value)
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = int_tc;
 	code->int_val = value;
-	sl_string_rem(r->symtab, k);
-	sl_string_add(r->symtab, k, code);
+	sb_string_rem(r->symtab, k);
+	sb_string_add(r->symtab, k, code);
 	return 1;
 }
 
@@ -266,8 +266,8 @@ int scriptlet_set_real(hscriptlet *r, const char *k, double value)
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = real_tc;
 	code->real_val = value;
-	sl_string_rem(r->symtab, k);
-	sl_string_add(r->symtab, k, code);
+	sb_string_rem(r->symtab, k);
+	sb_string_add(r->symtab, k, code);
 	return 1;
 }
 
@@ -276,8 +276,8 @@ int scriptlet_set_string(hscriptlet *r, const char *k, const char *value)
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = string_tc;
 	strcpy(code->str_val, value);
-	sl_string_rem(r->symtab, k);
-	sl_string_add(r->symtab, k, code);
+	sb_string_rem(r->symtab, k);
+	sb_string_add(r->symtab, k, code);
 	return 1;
 }
 
@@ -286,7 +286,7 @@ static bytecode substitute(const hscriptlet *r, const bytecode v)
 	bytecode code = v;
 
 	if (v->tc == string_tc)
-		sl_string_get(r->symtab, v->str_val, &code);
+		sb_string_get(r->symtab, v->str_val, &code);
 
 	return code;
 }
@@ -295,7 +295,7 @@ int scriptlet_get_int(hscriptlet *r, const char *k, long long *value)
 {
 	bytecode code = NULL;
 
-	if (!sl_string_get(r->symtab, k, &code))
+	if (!sb_string_get(r->symtab, k, &code))
 		return 0;
 
 	if (code->tc == int_tc)
@@ -312,7 +312,7 @@ int scriptlet_get_real(hscriptlet *r, const char *k, double *value)
 {
 	bytecode code = NULL;
 
-	if (!sl_string_get(r->symtab, k, &code))
+	if (!sb_string_get(r->symtab, k, &code))
 		return 0;
 
 	if (code->tc == int_tc)
@@ -329,7 +329,7 @@ int scriptlet_get_string(hscriptlet *r, const char *k, const char **value)
 {
 	bytecode code = NULL;
 
-	if (!sl_string_get(r->symtab, k, &code))
+	if (!sb_string_get(r->symtab, k, &code))
 		return 0;
 
 	if (code->tc == string_tc)
@@ -1176,14 +1176,14 @@ int scriptlet_run(hscriptlet *r)
 				if (type2 == int_tc)
 				{
 					long long v2 = (long long)val2->int_val;
-					sl_string_add(r->symtab, val1->str_val, (void*)val2);
+					sb_string_add(r->symtab, val1->str_val, (void*)val2);
 					push_stack_int(r, result=v2);
 					DEBUG printf("run %s %s '%g'\n", val1->str_val, "=", (double)v2);
 				}
 				else if (type2 == real_tc)
 				{
 					double v2 = val2->real_val;
-					sl_string_add(r->symtab, val1->str_val, (void*)val2);
+					sb_string_add(r->symtab, val1->str_val, (void*)val2);
 					push_stack_real(r, result=v2);
 					DEBUG printf("run %s %s '%g'\n", val1->str_val, "=", (double)v2);
 				}
@@ -1192,10 +1192,10 @@ int scriptlet_run(hscriptlet *r)
 					const char *v2 = val2->str_val;
 					void *v3 = NULL;
 
-					if (sl_string_get(r->symtab, v2, &v3))
-						sl_string_add(r->symtab, val1->str_val, v3);
+					if (sb_string_get(r->symtab, v2, &v3))
+						sb_string_add(r->symtab, val1->str_val, v3);
 					else
-						sl_string_add(r->symtab, val1->str_val, (void*)val2);
+						sb_string_add(r->symtab, val1->str_val, (void*)val2);
 					push_stack_string(r, v2); result=0.0;
 					DEBUG printf("run %s %s %s\n", val1->str_val, "=", v2);
 				}

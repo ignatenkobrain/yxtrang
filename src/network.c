@@ -250,7 +250,7 @@ static DH *get_dh1024()
 }
 /* ----END GENERATED SECTION---------- */
 
-static DH *ssl_dh_GetTmpParam(int nKeyLen)
+static DH *ssb_dh_GetTmpParam(int nKeyLen)
 {
     DH *dh;
 
@@ -263,9 +263,9 @@ static DH *ssl_dh_GetTmpParam(int nKeyLen)
     return dh;
 }
 
-static DH *ssl_callback_TmpDH(SSL *pSSL, int nExport, int nKeyLen)
+static DH *ssb_callback_TmpDH(SSL *pSSL, int nExport, int nKeyLen)
 {
-   return ssl_dh_GetTmpParam(nKeyLen);
+   return ssb_dh_GetTmpParam(nKeyLen);
 }
 
 /*  _________________________________________________________________
@@ -312,7 +312,7 @@ static DH *ssl_callback_TmpDH(SSL *pSSL, int nExport, int nKeyLen)
 static RSA *tmprsakey512 = 0;
 static RSA *tmprsakey1024 = 0;
 
-static RSA *ssl_callback_TmpRSA(SSL *pSSL, int nExport, int nKeyLen)
+static RSA *ssb_callback_TmpRSA(SSL *pSSL, int nExport, int nKeyLen)
 {
 	if (nExport && (nKeyLen == 512))
 		return tmprsakey512;
@@ -814,7 +814,7 @@ void session_clr_stash(session *s)
 	if (!s->stash)
 		return;
 
-	sl_string_destroy(s->stash);
+	sb_string_destroy(s->stash);
 	s->stash = 0;
 }
 
@@ -827,9 +827,9 @@ void session_set_stash(session *s, const char *key, const char *value)
 		return;
 
 	if (!s->stash)
-		s->stash = sl_string_create2();
+		s->stash = sb_string_create2();
 
-	sl_string_add(s->stash, key, value);
+	sb_string_add(s->stash, key, value);
 }
 
 void session_del_stash(session *s, const char *key)
@@ -840,7 +840,7 @@ void session_del_stash(session *s, const char *key)
 	if (!s->stash)
 		return;
 
-	sl_string_rem(s->stash, key);
+	sb_string_rem(s->stash, key);
 }
 
 const char *session_get_stash(session *s, const char *key)
@@ -852,7 +852,7 @@ const char *session_get_stash(session *s, const char *key)
 		return NULL;
 
 	void *v = NULL;
-	sl_string_get(s->stash, key, &v);
+	sb_string_get(s->stash, key, &v);
 	return (const char*)v;
 }
 
@@ -1212,7 +1212,7 @@ static int session_free(session *s)
 		free(s->dstbuf);
 
 	if (s->stash)
-		sl_string_destroy(s->stash);
+		sb_string_destroy(s->stash);
 
 	if (s->remote)
 		free(s->remote);
@@ -1317,7 +1317,7 @@ static int handler_accept(handler *h, server *srv, session **v)
 	unsigned long flag2 = 1;
 	ioctl(newfd, FIONBIO, &flag2);
 
-	sl_int_add(h->fds, newfd, s);
+	sb_int_add(h->fds, newfd, s);
 	h->use++;
 	return newfd;
 }
@@ -1416,7 +1416,7 @@ int handler_wait_kqueue(handler *h)
 			{
 				EV_SET(&ev, s->fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
 				kevent(h->fd, &ev, 1, NULL, 0, NULL);
-				sl_int_rem(h->fds, s->fd);
+				sb_int_rem(h->fds, s->fd);
 				h->use--;
 				s->disconnected = 1;
 				s->f(s, s->v);
@@ -1528,7 +1528,7 @@ int handler_wait_epoll(handler *h)
 			if (s->disconnected)
 			{
 				epoll_ctl(h->fd, EPOLL_CTL_DEL, s->fd, &ev);
-				sl_int_rem(h->fds, s->fd);
+				sb_int_rem(h->fds, s->fd);
 				h->use--;
 				s->disconnected = 1;
 				s->f(s, s->v);
@@ -1629,7 +1629,7 @@ int handler_wait_poll(handler *h)
 				continue;
 			}
 
-			if (!sl_int_get(h->fds, fd, &s))
+			if (!sb_int_get(h->fds, fd, &s))
 				continue;
 
 #ifdef _WIN32
@@ -1653,7 +1653,7 @@ int handler_wait_poll(handler *h)
 
 			if (s->disconnected)
 			{
-				sl_int_rem(h->fds, s->fd);
+				sb_int_rem(h->fds, s->fd);
 				h->use--;
 				h->rpollfds[i--] = h->rpollfds[--cnt];
 
@@ -1736,7 +1736,7 @@ static int handler_select_check(void *_h, int fd, void *_s)
 
 		if (s->disconnected)
 		{
-			sl_int_add(h->badfds, fd, s);
+			sb_int_add(h->badfds, fd, s);
 			return 1;
 		}
 	}
@@ -1756,7 +1756,7 @@ static int handler_select_bads(void *_h, int fd, void *_s)
 
 	s->f(s, s->v);
 	session_close(s);
-	sl_int_rem(h->fds, fd);
+	sb_int_rem(h->fds, fd);
 	h->use--;
 	return 1;
 }
@@ -1764,7 +1764,7 @@ static int handler_select_bads(void *_h, int fd, void *_s)
 int handler_wait_select(handler *h)
 {
 	if (g_debug) printf("USING SELECT\n");
-	h->badfds = sl_int_create();
+	h->badfds = sb_int_create();
 
 	while (!h->halt && h->use)
 	{
@@ -1775,7 +1775,7 @@ int handler_wait_select(handler *h)
 		for (i = 0; i < h->cnt; i++)
 			handler_select_set(h, h->srvs[i].fd, NULL);
 
-		sl_int_iter(h->fds, &handler_select_set, h);
+		sb_int_iter(h->fds, &handler_select_set, h);
 
 		// When running with threads it would be better to wake up
 		// select with a signal rather than use the timeout...
@@ -1821,17 +1821,17 @@ int handler_wait_select(handler *h)
 			}
 		}
 
-		sl_int_iter(h->fds, &handler_select_check, h);
+		sb_int_iter(h->fds, &handler_select_check, h);
 
-		if (sl_int_count(h->badfds) > 0)
+		if (sb_int_count(h->badfds) > 0)
 		{
-			sl_int_iter(h->badfds, &handler_select_bads, h);
-			sl_int_destroy(h->badfds);
-			h->badfds = sl_int_create();
+			sb_int_iter(h->badfds, &handler_select_bads, h);
+			sb_int_destroy(h->badfds);
+			h->badfds = sb_int_create();
 		}
 	}
 
-	sl_int_destroy(h->badfds);
+	sb_int_destroy(h->badfds);
 	return 1;
 }
 
@@ -1878,8 +1878,8 @@ int handler_set_tls(handler *h, const char *keyfile)
 	SSL_CTX_set_options((SSL_CTX*)h->ctx, SSL_OP_ALL);
 	SSL_CTX_set_cipher_list((SSL_CTX*)h->ctx, SSL_DEFAULT_CIPHER_LIST);
 	SSL_CTX_set_options((SSL_CTX*)h->ctx, SSL_OP_SINGLE_DH_USE);
-	SSL_CTX_set_tmp_rsa_callback((SSL_CTX*)h->ctx, ssl_callback_TmpRSA);
-	SSL_CTX_set_tmp_dh_callback((SSL_CTX*)h->ctx, ssl_callback_TmpDH);
+	SSL_CTX_set_tmp_rsa_callback((SSL_CTX*)h->ctx, ssb_callback_TmpRSA);
+	SSL_CTX_set_tmp_dh_callback((SSL_CTX*)h->ctx, ssb_callback_TmpDH);
 
 	if (keyfile)
 	{
@@ -2158,7 +2158,7 @@ int handler_add_client(handler *h, int (*f)(session*, void *data), void *data, s
 	s->f = f;
 	s->v = data;
 	h->use++;
-	sl_int_add(h->fds, s->fd, s);
+	sb_int_add(h->fds, s->fd, s);
 
 	unsigned long flag2 = 1;
 	ioctl(s->fd, FIONBIO, &flag2);
@@ -2196,7 +2196,7 @@ handler *handler_create(int threads)
 
 	handler *h = (handler*)calloc(1, sizeof(struct handler_));
 	if (!h) return NULL;
-	h->fds = sl_int_create();
+	h->fds = sb_int_create();
 	h->tp = tpool_create(h->threads=threads);
 	h->strand = lock_create();
 
@@ -2241,8 +2241,8 @@ int handler_destroy(handler *h)
 
 	lock_destroy(h->strand);
 
-	sl_int_iter(h->fds, &handler_force_drop, h);
-	sl_int_destroy(h->fds);
+	sb_int_iter(h->fds, &handler_force_drop, h);
+	sb_int_destroy(h->fds);
 
 #if USE_SSL
 	if (h->ctx)
