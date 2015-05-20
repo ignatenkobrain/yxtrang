@@ -6,12 +6,12 @@
 #include "json.h"
 #include "store.h"
 #include "linda.h"
-#include "skiplist_uuid.h"
+#include "skipbuck_uuid.h"
 
 struct linda_
 {
 	store *st;
-	skiplist *sl;
+	skipbuck *sl;
 	int is_int, is_string;
 };
 

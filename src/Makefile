@@ -3,7 +3,7 @@ CFLAGS += -I/usr/local/include -D_REENTRANT    # BSDs want this
 
 OBJECTS = base64.o daemon.o dict.o httpserver.o json.o jsonq.o \
 			linda.o list.o network.o scriptlet.o \
-			skiplist.o store.o thread.o tree.o uncle.o uuid.o
+			skipbuck.o store.o thread.o tree.o uncle.o uuid.o
 
 all: $(OBJECTS) yxtrang.a
 
@@ -22,13 +22,13 @@ dict.o: dict.h
 httpserver.o: httpserver.h network.h
 json.o: json.h
 jsonq.o: jsonq.h
-linda.o: linda.h skiplist.h skiplist_uuid.h store.h json.h uuid.h
+linda.o: linda.h skipbuck.h skipbuck_uuid.h store.h json.h uuid.h
 list.o: list.h
-network.o: network.h skiplist.h skiplist_int.h skiplist_string.h thread.h uncle.h
-scriptlet.o: scriptlet.h skiplist.h skiplist_string.h
-skiplist.o: skiplist.h
+network.o: network.h skipbuck.h skipbuck_int.h skipbuck_string.h thread.h uncle.h
+scriptlet.o: scriptlet.h skipbuck.h skipbuck_string.h
+skipbuck.o: skipbuck.h
 store.o: store.h uuid.h tree.h thread.h
 thread.o: thread.h
 tree.o: tree.h uuid.h
-uncle.o: uncle.h jsonq.h network.h skiplist.h skiplist_string.h thread.h
+uncle.o: uncle.h jsonq.h network.h skipbuck.h skipbuck_string.h thread.h
 uuid.o: uuid.h

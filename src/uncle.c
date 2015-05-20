@@ -7,12 +7,12 @@
 #include "network.h"
 #include "thread.h"
 #include "jsonq.h"
-#include "skiplist_string.h"
+#include "skipbuck_string.h"
 
 struct uncle_
 {
 	handler *h;
-	skiplist *db;
+	skipbuck *db;
 	lock *l;
 	session *s;				// used to broadcast on
 	char scope[256];

@@ -5,7 +5,7 @@ CPPFLAGS = $(CPPFLAGS) -I\boost -I. /nologo /DWIN32_LEAN_AND_MEAN /DUSE_SSL=0
 
 OBJECTS = base64.obj daemon.obj dict.obj  httpserver.obj json.obj \
 			jsonq.obj linda.obj list.obj network.obj scriptlet.obj \
-			skiplist.obj store.obj thread.obj tree.obj uncle.obj \
+			skipbuck.obj store.obj thread.obj tree.obj uncle.obj \
 			uuid.obj
 
 all: yxtrang.lib
@@ -47,7 +47,7 @@ jsonq.obj: $*.h $*.c
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-linda.obj: $*.h $*.c json.h store.h skiplist.h skiplist_uuid.h
+linda.obj: $*.h $*.c json.h store.h skipbuck.h skipbuck_uuid.h
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
@@ -57,17 +57,17 @@ list.obj: $*.h $*.c
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-network.obj: $*.h $*.c skiplist.h skiplist_int.h skiplist_string.h thread.h uncle.h
+network.obj: $*.h $*.c skipbuck.h skipbuck_int.h skipbuck_string.h thread.h uncle.h
         cl /DWANT_POLL=$(WANT_POLL) @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-scriptlet.obj: $*.h $*.c skiplist.h skiplist_string.h
+scriptlet.obj: $*.h $*.c skipbuck.h skipbuck_string.h
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-skiplist.obj: $*.h $*.c
+skipbuck.obj: $*.h $*.c
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
@@ -87,7 +87,7 @@ tree.obj: $*.h $*.c
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-uncle.obj: $*.h $*.c jsonq.h network.h skiplist.h skiplist_string.h thread.h
+uncle.obj: $*.h $*.c jsonq.h network.h skipbuck.h skipbuck_string.h thread.h
         cl @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<

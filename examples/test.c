@@ -14,7 +14,7 @@
 #include <linda.h>
 #include <network.h>
 #include <scriptlet.h>
-#include <skiplist_int.h>
+#include <skipbuck_int.h>
 #include <uncle.h>
 
 #define SERVER_PORT 6198
@@ -332,10 +332,10 @@ static void do_store(long cnt, int vfy, int compact, int tran)
 
 #define SKIP_RANDOM 0
 
-static void do_skip(long cnt)
+static void do_skipbuck(long cnt)
 {
-	extern void sl_dump(const skiplist *sptr);
-	skiplist *sl = sl_int_create();
+	extern void sl_dump(const skipbuck *sptr);
+	skipbuck *sl = sl_int_create();
 	long i;
 
 	printf("Writing...\n");
@@ -586,7 +586,7 @@ int main(int ac, char *av[])
 {
 	int loops = 10000, loops2 = 10, test_tree = 0, test_store = 0;
 	int compact = 0, vfy = 0, srvr = 0, client = 0, tcp = 1, ssl = 0;
-	int test_json = 0, test_base64 = 0, rnd = 0, test_skiplist = 0;
+	int test_json = 0, test_base64 = 0, rnd = 0, test_skipbuck = 0;
 	int broadcast = 0, threads = 0, test_script = 0, test_jsonq = 0;
 	int discovery = 0, test_linda_out = 0, test_linda_in = 0;
 	int tran = 0;
@@ -633,7 +633,7 @@ int main(int ac, char *av[])
 			sscanf(av[i], "%*[^=]=%d", &threads);
 
 		if (!strcmp(av[i], "--skip"))
-			test_skiplist = 1;
+			test_skipbuck = 1;
 
 		if (!strcmp(av[i], "--tree"))
 			test_tree = 1;
@@ -749,9 +749,9 @@ int main(int ac, char *av[])
 		return 0;
 	}
 
-	if (test_skiplist)
+	if (test_skipbuck)
 	{
-		do_skip(loops);
+		do_skipbuck(loops);
 		return 0;
 	}
 

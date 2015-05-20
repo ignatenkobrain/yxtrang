@@ -93,8 +93,8 @@
 #endif
 
 #include "network.h"
-#include "skiplist_int.h"
-#include "skiplist_string.h"
+#include "skipbuck_int.h"
+#include "skipbuck_string.h"
 #include "thread.h"
 #include "uncle.h"
 
@@ -120,7 +120,7 @@ typedef struct
 
 struct handler_
 {
-	skiplist *fds, *badfds;
+	skipbuck *fds, *badfds;
 	lock *strand;
 	thread_pool *tp;
 	uncle *u[MAX_SERVERS];
@@ -137,7 +137,7 @@ struct handler_
 struct session_
 {
 	handler *h;
-	skiplist *stash;
+	skipbuck *stash;
 	char *remote;
 	char srcbuf[BUFLEN];
 	const char *src;

@@ -49,7 +49,7 @@ $*.obj
 ..\src\yxtrang.lib $(WINLIBS)
 <<
 
-test.obj: $*.c ..\src\scriptlet.h ..\src\skiplist.h  ..\src\tree.h ..\src\store.h ..\src\network.h \
+test.obj: $*.c ..\src\scriptlet.h ..\src\skipbuck.h  ..\src\tree.h ..\src\store.h ..\src\network.h \
 				..\src\uuid.h ..\src\base64.h ..\src\json.h ..\src\uncle.h
         cl $(CPPFLAGS) /c /Tp $*.c /Fo$*$(EXT)
 

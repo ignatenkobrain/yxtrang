@@ -6,7 +6,7 @@
 #include <math.h>
 
 #include "scriptlet.h"
-#include "skiplist_string.h"
+#include "skipbuck_string.h"
 #include "thread.h"
 
 #ifdef _WIN32
@@ -178,7 +178,7 @@ typedef struct compiletime_ *compiletime;
 struct hscriptlet_
 {
 	scriptlet *s;
-	skiplist *symtab;
+	skipbuck *symtab;
 	struct bytecode_ stack[STACK_SIZE], syms[STACK_SIZE];
 	int it_stack, it_syms, it_syms_save, it, level;
 };

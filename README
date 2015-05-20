@@ -29,7 +29,7 @@ daemon:
 
 dict:
 
- A simple dictionary based on a skiplist. Use a char* key and void*
+ A simple dictionary based on a skipbuck. Use a char* key and void*
  value. Only the pointers are stored. Optionally allow duplicates.
  Optionally delete keys and/or values on cleanup.
 
@@ -82,11 +82,11 @@ scriptlet:
  defined rules that are loaded at run-time.
 
 
-skiplist:
+skipbuck:
 
- Index for any type. This unique variant uses a special bucketized mod
- allowing more efficient storage (eg. 400M vs 150M keys on an 8GB
- system) than the original skiplist code.
+ Skiplist index for any type. This unique variant uses a special
+ bucketized mod allowing more efficient storage (eg. 400M vs 150M keys
+ on an 8GB system) than the original code.
 
 
 store:
@@ -105,7 +105,7 @@ tree:
 
  Append-mode binary tree designed primarily for in-order (or near)
  insertion. Delete is supported with space recovery. This variant is
- bucketized and is extremely space-efficient: equal to skiplist above
+ bucketized and is extremely space-efficient: equal to skipbuck above
  but twice as fast.
 
 
