@@ -77,9 +77,9 @@ scriptlet:
 
 skipbuck:
 
- Skiplist index for any type. This unique variant uses a special
- bucketized mod allowing more efficient storage (eg. 400M vs 150M keys
- on an 8GB system) than the original code.
+ Skiplist buckets. This unique variant of a skiplist uses a bucketized
+ mod allowing more efficient storage (eg. 400M vs 150M keys on an 8GB
+ system) than the original skiplist code (see below).
 
 
 skiplist:
