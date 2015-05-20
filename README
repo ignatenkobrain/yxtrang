@@ -27,13 +27,6 @@ daemon:
  Platform agnostic daemonizer code.
 
 
-dict:
-
- A simple dictionary based on a skipbuck. Use a char* key and void*
- value. Only the pointers are stored. Optionally allow duplicates.
- Optionally delete keys and/or values on cleanup.
-
-
 httpserver:
 
  Mechanism to easily write a custom HTTP handler (see examples/httpd).
@@ -87,6 +80,13 @@ skipbuck:
  Skiplist index for any type. This unique variant uses a special
  bucketized mod allowing more efficient storage (eg. 400M vs 150M keys
  on an 8GB system) than the original code.
+
+
+skiplist:
+
+ A simple dictionary based on a skiplist. Use a char* key and void*
+ value. Only the pointers are stored. Optionally allow duplicates.
+ Optionally delete keys and/or values on cleanup.
 
 
 store:
