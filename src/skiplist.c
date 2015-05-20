@@ -19,7 +19,7 @@ struct skiplist_ { slnode *header, *p; int dups, level; };
 #define max_level (max_levels-1)
 #define new_node_of_level(n) (slnode*)malloc(sizeof(slnode)+((n)*sizeof(slnode*)))
 
-void sb_init(skiplist *d, int dups)
+void sl_init(skiplist *d, int dups)
 {
 	if (!d) return;
 	d->header = new_node_of_level(max_levels);
@@ -44,7 +44,7 @@ static int random_level(void)
     return lvl < max_level ? lvl : max_level;
 }
 
-int sb_set(skiplist *d, const char *key, void *value)
+int sl_set(skiplist *d, const char *key, void *value)
 {
 	if (!d || !key) return 0;
 	slnode *update[max_levels], *p = d->header, *q = NULL;
@@ -92,7 +92,7 @@ int sb_set(skiplist *d, const char *key, void *value)
 	return 1;
 }
 
-void *sb_rem(skiplist *d, const char *key)
+void *sl_rem(skiplist *d, const char *key)
 {
 	if (!d || !key) return NULL;
 	slnode *update[max_levels], *p = d->header, *q = NULL;
@@ -136,7 +136,7 @@ void *sb_rem(skiplist *d, const char *key)
 	return NULL;
 }
 
-void *sb_get(skiplist *d, const char *key)
+void *sl_get(skiplist *d, const char *key)
 {
 	if (!d || !key) return NULL;
 	slnode *p = d->header, *q = NULL;
@@ -154,13 +154,13 @@ void *sb_get(skiplist *d, const char *key)
 	return NULL;
 }
 
-void sb_start(skiplist *d)
+void sl_start(skiplist *d)
 {
 	if (!d) return;
 	d->p = d->header->forward[0];
 }
 
-void *sb_iter(skiplist *d)
+void *sl_iter(skiplist *d)
 {
 	if (!d) return NULL;
 	if (d->p == NULL) return NULL;
@@ -169,7 +169,7 @@ void *sb_iter(skiplist *d)
 	return value;
 }
 
-void sb_done(skiplist *d, int delkey, void (*delval)(void *value))
+void sl_done(skiplist *d, int delkey, void (*delval)(void *value))
 {
 	if (!d) return;
 	slnode *p = d->header, *q;
