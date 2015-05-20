@@ -13,19 +13,35 @@ struct slnode_
 	slnode *forward[0];
 };
 
-struct skiplist_ { slnode *header, *p; int dups, level; };
+struct skiplist_
+{
+	slnode *header, *p;
+	int (*cmp)(const char*, const char*);
+	int dups, level;
+};
 
 #define max_levels 16
 #define max_level (max_levels-1)
 #define new_node_of_level(n) (slnode*)malloc(sizeof(slnode)+((n)*sizeof(slnode*)))
 
-void sl_init(skiplist *d, int dups)
+static int defcmp(const char *s1, const char* s2)
+{
+	if (s1 < s2)
+		return -1;
+	else if (s1 > s2)
+		return 1;
+	else
+		return 0;
+}
+
+void sl_init(skiplist *d, int dups, int (*compare)(const char*, const char*))
 {
 	if (!d) return;
 	d->header = new_node_of_level(max_levels);
 	if (d->header == NULL) return;
 	d->level = 1;
 	d->dups = dups;
+	d->cmp = compare ? compare : defcmp;
 	d->p = NULL;
 	int i;
 
@@ -52,14 +68,14 @@ int sl_set(skiplist *d, const char *key, void *value)
 
 	for (k = d->level-1; k >= 0; k--)
 	{
-		while ((q = p->forward[k]) && (strcmp(q->key, key) < 0))
+		while ((q = p->forward[k]) && (d->cmp(q->key, key) < 0))
 			p = q;
 
 		update[k] = p;
 	}
 
 	if (!d->dups)
-		if (q && (strcmp(q->key, key) == 0))
+		if (q && (d->cmp(q->key, key) == 0))
 			return 0;
 
 	k = random_level();
@@ -100,7 +116,7 @@ void *sl_rem(skiplist *d, const char *key)
 
 	for (k = d->level-1; k >= 0; k--)
 	{
-		while ((q = p->forward[k]) && (strcmp(q->key, key) < 0))
+		while ((q = p->forward[k]) && (d->cmp(q->key, key) < 0))
 			p = q;
 
 		update[k] = p;
@@ -108,7 +124,7 @@ void *sl_rem(skiplist *d, const char *key)
 
 	q = p->forward[0];
 
-	if (q && (strcmp(q->key, key) == 0))
+	if (q && (d->cmp(q->key, key) == 0))
 	{
 		void *value = q->value;
 		m = d->level - 1;
@@ -144,11 +160,11 @@ void *sl_get(skiplist *d, const char *key)
 
 	for (k = d->level-1; k >= 0; k--)
 	{
-		while ((q = p->forward[k]) && (strcmp(q->key, key) < 0))
+		while ((q = p->forward[k]) && (d->cmp(q->key, key) < 0))
 			p = q;
 	}
 
-	if (q && (strcmp(q->key, key) == 0))
+	if (q && (d->cmp(q->key, key) == 0))
 		return q->value;
 
 	return NULL;
