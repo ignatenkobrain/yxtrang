@@ -26,9 +26,9 @@ struct skiplist_
 
 static int defcmp(const char *s1, const char* s2)
 {
-	if (s1 < s2)
+	if ((long long)s1 < (long long)s2)
 		return -1;
-	else if (s1 > s2)
+	else if ((long long)s1 > (long long)s2)
 		return 1;
 	else
 		return 0;
