@@ -19,6 +19,6 @@ extern void *sl_iter(skiplist *d);
 
 // Note optional deleters, set to NULL if not required
 
-extern void sl_done(skiplist *d, void (*)(void*), void (*)(void *value));
+extern void sl_done(skiplist *d, void (*)(void *key), void (*)(void *value));
 
 #endif
