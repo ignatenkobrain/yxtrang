@@ -87,7 +87,7 @@ skipbuck:
 skiplist:
 
  A simple dictionary based on a skiplist. Optionally allow duplicates.
- Only the key/value pointers are stored, no data is copied,but the
+ Only the key/value pointers are stored, no data is copied, but the
  option exists to free keys and/or values on cleanup.
 
 
