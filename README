@@ -11,6 +11,8 @@ I've enjoyed rewriting code that I previously did in C++, and for
 the most part it's cleaner, more concise, easier to understand and
 faster.
 
+There are no outside code dependencies except OpenSSL.
+
 From little things big things grow!
 
 
@@ -84,9 +86,9 @@ skipbuck:
 
 skiplist:
 
- A simple dictionary based on a skiplist. Use a char* key and void*
- value. Only the pointers are stored. Optionally allow duplicates.
- Optionally delete keys and/or values on cleanup.
+ A simple dictionary based on a skiplist. Optionally allow duplicates.
+ Only the key/value pointers are stored, no data is copied,but the
+ option exists to free keys and/or values on cleanup.
 
 
 store:
