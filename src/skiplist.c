@@ -185,7 +185,7 @@ void *sl_iter(skiplist *d)
 	return value;
 }
 
-void sl_done(skiplist *d, int delkey, void (*delval)(void *value))
+void sl_done(skiplist *d, void (*delkey)(void *delval), void (*delval)(void *value))
 {
 	if (!d) return;
 	slnode *p = d->header, *q;
@@ -196,7 +196,7 @@ void sl_done(skiplist *d, int delkey, void (*delval)(void *value))
 	while (p != NULL)
 	{
 		q = p->forward[0];
-		if (delkey) free(p->key);
+		if (delkey) delkey(p->key);
 		if (delval) delval(p->value);
 		free(p);
 		p = q;
