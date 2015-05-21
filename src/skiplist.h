@@ -5,7 +5,7 @@
 
 typedef struct skiplist_ skiplist;
 
-// For string  keys use 'strcmp' as the compare function.
+// For string keys use 'strcmp' as the compare function.
 // For integer keys use NULL as the compare function.
 
 extern void sl_init(skiplist *d, int dups, int (*compare)(const char*, const char*));
