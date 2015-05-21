@@ -25,6 +25,13 @@ struct skiplist_
 #define new_node_of_level(n) (slnode*)malloc(sizeof(slnode)+((n)*sizeof(slnode*)))
 #define frand() ((double)rand() / RAND_MAX)
 
+static int random_level(void)
+{
+	const double P = 0.5;
+    int lvl = (int)(log(frand())/log(1.0-P));
+    return lvl < max_level ? lvl : max_level;
+}
+
 static int defcmp(const char *s1, const char* s2)
 {
 	if ((long long)s1 < (long long)s2)
@@ -33,13 +40,6 @@ static int defcmp(const char *s1, const char* s2)
 		return 1;
 	else
 		return 0;
-}
-
-static int random_level(void)
-{
-	const double P = 0.5;
-    int lvl = (int)(log(frand())/log(1.0-P));
-    return lvl < max_level ? lvl : max_level;
 }
 
 void sl_init(skiplist *d, int dups, int (*compare)(const char*, const char*))
