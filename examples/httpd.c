@@ -10,6 +10,8 @@
 extern int g_http_debug;
 static const char *g_www_root = "/var/www";
 
+// We don't actually do anything yet, just return a 404
+
 static int http_request(session *s, void *param)
 {
 	const char *filename = session_get_stash(s, HTTP_RESOURCE);
