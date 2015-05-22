@@ -176,12 +176,6 @@ void *sl_iter(skiplist *d)
 	return value;
 }
 
-void sl_clear(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
-{
-	sl_done(d, delkey, delval);
-	sl_init(d, d->dups, d->cmp);
-}
-
 void sl_done(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
 {
 	if (!d) return;
@@ -202,3 +196,8 @@ void sl_done(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
 	d->header = NULL;
 }
 
+void sl_clear(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
+{
+	sl_done(d, delkey, delval);
+	sl_init(d, d->dups, d->cmp);
+}
