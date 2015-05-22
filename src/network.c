@@ -769,107 +769,80 @@ const char *inet_ntop(int family, void *address, char *buffer, socklen_t len)
 
 void session_set_udata_flag(session *s, int flag)
 {
-	if (!s || (flag < 0) || (flag > 63))
-		return;
-
+	if (!s || (flag < 0) || (flag > 63)) return;
 	s->udata_flags |= ((uint64_t)1) << flag;
 }
 
 void session_clr_udata_flag(session *s, int flag)
 {
-	if (!s || (flag < 0) || (flag > 63))
-		return;
-
+	if (!s || (flag < 0) || (flag > 63)) return;
 	s->udata_flags &= ~(((uint64_t)1) << flag);
 }
 
 void session_clr_udata_flags(session *s)
 {
-	if (!s)
-		return;
-
+	if (!s) return;
 	s->udata_flags = 0;
 }
 
 int session_get_udata_flag(session *s, int flag)
 {
-	if (!s || (flag < 0) || (flag > 63))
-		return 0;
-
+	if (!s || (flag < 0) || (flag > 63)) return 0;
 	return s->udata_flags & (((uint64_t)1) << flag);
 }
 
 void session_set_udata_int(session *s, unsigned long long data)
 {
-	if (!s)
-		return;
-
+	if (!s) return;
 	s->udata_int = data;
 }
 
 unsigned long long session_get_udata_int(session *s)
 {
-	if (!s)
-		return 0;
-
+	if (!s) return 0;
 	return s->udata_int;
 }
 
 void session_clr_stash(session *s)
 {
-	if (!s)
-		return;
-
+	if (!s) return;
+	if (!s->tcp) return;
 	sl_clear(&s->stash, &free, &free);
 }
 
 void session_set_stash(session *s, const char *key, const char *value)
 {
-	if (!s)
-		return;
-
-	if (!s->tcp)
-		return;
-
+	if (!s) return;
+	if (!s->tcp) return;
 	sl_set(&s->stash, copy_string(key), copy_string(value));
 }
 
 const char *session_del_stash(session *s, const char *key)
 {
-	if (!s)
-		return NULL;
-
+	if (!s) return NULL;
+	if (!s->tcp) return NULL;
 	return sl_rem(&s->stash, key, &free);
 }
 
 const char *session_get_stash(session *s, const char *key)
 {
-	if (!s)
-		return NULL;
-
+	if (!s) return NULL;
+	if (!s->tcp) return NULL;
 	return sl_get(&s->stash, key);
 }
 
 int session_enable_broadcast(session *s)
 {
-	if (!s)
-		return 0;
-
-	if (s->disconnected)
-		return 0;
-
+	if (!s) return 0;
+	if (s->disconnected) return 0;
 	int flag = 1;
 	return setsockopt(s->fd, SOL_SOCKET, SO_BROADCAST, (char*)&flag, sizeof(flag));
 }
 
 int session_enable_multicast(session *s, int loop, int hops)
 {
-	if (!s)
-		return 0;
-
-	if (s->disconnected)
-		return 0;
-
+	if (!s) return 0;
+	if (s->disconnected) return 0;
 	int status;
 
 	if (!s->ipv4)
@@ -888,32 +861,23 @@ int session_enable_multicast(session *s, int loop, int hops)
 
 int session_set_sndbuffer(session *s, int bufsize)
 {
-	if (!s)
-		return 0;
-
+	if (!s) return 0;
 	setsockopt(s->fd, SOL_SOCKET, SO_SNDBUF, (const char*)&bufsize, sizeof(bufsize));
 	return 1;
 }
 
 int session_set_rcvbuffer(session *s, int bufsize)
 {
-	if (!s)
-		return 0;
-
+	if (!s) return 0;
 	setsockopt(s->fd, SOL_SOCKET, SO_RCVBUF, (const char*)&bufsize, sizeof(bufsize));
 	return 1;
 }
 
 const char *session_get_remote_host(session *s, int resolve)
 {
-	if (!s)
-		return "";
-
-	if (s->disconnected)
-		return "";
-
-	if (!s->remote)
-		s->remote = (char*)malloc(256);
+	if (!s) return "";
+	if (s->disconnected) return "";
+	if (!s->remote) s->remote = (char*)malloc(256);
 
 	if (s->tcp && s->ipv4)
 	{
@@ -943,14 +907,9 @@ const char *session_get_remote_host(session *s, int resolve)
 
 int session_write(session *s, const void *_buf, size_t len)
 {
+	if (!s || !_buf || !len) return 0;
+	if (s->disconnected) return 0;
 	const char *buf = (const char*)_buf;
-
-	if (!s || !buf || !len)
-		return 0;
-
-	if (s->disconnected)
-		return 0;
-
 	time_t started = 0;
 
 	while (len > 0)
@@ -1022,12 +981,8 @@ int session_writemsg(session *s, const char *buf)
 
 int session_bcast(session *s, const void *buf, size_t len)
 {
-	if (!s || !buf || !len)
-		return 0;
-
-	if (s->tcp)
-		return 0;
-
+	if (!s || !buf || !len) return 0;
+	if (s->tcp) return 0;
 	struct sockaddr_in addr4 = {0};
 	addr4.sin_family = AF_INET;
 	addr4.sin_port = htons(s->port);
@@ -1044,12 +999,8 @@ int session_bcastmsg(session *s, const char *buf)
 
 int session_read(session *s, void *buf, size_t len)
 {
-	if (!s || !buf || !len)
-		return 0;
-
-	if (s->disconnected)
-		return 0;
-
+	if (!s || !buf || !len) return 0;
+	if (s->disconnected) return 0;
 	int rlen;
 
 #if USE_SSL
@@ -1091,11 +1042,8 @@ int session_read(session *s, void *buf, size_t len)
 
 int session_readmsg(session *s, char **buf)
 {
-	if (!s || !buf)
-		return 0;
-
-	if (s->disconnected)
-		return 0;
+	if (!s || !buf) return 0;
+	if (s->disconnected) return 0;
 
 	// Allocate destination message buffer
 	// if one doesn't already exist.
@@ -1186,17 +1134,13 @@ int session_readmsg(session *s, char **buf)
 
 int session_shutdown(session *s)
 {
-	if (!s)
-		return 0;
+	if (!s) return 0;
 
 #if USE_SSL
-	if (s->is_ssl)
-		SSL_smart_shutdown(s->ssl);
+	if (s->is_ssl) SSL_smart_shutdown(s->ssl);
 #endif
 
-	if (s->fd != -1)
-		shutdown(s->fd, SHUT_RDWR);
-
+	if (s->fd != -1) shutdown(s->fd, SHUT_RDWR);
 	return 1;
 }
 
@@ -1221,28 +1165,21 @@ static int session_free(session *s)
 
 void session_share(session *s)
 {
-	if (!s)
-		return;
-
+	if (!s) return;
 	atomic_inc(&s->use_cnt);
 }
 
 void session_unshare(session *s)
 {
-	if (!s)
-		return;
-
-	if (atomic_dec(&s->use_cnt))
-		return;
-
+	if (!s) return;
+	if (atomic_dec(&s->use_cnt)) return;
 	lock_destroy(s->strand);
 	session_free(s);
 }
 
 int session_close(session *s)
 {
-	if (!s)
-		return 0;
+	if (!s) return 0;
 
 	if (s->fd != -1)
 	{
@@ -1980,6 +1917,7 @@ static int leave_multicast(int fd6, int fd4, const char *addr)
 
 int handler_add_uncle(handler *h, const char *binding, unsigned short port, const char *scope)
 {
+	if (!h) return 0;
 	extern uncle *uncle_create2(handler *h, const char *binding, unsigned short port, const char *scope);
 	uncle *u = uncle_create2(h, binding, port, scope);
 	if (!u) return 0;
@@ -1989,6 +1927,7 @@ int handler_add_uncle(handler *h, const char *binding, unsigned short port, cons
 
 uncle *handler_get_uncle(handler *h, const char *scope)
 {
+	if (!h) return 0;
 	int i;
 
 	for (i = 0; i < h->uncs; i++)
@@ -2002,6 +1941,7 @@ uncle *handler_get_uncle(handler *h, const char *scope)
 
 static int handler_add_server2(handler *h, int (*f)(session*, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *maddr6, const char *maddr4, const char *name)
 {
+	if (!h) return 0;
 	int fd6 = socket(AF_INET6, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
 
 	if (fd6 < 0)
@@ -2141,11 +2081,13 @@ static int handler_add_server2(handler *h, int (*f)(session*, void *v), void *v,
 
 int handler_add_server(handler *h, int (*f)(session*, void *v), void *v, const char *binding, unsigned short port, int tcp, int ssl, const char *name)
 {
+	if (!h) return 0;
 	return handler_add_server2(h, f, v, binding, port, tcp, ssl, NULL, NULL, name);
 }
 
 int handler_add_client(handler *h, int (*f)(session*, void *data), void *data, session *s)
 {
+	if (!h) return 0;
 	session_share(s);
 	s->h = h;
 	s->f = f;
@@ -2214,14 +2156,13 @@ handler *handler_create(int threads)
 
 int handler_add_multicast(handler *h, int (*f)(session*, void *v), void *v, const char *binding, unsigned short port, const char *addr6, const char *addr4, const char *name)
 {
+	if (!h) return 0;
 	return handler_add_server2(h, f, v, binding, port, 0, 0, addr6, addr4, name);
 }
 
 int handler_destroy(handler *h)
 {
-	if (!h)
-		return 0;
-
+	if (!h) return 0;
 	h->halt = 1;
 	msleep(100);
 	int i;
