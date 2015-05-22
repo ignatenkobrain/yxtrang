@@ -11,8 +11,6 @@ I've enjoyed rewriting code that I previously did in C++, and for
 the most part it's cleaner, more concise, easier to understand and
 faster.
 
-There are no outside code dependencies except OpenSSL.
-
 From little things big things grow!
 
 
@@ -127,6 +125,8 @@ Build
   git clone http://github.com/infradig/yxtrang
   cd yxtrang
   make
+
+There are no outside code dependencies other than OpenSSL.
 
 Compilers tested: gcc & clang with C99 and C11 options.
 Also tcc and VC++2010.
