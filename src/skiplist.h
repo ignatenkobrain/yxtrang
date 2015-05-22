@@ -3,7 +3,15 @@
 
 #include <string.h>
 
+typedef struct slnode_ slnode;
 typedef struct skiplist_ skiplist;
+
+struct skiplist_
+{
+	slnode *header, *p;
+	int (*cmp)(const char*, const char*);
+	int dups, level;
+};
 
 // For string keys use 'strcmp' as the key compare function.
 // For integer keys use NULL as the key compare function.

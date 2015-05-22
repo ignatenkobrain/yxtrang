@@ -4,20 +4,11 @@
 
 #include "skiplist.h"
 
-typedef struct slnode_ slnode;
-
 struct slnode_
 {
 	char *key;
 	void *value;
 	slnode *forward[0];
-};
-
-struct skiplist_
-{
-	slnode *header, *p;
-	int (*cmp)(const char*, const char*);
-	int dups, level;
 };
 
 #define max_levels 16

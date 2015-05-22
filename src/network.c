@@ -93,8 +93,9 @@
 #endif
 
 #include "network.h"
+#include "skiplist.h"
+#include "skipbuck.h"
 #include "skipbuck_int.h"
-#include "skipbuck_string.h"
 #include "thread.h"
 #include "uncle.h"
 
@@ -137,7 +138,7 @@ struct handler_
 struct session_
 {
 	handler *h;
-	skipbuck *stash;
+	skiplist stash;
 	char *remote;
 	char srcbuf[BUFLEN];
 	const char *src;
@@ -335,6 +336,13 @@ static int SSL_smart_shutdown(SSL *ssl)
 	return rc;
 }
 #endif
+
+static char *copy_string(const char *s)
+{
+	size_t len = strlen(s)+1;
+	void *s2 = (char*)malloc(len);
+	return (char*)(s2 ? memcpy(s2, s, len) : NULL);
+}
 
 const char *hostname(void)
 {
@@ -548,6 +556,7 @@ session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 	s->port = port;
 	s->tcp = tcp;
 	s->src = s->srcbuf;
+	sl_init(&s->stash, 0, &strcmp);
 
 	if (s->ipv4)
 		s->addr4 = addr4;
@@ -811,11 +820,7 @@ void session_clr_stash(session *s)
 	if (!s)
 		return;
 
-	if (!s->stash)
-		return;
-
-	sb_string_destroy(s->stash);
-	s->stash = 0;
+	sl_done(&s->stash, &free, &free);
 }
 
 void session_set_stash(session *s, const char *key, const char *value)
@@ -826,10 +831,7 @@ void session_set_stash(session *s, const char *key, const char *value)
 	if (!s->tcp)
 		return;
 
-	if (!s->stash)
-		s->stash = sb_string_create2();
-
-	sb_string_add(s->stash, key, value);
+	sl_set(&s->stash, copy_string(key), copy_string(value));
 }
 
 void session_del_stash(session *s, const char *key)
@@ -837,10 +839,7 @@ void session_del_stash(session *s, const char *key)
 	if (!s)
 		return;
 
-	if (!s->stash)
-		return;
-
-	sb_string_rem(s->stash, key);
+	sl_rem(&s->stash, key);
 }
 
 const char *session_get_stash(session *s, const char *key)
@@ -848,12 +847,7 @@ const char *session_get_stash(session *s, const char *key)
 	if (!s)
 		return NULL;
 
-	if (!s->stash)
-		return NULL;
-
-	void *v = NULL;
-	sb_string_get(s->stash, key, &v);
-	return (const char*)v;
+	return sl_get(&s->stash, key);
 }
 
 int session_enable_broadcast(session *s)
@@ -1211,8 +1205,7 @@ static int session_free(session *s)
 	if (s->dstbuf)
 		free(s->dstbuf);
 
-	if (s->stash)
-		sb_string_destroy(s->stash);
+	sl_done(&s->stash, &free, &free);
 
 	if (s->remote)
 		free(s->remote);
