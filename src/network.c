@@ -834,12 +834,12 @@ void session_set_stash(session *s, const char *key, const char *value)
 	sl_set(&s->stash, copy_string(key), copy_string(value));
 }
 
-void session_del_stash(session *s, const char *key)
+const char *session_del_stash(session *s, const char *key)
 {
 	if (!s)
-		return;
+		return NULL;
 
-	sl_rem(&s->stash, key, &free);
+	return sl_rem(&s->stash, key, &free);
 }
 
 const char *session_get_stash(session *s, const char *key)
