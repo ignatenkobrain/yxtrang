@@ -820,7 +820,7 @@ void session_clr_stash(session *s)
 	if (!s)
 		return;
 
-	sl_done(&s->stash, &free, &free);
+	sl_clear(&s->stash, &free, &free);
 }
 
 void session_set_stash(session *s, const char *key, const char *value)
