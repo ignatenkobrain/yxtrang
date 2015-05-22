@@ -15,6 +15,8 @@
 //
 // Other content associated with a request is left unread and should
 // be processed by the user.
+//
+// See examples/httpd for example usage.
 
 #include "network.h"
 
