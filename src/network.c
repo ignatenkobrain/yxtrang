@@ -839,7 +839,7 @@ void session_del_stash(session *s, const char *key)
 	if (!s)
 		return;
 
-	sl_rem(&s->stash, key);
+	sl_rem(&s->stash, key, &free);
 }
 
 const char *session_get_stash(session *s, const char *key)

@@ -23,7 +23,7 @@ json.o: json.h
 jsonq.o: jsonq.h
 linda.o: linda.h skipbuck.h skipbuck_uuid.h store.h json.h uuid.h
 list.o: list.h
-network.o: network.h skipbuck.h skipbuck_int.h skipbuck_string.h thread.h uncle.h
+network.o: network.h skiplist.h skipbuck.h skipbuck_int.h skipbuck_string.h thread.h uncle.h
 scriptlet.o: scriptlet.h skipbuck.h skipbuck_string.h
 skipbuck.o: skipbuck.h
 skiplist.o: skiplist.h

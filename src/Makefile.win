@@ -52,7 +52,7 @@ list.obj: $*.h $*.c
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
 
-network.obj: $*.h $*.c skipbuck.h skipbuck_int.h skipbuck_string.h thread.h uncle.h
+network.obj: $*.h $*.c skiplist.h skipbuck.h skipbuck_int.h skipbuck_string.h thread.h uncle.h
         cl /DWANT_POLL=$(WANT_POLL) @<<
 $(CPPFLAGS) /c /Tp $*.c /Fo$*.obj
 <<
