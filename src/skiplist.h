@@ -9,8 +9,8 @@ typedef struct skiplist_ skiplist;
 struct skiplist_
 {
 	slnode *header, *p;
-	int (*cmpkey)(const char*, const char*);
-	void (*delkey)(void*);
+	int (*compare)(const char*, const char*);
+	void (*deleter)(void*);
 	int dups, level;
 };
 
