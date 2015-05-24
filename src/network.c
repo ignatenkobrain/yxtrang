@@ -1482,9 +1482,9 @@ static int poll_accept(void *data)
 {
 	session *s = (session*)data;
 	s->f(s, s->v);
-	h->rpollfds[s->idx].fd = -1;
-	h->rpollfds[s->idx].events = POLLIN|POLLRDHUP;
-	h->rpollfds[s->idx].revents = 0;
+	s->h->rpollfds[s->idx].fd = -1;
+	s->h->rpollfds[s->idx].events = POLLIN|POLLRDHUP;
+	s->h->rpollfds[s->idx].revents = 0;
 	return 1;
 }
 
