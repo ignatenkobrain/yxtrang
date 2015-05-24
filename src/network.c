@@ -556,7 +556,7 @@ session *session_open(const char *host, unsigned short port, int tcp, int ssl)
 	s->port = port;
 	s->tcp = tcp;
 	s->src = s->srcbuf;
-	sl_init(&s->stash, 0, &strcmp);
+	sl_init(&s->stash, 0, &strcmp, &free);
 
 	if (s->ipv4)
 		s->addr4 = addr4;
@@ -807,7 +807,7 @@ void session_clr_stash(session *s)
 {
 	if (!s) return;
 	if (!s->tcp) return;
-	sl_clear(&s->stash, &free, &free);
+	sl_clear(&s->stash, &free);
 }
 
 void session_set_stash(session *s, const char *key, const char *value)
@@ -821,7 +821,7 @@ const char *session_del_stash(session *s, const char *key)
 {
 	if (!s) return NULL;
 	if (!s->tcp) return NULL;
-	return sl_rem(&s->stash, key, &free);
+	return sl_rem(&s->stash, key);
 }
 
 const char *session_get_stash(session *s, const char *key)
@@ -1149,7 +1149,7 @@ static int session_free(session *s)
 	if (s->dstbuf)
 		free(s->dstbuf);
 
-	sl_done(&s->stash, &free, &free);
+	sl_done(&s->stash, &free);
 
 	if (s->remote)
 		free(s->remote);

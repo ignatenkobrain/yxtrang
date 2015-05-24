@@ -33,14 +33,15 @@ static int defcmp(const char *s1, const char* s2)
 		return 0;
 }
 
-void sl_init(skiplist *d, int dups, int (*compare)(const char*, const char*))
+void sl_init(skiplist *d, int dups, int (*compare)(const char*, const char*), void (*deleter)(void*))
 {
 	if (!d) return;
 	d->header = new_node_of_level(max_levels);
 	if (d->header == NULL) return;
 	d->level = 1;
 	d->dups = dups;
-	d->cmp = compare ? compare : defcmp;
+	d->cmpkey = compare ? compare : defcmp;
+	d->delkey = deleter;
 	d->p = NULL;
 	int i;
 
@@ -58,14 +59,14 @@ int sl_set(skiplist *d, const char *key, void *value)
 
 	for (k = d->level-1; k >= 0; k--)
 	{
-		while ((q = p->forward[k]) && (d->cmp(q->key, key) < 0))
+		while ((q = p->forward[k]) && (d->cmpkey(q->key, key) < 0))
 			p = q;
 
 		update[k] = p;
 	}
 
 	if (!d->dups)
-		if (q && (d->cmp(q->key, key) == 0))
+		if (q && (d->cmpkey(q->key, key) == 0))
 			return 0;
 
 	k = random_level();
@@ -98,7 +99,7 @@ int sl_set(skiplist *d, const char *key, void *value)
 	return 1;
 }
 
-void *sl_rem(skiplist *d, const char *key, void (*delkey)(void*))
+void *sl_rem(skiplist *d, const char *key)
 {
 	if (!d || !key) return NULL;
 	slnode *update[max_levels], *p = d->header, *q = NULL;
@@ -106,7 +107,7 @@ void *sl_rem(skiplist *d, const char *key, void (*delkey)(void*))
 
 	for (k = d->level-1; k >= 0; k--)
 	{
-		while ((q = p->forward[k]) && (d->cmp(q->key, key) < 0))
+		while ((q = p->forward[k]) && (d->cmpkey(q->key, key) < 0))
 			p = q;
 
 		update[k] = p;
@@ -114,9 +115,9 @@ void *sl_rem(skiplist *d, const char *key, void (*delkey)(void*))
 
 	q = p->forward[0];
 
-	if (q && (d->cmp(q->key, key) == 0))
+	if (q && (d->cmpkey(q->key, key) == 0))
 	{
-		if (delkey) delkey(q->key);
+		if (d->delkey) d->delkey(q->key);
 		void *value = q->value;
 		m = d->level - 1;
 
@@ -151,11 +152,11 @@ void *sl_get(skiplist *d, const char *key)
 
 	for (k = d->level-1; k >= 0; k--)
 	{
-		while ((q = p->forward[k]) && (d->cmp(q->key, key) < 0))
+		while ((q = p->forward[k]) && (d->cmpkey(q->key, key) < 0))
 			p = q;
 	}
 
-	if (q && (d->cmp(q->key, key) == 0))
+	if (q && (d->cmpkey(q->key, key) == 0))
 		return q->value;
 
 	return NULL;
@@ -176,7 +177,7 @@ void *sl_iter(skiplist *d)
 	return value;
 }
 
-void sl_done(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
+void sl_done(skiplist *d, void (*delval)(void*))
 {
 	if (!d) return;
 	slnode *p = d->header, *q;
@@ -187,7 +188,7 @@ void sl_done(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
 	while (p != NULL)
 	{
 		q = p->forward[0];
-		if (delkey) delkey(p->key);
+		if (d->delkey) d->delkey(p->key);
 		if (delval) delval(p->value);
 		free(p);
 		p = q;
@@ -196,8 +197,8 @@ void sl_done(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
 	d->header = NULL;
 }
 
-void sl_clear(skiplist *d, void (*delkey)(void*), void (*delval)(void*))
+void sl_clear(skiplist *d, void (*delval)(void*))
 {
-	sl_done(d, delkey, delval);
-	sl_init(d, d->dups, d->cmp);
+	sl_done(d,  delval);
+	sl_init(d, d->dups, d->cmpkey, d->delkey);
 }
