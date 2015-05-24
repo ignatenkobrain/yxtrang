@@ -828,7 +828,7 @@ const char *session_get_stash(session *s, const char *key)
 {
 	if (!s) return NULL;
 	if (!s->tcp) return NULL;
-	return sl_get(&s->stash, key);
+	return (char*)sl_get(&s->stash, key);
 }
 
 int session_enable_broadcast(session *s)
