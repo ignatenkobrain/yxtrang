@@ -821,7 +821,7 @@ const char *session_del_stash(session *s, const char *key)
 {
 	if (!s) return NULL;
 	if (!s->tcp) return NULL;
-	return sl_rem(&s->stash, key);
+	return (char*)sl_rem(&s->stash, key);
 }
 
 const char *session_get_stash(session *s, const char *key)
