@@ -18,7 +18,7 @@ struct skiplist_
 // For integer keys use NULL as the key compare function.
 // Otherwise supply your own
 
-// For string keys use &free as the key deleter function.
+// For string keys use &free or NULL as the key deleter function.
 // For integer keys use NULL as the key deleter function.
 // Otherwise supply your own
 
