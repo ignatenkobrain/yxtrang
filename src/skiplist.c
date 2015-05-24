@@ -177,7 +177,7 @@ void *sl_iter(skiplist *d)
 	return value;
 }
 
-void sl_done(skiplist *d, void (*delval)(void*))
+void sl_done(skiplist *d, void (*deleter)(void*))
 {
 	if (!d) return;
 	slnode *p = d->header, *q;
@@ -189,7 +189,7 @@ void sl_done(skiplist *d, void (*delval)(void*))
 	{
 		q = p->forward[0];
 		if (d->deleter) d->deleter(p->key);
-		if (delval) delval(p->value);
+		if (deleter) deleter(p->value);
 		free(p);
 		p = q;
 	}
@@ -197,8 +197,8 @@ void sl_done(skiplist *d, void (*delval)(void*))
 	d->header = NULL;
 }
 
-void sl_clear(skiplist *d, void (*delval)(void*))
+void sl_clear(skiplist *d, void (*deleter)(void*))
 {
-	sl_done(d,  delval);
+	sl_done(d,  deleter);
 	sl_init(d, d->dups, d->compare, d->deleter);
 }

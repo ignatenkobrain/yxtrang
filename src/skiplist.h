@@ -31,7 +31,7 @@ extern void sl_start(skiplist *d);
 extern void *sl_iter(skiplist *d);
 
 // Note optional value deleters, set to NULL if not required
-extern void sl_clear(skiplist *d, void (*)(void *value));
-extern void sl_done(skiplist *d, void (*)(void *value));
+extern void sl_clear(skiplist *d, void (*deleter)(void *value));
+extern void sl_done(skiplist *d, void (*deleter)(void *value));
 
 #endif
