@@ -28,7 +28,7 @@ extern void *sl_get(skiplist *d, const char *key);
 extern void *sl_rem(skiplist *d, const char *key);
 
 extern void sl_start(skiplist *d);
-extern void *sl_iter(skiplist *d, const char **key);
+extern void *sl_next(skiplist *d, const char **key);
 
 // Note optional value deleters, set to NULL if not required
 extern void sl_clear(skiplist *d, void (*deleter)(void *value));

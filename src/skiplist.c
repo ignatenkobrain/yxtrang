@@ -168,7 +168,7 @@ void sl_start(skiplist *d)
 	d->p = d->header->forward[0];
 }
 
-void *sl_iter(skiplist *d, const char **key)
+void *sl_next(skiplist *d, const char **key)
 {
 	if (!d) return NULL;
 	if (d->p == NULL) return NULL;
