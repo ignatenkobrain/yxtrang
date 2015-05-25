@@ -385,7 +385,7 @@ int sb_get(const skipbuck *l, const void *key, const void **value)
 	return 1;
 }
 
-int sb_rem(skipbuck *l, const void *key)
+int sb_del(skipbuck *l, const void *key)
 {
 	if (!l || !key)
 		return 0;

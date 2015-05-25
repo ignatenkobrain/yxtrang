@@ -403,7 +403,7 @@ static void do_skipbuck(long cnt)
 			int k = (rand()%cnt)+1;
 
 #if 1
-			if (!sb_int_rem(sl, k))
+			if (!sb_int_del(sl, k))
 #elif 0
 			if (!sb_int_erase(sl, k, (size_t)k, NULL))
 #else

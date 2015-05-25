@@ -10,7 +10,7 @@ extern skipbuck *sb_create2(int (*compare)(const void*, const void*), void *(*co
 
 extern int sb_set(skipbuck *s, const void *key, const void *value);
 extern int sb_get(const skipbuck *s, const void *key, const void **value);
-extern int sb_rem(skipbuck *s, const void *key);
+extern int sb_del(skipbuck *s, const void *key);
 
 extern int sb_erase(skipbuck *s, const void *key, const void *value, int (*compare)(const void*,const void*));
 extern int sb_efface(skipbuck *s, const void *value, int (*compare)(const void*,const void*));

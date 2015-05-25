@@ -129,7 +129,7 @@ static int uncle_delist(uncle *u, const char *name, int local, const char *addr,
 		return 0;
 	}
 
-	sb_string_rem(u->db, u->search.key);
+	sb_string_del(u->db, u->search.key);
 	lock_unlock(u->l);
 	return 1;
 }

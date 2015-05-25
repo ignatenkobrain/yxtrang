@@ -12,7 +12,7 @@
 #define sb_string_create2() sb_create2((int (*)(const void*, const void*))&strcmp, (void *(*)(const void*))&copy_string, &free, (void *(*)(const void*))&copy_string, &free)
 #define sb_string_set(s,k,v) sb_set(s, (const void*)k, (const void*)v)
 #define sb_string_get(s,k,v) sb_get(s, (const void*)k, (const void**)v)
-#define sb_string_rem(s,k) sb_rem(s, (const void*)k)
+#define sb_string_del(s,k) sb_del(s, (const void*)k)
 #define sb_string_erase(s,k,v,f) sb_erase(s, (const void*)k, (const void*)v, (int (*)(const void*,const void*))f)
 #define sb_string_efface(s,v,f) sb_efface(s, (const void*)v, (int (*)(const void*,const void*))f)
 #define sb_string_iter(s,f,a) sb_iter(s, (int (*)(void*, void*, void*))f, (void*)a)

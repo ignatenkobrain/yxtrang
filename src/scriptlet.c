@@ -256,7 +256,7 @@ int scriptlet_set_int(hscriptlet *r, const char *k, long long value)
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = int_tc;
 	code->int_val = value;
-	sb_string_rem(r->symtab, k);
+	sb_string_del(r->symtab, k);
 	sb_string_set(r->symtab, k, code);
 	return 1;
 }
@@ -266,7 +266,7 @@ int scriptlet_set_real(hscriptlet *r, const char *k, double value)
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = real_tc;
 	code->real_val = value;
-	sb_string_rem(r->symtab, k);
+	sb_string_del(r->symtab, k);
 	sb_string_set(r->symtab, k, code);
 	return 1;
 }
@@ -276,7 +276,7 @@ int scriptlet_set_string(hscriptlet *r, const char *k, const char *value)
 	bytecode code = &r->syms[r->it_syms++];
 	code->tc = string_tc;
 	strcpy(code->str_val, value);
-	sb_string_rem(r->symtab, k);
+	sb_string_del(r->symtab, k);
 	sb_string_set(r->symtab, k, code);
 	return 1;
 }

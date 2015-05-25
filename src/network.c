@@ -1346,7 +1346,7 @@ int handler_wait_kqueue(handler *h)
 			{
 				EV_SET(&ev, s->fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
 				kevent(h->fd, &ev, 1, NULL, 0, NULL);
-				sb_int_rem(h->fds, s->fd);
+				sb_int_del(h->fds, s->fd);
 				h->use--;
 				s->disconnected = 1;
 				s->f(s, s->v);
@@ -1458,7 +1458,7 @@ int handler_wait_epoll(handler *h)
 			if (s->disconnected)
 			{
 				epoll_ctl(h->fd, EPOLL_CTL_DEL, s->fd, &ev);
-				sb_int_rem(h->fds, s->fd);
+				sb_int_del(h->fds, s->fd);
 				h->use--;
 				s->disconnected = 1;
 				s->f(s, s->v);
@@ -1583,7 +1583,7 @@ int handler_wait_poll(handler *h)
 
 			if (s->disconnected)
 			{
-				sb_int_rem(h->fds, s->fd);
+				sb_int_del(h->fds, s->fd);
 				h->use--;
 				h->rpollfds[i--] = h->rpollfds[--cnt];
 
@@ -1686,7 +1686,7 @@ static int handler_select_bads(void *_h, int fd, void *_s)
 
 	s->f(s, s->v);
 	session_close(s);
-	sb_int_rem(h->fds, fd);
+	sb_int_del(h->fds, fd);
 	h->use--;
 	return 1;
 }
