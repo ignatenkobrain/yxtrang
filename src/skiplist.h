@@ -24,8 +24,8 @@ struct skiplist_
 
 extern void sl_init(skiplist *d, int dups, int (*compare)(const char*, const char*), void (*deleter)(void*));
 extern int sl_set(skiplist *d, const char *key, void *value);
-extern void *sl_get(skiplist *d, const char *key);
-extern void *sl_del(skiplist *d, const char *key);
+extern int sl_get(skiplist *d, const char *key, void **value);
+extern int sl_del(skiplist *d, const char *key, void **value);
 
 extern void sl_start(skiplist *d);
 extern void *sl_next(skiplist *d, const char **key);

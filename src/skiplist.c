@@ -99,9 +99,9 @@ int sl_set(skiplist *d, const char *key, void *value)
 	return 1;
 }
 
-void *sl_del(skiplist *d, const char *key)
+int sl_del(skiplist *d, const char *key, void **value)
 {
-	if (!d || !key) return NULL;
+	if (!d || !key) return 0;
 	slnode *update[max_levels], *p = d->header, *q = NULL;
 	int k, m;
 
@@ -118,7 +118,7 @@ void *sl_del(skiplist *d, const char *key)
 	if (q && (d->compare(q->key, key) == 0))
 	{
 		if (d->deleter) d->deleter(q->key);
-		void *value = q->value;
+		void *v = q->value;
 		m = d->level - 1;
 
 		for (k = 0; k <= m; k++)
@@ -138,15 +138,16 @@ void *sl_del(skiplist *d, const char *key)
 			m--;
 
 		d->level = m + 1;
-		return value;
+		if (value) *value = v;
+		return 1;
 	}
 
-	return NULL;
+	return 0;
 }
 
-void *sl_get(skiplist *d, const char *key)
+int sl_get(skiplist *d, const char *key, void **value)
 {
-	if (!d || !key) return NULL;
+	if (!d || !key) return 0;
 	slnode *p = d->header, *q = NULL;
 	int k;
 
@@ -157,9 +158,12 @@ void *sl_get(skiplist *d, const char *key)
 	}
 
 	if (q && (d->compare(q->key, key) == 0))
-		return q->value;
+	{
+		if (value) *value = q->value;
+		return 1;
+	}
 
-	return NULL;
+	return 0;
 }
 
 void sl_start(skiplist *d)

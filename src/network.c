@@ -821,14 +821,18 @@ const char *session_del_stash(session *s, const char *key)
 {
 	if (!s) return NULL;
 	if (!s->tcp) return NULL;
-	return (char*)sl_del(&s->stash, key);
+	void *value = NULL;
+	sl_del(&s->stash, key, &value);
+	return (char*)value;
 }
 
 const char *session_get_stash(session *s, const char *key)
 {
 	if (!s) return NULL;
 	if (!s->tcp) return NULL;
-	return (char*)sl_get(&s->stash, key);
+	void *value = NULL;
+	sl_get(&s->stash, key, &value);
+	return (char*)value;
 }
 
 int session_enable_broadcast(session *s)
