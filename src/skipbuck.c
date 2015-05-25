@@ -29,7 +29,7 @@
 #include "skipbuck.h"
 
 typedef struct keyval_ keyval_t;
-typedef struct node_ *node;
+typedef struct node_ node;
 
 struct keyval_
 {
@@ -45,12 +45,12 @@ struct node_
 {
 	int			nbr;
 	keyval_t	bkt[SKIPBUCK_KEYS];
-	node		forward[1];
+	node		*forward[0];
 };
 
 struct skipbuck_
 {
-	node	header;
+	node	*header;
 	size_t	count;
 	int		level;
 	int		(*compare)(const void*, const void*);
@@ -62,7 +62,7 @@ struct skipbuck_
 
 #define max_levels 32
 #define max_level (max_levels-1)
-#define new_node_of_level(x) (node)malloc(sizeof(struct node_)+((x)*sizeof(node)))
+#define new_node_of_level(x) (node*)malloc(sizeof(node)+((x)*sizeof(node*)))
 
 // Allows using integer values as keys...
 
@@ -124,7 +124,7 @@ skipbuck *sb_create(int (*compare)(const void*, const void*), void *(*copykey)(c
 
 void sb_destroy(skipbuck *l)
 {
-	node p, q;
+	node *p, *q;
 
 	if (!l || !l->header)
 		return;
@@ -163,7 +163,7 @@ unsigned long sb_count(const skipbuck *l)
 
 void sb_dump(const skipbuck *l)
 {
-	node p, q;
+	node *p, *q;
 
 	if (!l || !l->header)
 		return;
@@ -244,9 +244,9 @@ int sb_set(skipbuck *l, const void *key, const void *value)
 		return 0;
 
 	int i, k;
-	node update[max_levels];
-	node p, q;
-	struct node_ stash;
+	node *update[max_levels];
+	node *p, *q;
+	node stash;
 	stash.nbr = 0;
 
 	p = l->header;
@@ -362,7 +362,7 @@ int sb_get(const skipbuck *l, const void *key, const void **value)
 		return 0;
 
 	int k;
-	node p, q = 0;
+	node *p, *q = 0;
 
 	p = l->header;
 
@@ -391,8 +391,8 @@ int sb_rem(skipbuck *l, const void *key)
 		return 0;
 
 	int k, m;
-	node update[max_levels];
-	node p, q;
+	node *update[max_levels];
+	node *p, *q;
 
 	p = l->header;
 
@@ -469,8 +469,8 @@ int sb_erase(skipbuck *l, const void *key, const void *value, int (*compare)(con
 		compare = default_compare;
 
 	int k, m;
-	node update[max_levels];
-	node p, q;
+	node *update[max_levels];
+	node *p, *q;
 	p = l->header;
 
 	for (k = l->level-1; k >= 0; k--)
@@ -555,8 +555,8 @@ int sb_efface(skipbuck *l, const void *value, int (*compare)(const void*,const v
 		compare = default_compare;
 
 	int k, m, imid = -1;
-	node update[max_levels];
-	node p, q;
+	node *update[max_levels];
+	node *p, *q;
 	p = l->header;
 
 	for (k = l->level-1; k >= 0; k--)
@@ -638,19 +638,16 @@ int sb_efface(skipbuck *l, const void *value, int (*compare)(const void*,const v
 
 void sb_iter(const skipbuck *l, int (*f)(void*,void*,void*), void *p1)
 {
-	if (!l)
+	if (!l || !f)
 		return;
 
-	if (!f)
-		return;
-
-	node p;
+	node *p;
 	p = l->header;
 	p = p->forward[0];
 
 	while (p != NULL)
 	{
-		node q = p->forward[0];
+		node *q = p->forward[0];
 		int j;
 
 		for (j = 0; j < p->nbr; j++)
@@ -672,7 +669,7 @@ void sb_find(const skipbuck *l, const void *key, int (*f)(void*,void*,void*), vo
 		return;
 
 	int k;
-	node p, q = 0;
+	node *p, *q = 0;
 
 	p = l->header;
 
@@ -701,7 +698,7 @@ void sb_find(const skipbuck *l, const void *key, int (*f)(void*,void*,void*), vo
 
 	while (p != NULL)
 	{
-		node q = p->forward[0];
+		node *q = p->forward[0];
 		int j;
 
 		for (j = 0; j < p->nbr; j++)
