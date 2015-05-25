@@ -257,7 +257,7 @@ int scriptlet_set_int(hscriptlet *r, const char *k, long long value)
 	code->tc = int_tc;
 	code->int_val = value;
 	sb_string_rem(r->symtab, k);
-	sb_string_add(r->symtab, k, code);
+	sb_string_set(r->symtab, k, code);
 	return 1;
 }
 
@@ -267,7 +267,7 @@ int scriptlet_set_real(hscriptlet *r, const char *k, double value)
 	code->tc = real_tc;
 	code->real_val = value;
 	sb_string_rem(r->symtab, k);
-	sb_string_add(r->symtab, k, code);
+	sb_string_set(r->symtab, k, code);
 	return 1;
 }
 
@@ -277,7 +277,7 @@ int scriptlet_set_string(hscriptlet *r, const char *k, const char *value)
 	code->tc = string_tc;
 	strcpy(code->str_val, value);
 	sb_string_rem(r->symtab, k);
-	sb_string_add(r->symtab, k, code);
+	sb_string_set(r->symtab, k, code);
 	return 1;
 }
 
@@ -1176,14 +1176,14 @@ int scriptlet_run(hscriptlet *r)
 				if (type2 == int_tc)
 				{
 					long long v2 = (long long)val2->int_val;
-					sb_string_add(r->symtab, val1->str_val, (void*)val2);
+					sb_string_set(r->symtab, val1->str_val, (void*)val2);
 					push_stack_int(r, result=v2);
 					DEBUG printf("run %s %s '%g'\n", val1->str_val, "=", (double)v2);
 				}
 				else if (type2 == real_tc)
 				{
 					double v2 = val2->real_val;
-					sb_string_add(r->symtab, val1->str_val, (void*)val2);
+					sb_string_set(r->symtab, val1->str_val, (void*)val2);
 					push_stack_real(r, result=v2);
 					DEBUG printf("run %s %s '%g'\n", val1->str_val, "=", (double)v2);
 				}
@@ -1193,9 +1193,9 @@ int scriptlet_run(hscriptlet *r)
 					void *v3 = NULL;
 
 					if (sb_string_get(r->symtab, v2, &v3))
-						sb_string_add(r->symtab, val1->str_val, v3);
+						sb_string_set(r->symtab, val1->str_val, v3);
 					else
-						sb_string_add(r->symtab, val1->str_val, (void*)val2);
+						sb_string_set(r->symtab, val1->str_val, (void*)val2);
 					push_stack_string(r, v2); result=0.0;
 					DEBUG printf("run %s %s %s\n", val1->str_val, "=", v2);
 				}

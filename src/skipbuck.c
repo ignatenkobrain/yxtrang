@@ -238,7 +238,7 @@ static int random_level()
     return lvl < max_level ? lvl : max_level;
 }
 
-int sb_add(skipbuck *l, const void *key, const void *value)
+int sb_set(skipbuck *l, const void *key, const void *value)
 {
 	if (!l || !key)
 		return 0;

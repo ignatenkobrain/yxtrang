@@ -8,7 +8,7 @@ typedef struct skipbuck_ skipbuck;
 extern skipbuck *sb_create(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*));
 extern skipbuck *sb_create2(int (*compare)(const void*, const void*), void *(*copykey)(const void*), void (*freekey)(void*), void *(*copyval)(const void*), void (*freeval)(void*));
 
-extern int sb_add(skipbuck *s, const void *key, const void *value);
+extern int sb_set(skipbuck *s, const void *key, const void *value);
 extern int sb_get(const skipbuck *s, const void *key, const void **value);
 extern int sb_rem(skipbuck *s, const void *key);
 

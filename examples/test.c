@@ -342,26 +342,26 @@ static void do_skipbuck(long cnt)
 
 #if !SKIP_RANDOM && 1
 	for (i = 1; i <= cnt; i++)
-		sb_int_add(sl, i, i);
+		sb_int_set(sl, i, i);
 
 	printf("Duplicates...\n");
 
 	for (i = 1; i <= cnt; i++)
 	{
 		int k = (rand()%cnt)+1;
-		sb_int_add(sl, k, k);
+		sb_int_set(sl, k, k);
 	}
 #elif !SKIP_RANDOM && 1
 	for (i = 1; i <= cnt; i++)
-		sb_int_add(sl, i, i);
+		sb_int_set(sl, i, i);
 #elif !SKIP_RANDOM && 0
 	for (i = cnt; i > 0; i--)
-		sb_int_add(sl, i, i);
+		sb_int_set(sl, i, i);
 #else
 	for (i = 1; i <= cnt; i++)
 	{
 		int k = (rand()%cnt)+1;
-		sb_int_add(sl, k, k);
+		sb_int_set(sl, k, k);
 	}
 #endif
 

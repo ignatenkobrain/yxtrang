@@ -1247,7 +1247,7 @@ static int handler_accept(handler *h, server *srv, session **v)
 	unsigned long flag2 = 1;
 	ioctl(newfd, FIONBIO, &flag2);
 
-	sb_int_add(h->fds, newfd, s);
+	sb_int_set(h->fds, newfd, s);
 	h->use++;
 	return newfd;
 }
@@ -1666,7 +1666,7 @@ static int handler_select_check(void *_h, int fd, void *_s)
 
 		if (s->disconnected)
 		{
-			sb_int_add(h->badfds, fd, s);
+			sb_int_set(h->badfds, fd, s);
 			return 1;
 		}
 	}
@@ -2093,7 +2093,7 @@ int handler_add_client(handler *h, int (*f)(session*, void *data), void *data, s
 	s->f = f;
 	s->v = data;
 	h->use++;
-	sb_int_add(h->fds, s->fd, s);
+	sb_int_set(h->fds, s->fd, s);
 
 	unsigned long flag2 = 1;
 	ioctl(s->fd, FIONBIO, &flag2);

@@ -64,7 +64,7 @@ int linda_out(hlinda *h, const char *s)
 				h->l->is_int = 1;
 			}
 
-			sb_int_uuid_add(h->l->sl, k, &u);
+			sb_int_uuid_set(h->l->sl, k, &u);
 		}
 		else if (json_is_string(jid))
 		{
@@ -82,7 +82,7 @@ int linda_out(hlinda *h, const char *s)
 				h->l->is_string = 1;
 			}
 
-			sb_string_uuid_add(h->l->sl, k, &u);
+			sb_string_uuid_set(h->l->sl, k, &u);
 		}
 	}
 
@@ -504,7 +504,7 @@ static void linda_store_handler(void *p1, const uuid *u, const void *_s, int len
 				l->is_int = 1;
 			}
 
-			sb_int_uuid_add(l->sl, k, u);
+			sb_int_uuid_set(l->sl, k, u);
 		}
 		else if (json_is_string(jid))
 		{
@@ -522,7 +522,7 @@ static void linda_store_handler(void *p1, const uuid *u, const void *_s, int len
 				l->is_string = 1;
 			}
 
-			sb_string_uuid_add(l->sl, k, u);
+			sb_string_uuid_set(l->sl, k, u);
 		}
 
 		json_close(j);

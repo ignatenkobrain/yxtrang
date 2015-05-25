@@ -10,7 +10,7 @@
 
 #define sb_int_create() sb_create(NULL, NULL, NULL)
 #define sb_int_create2() sb_create2(NULL, NULL, NULL, (void *(*)(const void*))&strdup, &free)
-#define sb_int_add(s,k,v) sb_add(s, (const void*)(size_t)k, (const void*)(size_t)v)
+#define sb_int_set(s,k,v) sb_set(s, (const void*)(size_t)k, (const void*)(size_t)v)
 #define sb_int_get(s,k,v) sb_get(s, (const void*)(size_t)k, (const void**)v)
 #define sb_int_rem(s,k) sb_rem(s, (const void*)(size_t)k)
 #define sb_int_erase(s,k,v,f) sb_erase(s, (const void*)(size_t)k, (const void*)v, (int (*)(const void*,const void*))f)

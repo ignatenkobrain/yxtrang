@@ -91,7 +91,7 @@ static int uncle_list(uncle *u, const char *name, int local, const char *addr, u
 	char tmpbuf[1024];
 	sprintf(tmpbuf, "%s/%s/%d/%u/%d/%d", name, addr, local, port, tcp, ssl);
 	lock_lock(u->l);
-	sb_string_add(u->db, tmpbuf, tmpbuf);
+	sb_string_set(u->db, tmpbuf, tmpbuf);
 	lock_unlock(u->l);
 	return 1;
 }
