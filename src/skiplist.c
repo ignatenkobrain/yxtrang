@@ -99,7 +99,7 @@ int sl_set(skiplist *d, const char *key, void *value)
 	return 1;
 }
 
-void *sl_rem(skiplist *d, const char *key)
+void *sl_del(skiplist *d, const char *key)
 {
 	if (!d || !key) return NULL;
 	slnode *update[max_levels], *p = d->header, *q = NULL;
