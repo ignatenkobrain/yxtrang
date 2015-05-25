@@ -1,12 +1,1 @@
-db
-test
-echo1
-echo2
-echod
-httpd
-lindad
-*.a
-*.o
-*.exe
-*.lib
-*.obj
+/build/
