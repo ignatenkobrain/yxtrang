@@ -490,6 +490,9 @@ int sb_erase(skipbuck *l, const void *key, const void *value, int (*compare)(con
 
 	for (imid = 0; imid < q->nbr; imid++)
 	{
+		if (l->compare(q->bkt[imid].key, key) < 0)
+			continue;
+
 		if (!compare(q->bkt[imid].val, value))
 		{
 			done = 1;
